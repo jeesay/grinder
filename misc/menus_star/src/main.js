@@ -283,7 +283,7 @@ const connect_to_ws_server = async () => {
     let cli = {
       end:0,
       action: {
-        tool: 'grelion.py',
+        tool: 'grinder.py',
         title:'project',
         args:'--get default_pipeline.json'
       }
