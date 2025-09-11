@@ -15,6 +15,7 @@ export const tokenize = (txt) => {
   const isToken = isFirst('_');
   const isMultiLine = isFirst(';');
   const isString = isFirst('\'');
+  const isStringDoubleQuote = isFirst('\"');
   const isNumber = (w) => (!isNaN(Number(w)));
   const isEOL = (w) => (w.match(/\n/g) || []).length >= 2;
   const isSeparator = (w) => w.split('').every( ch => [' ','\t'].includes(ch)) || w.split('').filter(ch => ch === '\n').length === 1;
@@ -29,15 +30,15 @@ export const tokenize = (txt) => {
   // Create StringToken using Recursion
   const appendWord = (predicate,array,j,str='') => {
     let word = array[j];
+    str += word;
     if (predicate(word) === false) {
       return [j,str];
     }
-    str += word;
     return appendWord(predicate,array,j+1,str);
   }
 
   const stringToken = (type,predicate) => (w,i,array) => {
-    let [j,str] = appendWord(predicate,array,i,w);
+    let [j,str] = appendWord(predicate,array,i);
     // Remove leading delimiters
     const v = str.slice(1,str.length-1);
     return [{type,v},j];
@@ -86,6 +87,10 @@ export const tokenize = (txt) => {
     {
       predicate: isString,
       newToken: stringToken(CIF.STRING, word => word[word.length-1] !== '\'')
+    },
+    {
+      predicate: isStringDoubleQuote,
+      newToken: stringToken(CIF.STRING, word => word[word.length-1] !== '\"')
     },
     {
       predicate: isWord,
