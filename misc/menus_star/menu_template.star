@@ -3,43 +3,50 @@ _main.id           relion.xxx.yyy
 _main.hidden_name  '.gui_zzz'
 #
 loop_
-_tabs.id
-_tabs.label
-_tabs.icon
-io       'I/O'      bi-arrow-down-up
-settings 'Settings' bi-tools
-display  'Display'  bi-palette
-compute  'Compute'  bi-cpu
-running  'Running'  bi-send
-result   'Results'  bi-eye
-#
-loop_
-_fieldsets.tab_id
-_fieldsets.id
-_fieldsets.icon
-_fieldsets.label
-_fieldsets.widget
-_fieldsets.default
-_fieldsets.help
-io       input         bi-arrow-bar-down 'Input' fieldset ? ?
-settings general       ? 'General' fieldset ? ?
-settings other         ? 'Additional Parameters' fieldset ? ?
-compute  disk          ? 'Disk Access' fiedset ?
-compute  use_gpu       ? 'Use GPU Acceleration?' switch false 'If set to Yes, the job will try to use GPU acceleration.'
-running  process       ? ? fieldset ? ?
-running  do_queue      ? 'Submit to queue?' switch false 'If set to Yes, the job will be submit to a queue, otherwise the job will be executed locally. Note that only MPI jobs may be sent to a queue. The default can be set through the environment variable RELION_QUEUE_USE.''
+_groups.id
+_groups.label
+_groups.icon
+_groups.widget
+_groups.default
+_groups.parent_id
+_groups.help
+io       'I/O'                    bi-arrow-down-up       tab ? ? ?
+settings 'Settings'               bi-tools               tab ? ? ?
+display  'Display'                bi-palette             tab ? ? ?
+compute  'Compute'                bi-cpu                 tab ? ? ?
+running  'Running'                bi-send                tab ? ? ?
+result   'Results'                bi-eye                 tab ? ? ?
+input    'Input'                  bi-arrow-bar-down      fieldset ?      io       ?
+cont     'Continue Job'           bi-send-plus           fieldset hidden io       ?
+general  'General'                bi-chat-right-text     fieldset ?      settings ?
+other    'Other Parameters'       bi-chat-right-dots     fieldset ?      settings ?
+disk     'Disk Access'            bi-hdd-rack-fill       fieldset ?      compute  ?    
+use_gpu  'Use GPU Acceleration?'  bi-gpu-card            switch   false  compute  'If set to Yes, the job will try to use GPU acceleration.'
+process  'Processes'              bi-gear-fill           fieldset ?      running  ?
+do_queue 'Submit to queue?'       bi-box-arrow-in-right  switch   false  running 'If set to Yes, the job will be submitted to a queue, otherwise the job will be executed locally. Note that only MPI jobs may be sent to a queue. The default can be set through the environment variable RELION_QUEUE_USE.'
 #
 # Command Options
 loop_
 _input.id
 _input.label
 _input.widget
-_input.default
-_input.arg0
-_input.arg1
-_input.arg2
+_input.default  # None
+_input.arg0     # filetype
+_input.arg1     # placeholder
+_input.arg2     # Directory
 _input.help
-todo ? ? ? ? ? ? 'No help'
+todo     ?   file ? LABEL_PARTS_CPIPE 'STAR files (*.star). Image stacks (not recommended, read help!) (*.{spi,mrcs})' ? 'No help'
+#
+loop_
+_cont.id
+_cont.label
+_cont.widget
+_cont.default  # None
+_cont.arg0     # filetype
+_cont.arg1     # placeholder
+_cont.arg2     # Directory
+_cont.help
+fn_cont  'Continue from here:' file ? ? 'STAR Files (*_optimiser.star)' CURRENT_ODIR 'No help' 
 #
 loop_
 _general.id
@@ -63,7 +70,9 @@ _other.arg0
 _other.arg1
 _other.arg2
 _other.help
-other_args 'Additional Parameters' string '' ? ? ? 'Additional Parameters'
+other_args 'Additional Arguments' string '' ? ? ? 'Additional arguments that need to be passed'
+
+
 #
 loop_
 _disk.id
@@ -86,7 +95,8 @@ This may improve performance on systems where disk access, and particularly meta
 ;
 do_preread_images 'Pre-read all particles into RAM?' bool false ? ? ?
 ;If set to Yes, all particle images will be read into computer memory, which will greatly speed up calculations on systems with slow disk access. However, one should of course be careful with the amount of RAM available. \
-Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM. For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles. \
+Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM. 
+For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles. \
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM. \n \n If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.
 ;
 scratch_dir 'Copy particles to scratch directory:' file default_scratch ? ? ?
@@ -108,7 +118,7 @@ _use_gpu.arg0
 _use_gpu.arg1
 _use_gpu.arg2
 _use_gpu.help
-gpu_ids 'Which GPUs to use:' text '' ? ? ?
+gpu_ids 'Which GPUs to use:' string '' ? ? ?
 ;This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','. For example: '0,0:1,1:0,0:1,1'
 ;
 #
