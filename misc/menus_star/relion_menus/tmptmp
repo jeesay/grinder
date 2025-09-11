@@ -1,0 +1,219 @@
+void RelionJob::initialiseImportJob()
+{
+	hidden_name = ".gui_import";
+
+do_raw"] = JobOption("Import raw movies/micrographs?", true, "Set this to Yes if you plan to import raw movies or micrographs");
+fn_in_raw"] = JobOption("Raw input files:", "Micrographs/*.tif", (std::string)"Movie or Image (*.{mrc,mrcs,tif,tiff,eer,mrc.bz2,mrcs.bz2,mrc.zst,mrcs.zst,mrc.xz,mrcs.xz})", ".", "Provide a Linux wildcard that selects all raw movies or micrographs to be imported. The path must be a relative path from the project directory. To import files outside the project directory, first make a symbolic link by an absolute path and then specify the link by a relative path. See the FAQ page on RELION wiki (https://www3.mrc-lmb.cam.ac.uk/relion/index.php/FAQs#What_is_the_right_way_to_import_files_outside_the_project_directory.3F) for details.\
+\
+To process compressed MRC movies, you need pbzip2, zstd and xz command in your PATH for bzip2, Zstandard and xzip compression, respectively.");
+is_multiframe"] = JobOption("Are these multi-frame movies?", true, "Set to Yes for multi-frame movies, set to No for single-frame micrographs.");
+
+optics_group_name"] = JobOption("Optics group name:", (std::string)"opticsGroup1", "Name of this optics group. Each group of movies/micrographs with different optics characteristics for CTF refinement should have a unique name.");
+fn_mtf"] = JobOption("MTF of the detector:", "", "STAR Files (*.star)", ".", "As of release-3.1, the MTF of the detector is used in the refinement stages of refinement.  \
+If you know the MTF of your detector, provide it here. Curves for some well-known detectors may be downloaded from the RELION Wiki. Also see there for the exact format \
+\ If you do not know the MTF of your detector and do not want to measure it, then by leaving this entry empty, you include the MTF of your detector in your overall estimated B-factor upon sharpening the map.\
+Although that is probably slightly less accurate, the overall quality of your map will probably not suffer very much. \ \ Note that when combining data from different detectors, the differences between their MTFs can no longer be absorbed in a single B-factor, and providing the MTF here is important!");
+
+angpix"] = JobOption("Pixel size (Angstrom):", 1.4, 0.5, 3, 0.1, "Pixel size in Angstroms. ");
+kV"] = JobOption("Voltage (kV):", 300, 50, 500, 10, "Voltage the microscope was operated on (in kV)");
+Cs"] = JobOption("Spherical aberration (mm):", 2.7, 0, 8, 0.1, "Spherical aberration of the microscope used to collect these images (in mm). Typical values are 2.7 (FEI Titan & Talos, most JEOL CRYO-ARM), 2.0 (FEI Polara), 1.4 (some JEOL CRYO-ARM) and 0.01 (microscopes with a Cs corrector).");
+Q0"] = JobOption("Amplitude contrast:", 0.1, 0, 0.3, 0.01, "Fraction of amplitude contrast. Often values around 10% work better than theoretically more accurate lower values...");
+beamtilt_x"] = JobOption("Beamtilt in X (mrad):", 0.0, -1.0, 1.0, 0.1, "Known beamtilt in the X-direction (in mrad). Set to zero if unknown.");
+beamtilt_y"] = JobOption("Beamtilt in Y (mrad):", 0.0, -1.0, 1.0, 0.1, "Known beamtilt in the Y-direction (in mrad). Set to zero if unknown.");
+
+
+do_other"] = JobOption("Import other node types?", false, "Set this to Yes  if you plan to import anything else than movies or micrographs");
+
+fn_in_other"] = JobOption("Input file:", "ref.mrc", "Input file (*.*)", ".", "Select any file(s) to import. \ \ \
+Note that for importing coordinate files, one has to give a Linux wildcard, where the *-symbol is before the coordinate-file suffix, e.g. if the micrographs are called mic1.mrc and the coordinate files mic1.box or mic1_autopick.star, one HAS to give '*.box' or '*_autopick.star', respectively.\ \ \
+Also note that micrographs, movies and coordinate files all need to be in the same directory (with the same rootnames, e.g.mic1 in the example above) in order to be imported correctly. 3D masks or references can be imported from anywhere. \ \ \
+Note that movie-particle STAR files cannot be imported from a previous version of RELION, as the way movies are handled has changed in RELION-2.0. \ \ \
+For the import of a particle, 2D references or micrograph STAR file or of a 3D reference or mask, only a single file can be imported at a time. \ \ \
+Note that due to a bug in a fltk library, you cannot import from directories that contain a substring  of the current directory, e.g. dont important from /home/betagal if your current directory is called /home/betagal_r2. In this case, just change one of the directory names.");
+
+node_type"] = JobOption("Node type:", job_nodetype_options, 0, "Select the type of Node this is.");
+optics_group_particles"] = JobOption("Rename optics group for particles:", (std::string)"", "Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.");
+}
+
+// Generate the correct commands
+bool RelionJob::getCommandsImportJob(std::string &outputname, std::vector<std::string> &commands,
+		std::string &final_command, bool do_makedir, int job_counter, std::string &error_message)
+{
+	commands.clear();
+	initialisePipeline(outputname, job_counter);
+
+	std::string command;
+	FileName fn_out, fn_in;
+	command = "relion_import ";
+
+	bool do_raw = joboptions["do_raw"].getBoolean();
+	bool do_other = joboptions["do_other"].getBoolean();
+
+	if (do_raw && do_other)
+	{
+		error_message = "ERROR: you cannot import BOTH raw movies/micrographs AND other node types at the same time...";
+		return false;
+	}
+	if ((!do_raw) && (!do_other))
+	{
+		error_message = "ERROR: nothing to do... ";
+		return false;
+	}
+
+	if (do_raw)
+	{
+		label += ".movies";
+
+		fn_in = joboptions["fn_in_raw"].getString();
+
+		if (fn_in.rfind("../") != std::string::npos) // Forbid at any place
+		{
+			error_message = "ERROR: don't import files outside the project directory.\Please make a symbolic link by an absolute path before importing.";
+			return false;
+		}
+
+		if (fn_in.rfind("/", 0) == 0) // Forbid only at the beginning
+		{
+			error_message = "ERROR: please import files by a relative path.\If you want to import files outside the project directory, make a symbolic link by an absolute path and\import the symbolic link by a relative path.";
+			return false;
+		}
+
+		if (joboptions["is_multiframe"].getBoolean())
+		{
+			fn_out = "movies.star";
+			Node node(outputname + fn_out, LABEL_IMPORT_MOVIES);
+			outputNodes.push_back(node);
+			command += " --do_movies ";
+		}
+		else
+		{
+			fn_out = "micrographs.star";
+			Node node(outputname + fn_out, LABEL_IMPORT_MICS);
+			outputNodes.push_back(node);
+			command += " --do_micrographs ";
+		}
+
+		FileName optics_group = joboptions["optics_group_name"].getString();
+		if (optics_group == "")
+		{
+			error_message = "ERROR: please specify an optics group name.";
+			return false;
+		}
+
+		if (!optics_group.validateCharactersStrict(true)) // true means: do_allow_double_dollar (for scheduler)
+		{
+			error_message = "ERROR: an optics group name may contain only numbers, alphabets and hyphen(-).";
+			return false;
+		}
+
+		command += " --optics_group_name \"" + optics_group + "\"";
+		if (joboptions["fn_mtf"].getString().length() > 0)
+		{
+			command += " --optics_group_mtf " + joboptions["fn_mtf"].getString();
+		}
+		command += " --angpix " + joboptions["angpix"].getString();
+		command += " --kV " + joboptions["kV"].getString();
+		command += " --Cs " + joboptions["Cs"].getString();
+		command += " --Q0 " + joboptions["Q0"].getString();
+		command += " --beamtilt_x " + joboptions["beamtilt_x"].getString();
+		command += " --beamtilt_y " + joboptions["beamtilt_y"].getString();
+
+	}
+	else if (do_other)
+	{
+		label += ".other";
+
+		fn_in = joboptions["fn_in_other"].getString();
+		std::string node_type = joboptions["node_type"].getString();
+		if (node_type == "Particle coordinates (*.box, *_pick.star)")
+		{
+			// Make a suffix file, which contains the actual suffix as a suffix
+			// Get the coordinate-file suffix
+			fn_out = "coords_suffix" + fn_in.afterLastOf("*");
+			Node node(outputname + fn_out, LABEL_IMPORT_COORDS);
+			outputNodes.push_back(node);
+			command += " --do_coordinates ";
+		}
+		else
+		{
+			fn_out = "/" + fn_in;
+			fn_out = fn_out.afterLastOf("/");
+
+			std::string mynodetype;
+			if (node_type == "Particles STAR file (.star)")
+				mynodetype = LABEL_IMPORT_PARTS;
+			else if (node_type == "Multiple (2D or 3D) references (.star or .mrcs)")
+				mynodetype = LABEL_IMPORT_2DIMG;
+			else if (node_type == "3D reference (.mrc)")
+				mynodetype = LABEL_IMPORT_MAP;
+			else if (node_type == "3D mask (.mrc)")
+				mynodetype = LABEL_IMPORT_MASK;
+			else if (node_type == "Micrographs STAR file (.star)")
+				mynodetype = LABEL_IMPORT_MICS;
+			else if (node_type == "Unfiltered half-map (unfil.mrc)")
+				mynodetype = LABEL_IMPORT_HALFMAP;
+			else
+			{
+				error_message = "Unrecognized menu option for node_type = " + node_type;
+				return false;
+			}
+
+			Node node(outputname + fn_out, mynodetype);
+			outputNodes.push_back(node);
+
+			// Also get the other half-map
+			if (mynodetype == LABEL_HALFMAP_CPIPE)
+			{
+				FileName fn_inb = "/" + fn_in;
+				size_t pos = fn_inb.find("half1");
+				if (pos != std::string::npos)
+				{
+					fn_inb.replace(pos, 5, "half2");
+				}
+				else
+				{
+					pos = fn_inb.find("half2");
+					if (pos != std::string::npos)
+					{
+						fn_inb.replace(pos, 5, "half1");
+					}
+				}
+				fn_inb = fn_inb.afterLastOf("/");
+				Node node2(outputname + fn_inb, mynodetype);
+				outputNodes.push_back(node2);
+				command += " --do_halfmaps";
+			}
+			else if (mynodetype == LABEL_PARTS_CPIPE)
+			{
+				command += " --do_particles";
+				FileName optics_group = joboptions["optics_group_particles"].getString();
+				if (optics_group != "")
+				{
+					if (!optics_group.validateCharactersStrict())
+					{
+						error_message = "ERROR: an optics group name may contain only numbers, alphabets and hyphen(-).";
+						return false;
+					}
+					command += " --particles_optics_group_name \"" + optics_group + "\"";
+				}
+			}
+			else
+			{
+				command += " --do_other";
+			}
+		}
+	}
+
+	// Now finish the command call to relion_import program, which does the actual copying
+	command += " --i \"" + fn_in + "\"";
+	command += " --odir " + outputname;
+	command += " --ofile " + fn_out;
+
+	if (is_continue)
+		command += " --continue ";
+
+	commands.push_back(command);
+
+	return prepareFinalCommand(outputname, commands, final_command, do_makedir, error_message);
+}
+

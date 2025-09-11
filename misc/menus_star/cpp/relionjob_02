@@ -1,0 +1,448 @@
+void RelionJob::initialise(int _job_type)
+{
+	type = _job_type;
+
+	bool has_mpi, has_thread;
+	if (type == PROC_IMPORT)
+	{
+		has_mpi = has_thread = false;
+		initialiseImportJob();
+	}
+	else if (type == PROC_MOTIONCORR)
+	{
+		has_mpi = has_thread = true;
+		initialiseMotioncorrJob();
+	}
+	else if (type == PROC_CTFFIND)
+	{
+		has_mpi = true;
+		has_thread = false;
+		initialiseCtffindJob();
+	}
+	else if (type == PROC_MANUALPICK)
+	{
+		has_mpi = has_thread = false;
+		initialiseManualpickJob();
+	}
+	else if (type == PROC_AUTOPICK)
+	{
+		has_mpi = true;
+		has_thread = false;
+		initialiseAutopickJob();
+	}
+	else if (type == PROC_EXTRACT)
+	{
+		has_mpi = true;
+		has_thread = false;
+		initialiseExtractJob();
+	}
+	else if (type == PROC_CLASSSELECT)
+	{
+		has_mpi = has_thread = false;
+		initialiseSelectJob();
+	}
+	else if (type == PROC_2DCLASS)
+	{
+		has_mpi = has_thread = true;
+		initialiseClass2DJob();
+	}
+	else if (type == PROC_INIMODEL)
+	{
+		has_mpi = has_thread = true;
+		initialiseInimodelJob();
+	}
+	else if (type == PROC_3DCLASS)
+	{
+		has_mpi = has_thread = true;
+		initialiseClass3DJob();
+	}
+	else if (type == PROC_3DAUTO)
+	{
+		has_mpi = has_thread = true;
+		initialiseAutorefineJob();
+	}
+	else if (type == PROC_MULTIBODY)
+	{
+		has_mpi = has_thread = true;
+		initialiseMultiBodyJob();
+	}
+	else if (type == PROC_MASKCREATE)
+	{
+		has_mpi = false;
+		has_thread = true;
+		initialiseMaskcreateJob();
+	}
+	else if (type == PROC_JOINSTAR)
+	{
+		has_mpi = has_thread = false;
+		initialiseJoinstarJob();
+	}
+	else if (type == PROC_SUBTRACT)
+	{
+		has_mpi = true;
+		has_thread = false;
+		initialiseSubtractJob();
+	}
+	else if (type == PROC_POST)
+	{
+		has_mpi = has_thread = false;
+		initialisePostprocessJob();
+	}
+	else if (type == PROC_RESMAP)
+	{
+		has_mpi = true;
+		has_thread = false;
+		initialiseLocalresJob();
+	}
+	else if (type == PROC_MOTIONREFINE)
+	{
+		has_mpi = has_thread = true;
+		initialiseMotionrefineJob();
+	}
+	else if (type == PROC_CTFREFINE)
+	{
+		has_mpi = has_thread = true;
+		initialiseCtfrefineJob();
+	}
+	else if (type == PROC_DYNAMIGHT)
+	{
+		has_mpi = false;
+		has_thread = true;
+		initialiseDynaMightJob();
+	}
+	else if (type == PROC_MODELANGELO)
+	{
+		has_mpi = has_thread = false;
+		initialiseModelAngeloJob();
+	}
+	else if (type == PROC_TOMO_IMPORT)
+	{
+		has_mpi = has_thread = false;
+		initialiseTomoImportJob();
+	}
+	else if (type == PROC_TOMO_EXCLUDE_TILT_IMAGES)
+	{
+		has_mpi = has_thread = false;
+		initialiseTomoExcludeTiltImagesJob();
+	}
+	else if (type == PROC_TOMO_ALIGN_TILTSERIES)
+	{
+		has_mpi = true;
+        has_thread = false;
+		initialiseTomoAlignTiltSeriesJob();
+	}
+	else if (type == PROC_TOMO_RECONSTRUCT_TOMOGRAM)
+	{
+		has_mpi = has_thread = true;
+		initialiseTomoReconstructTomogramsJob();
+	}
+	else if (type == PROC_TOMO_DENOISE_TOMOGRAM)
+	{
+		has_mpi = has_thread = false;
+		initialiseTomoDenoiseTomogramsJob();
+	}
+	else if (type == PROC_TOMO_PICK_TOMOGRAM)
+	{
+		has_mpi = has_thread = false;
+		initialiseTomoPickTomogramsJob();
+	}
+	else if (type == PROC_TOMO_EXCLUDE_TILT_IMAGES)
+	{
+		has_mpi = has_thread = false;
+		initialiseTomoExcludeTiltImagesJob();
+	}
+	else if (type == PROC_TOMO_SUBTOMO)
+	{
+		has_mpi = has_thread = true;
+		initialiseTomoSubtomoJob();
+	}
+	else if (type == PROC_TOMO_CTFREFINE)
+	{
+		has_mpi = has_thread = true;
+		initialiseTomoCtfRefineJob();
+	}
+	else if (type == PROC_TOMO_ALIGN)
+	{
+		has_mpi = has_thread = true;
+		initialiseTomoAlignJob();
+	}
+	else if (type == PROC_TOMO_RECONSTRUCT)
+	{
+		has_mpi = has_thread = true;
+		initialiseTomoReconPartJob();
+	}
+	else if (type == PROC_EXTERNAL)
+	{
+		has_mpi = false;
+		has_thread = true;
+		initialiseExternalJob();
+	}
+	else
+		REPORT_ERROR("ERROR: unrecognised job-type");
+
+	// Check for environment variable RELION_MPI_MAX and RELION_QSUB_NRMPI
+	const char *mpi_max_input = getenv("RELION_MPI_MAX");
+	int mpi_max = (mpi_max_input == NULL) ? DEFAULTMPIMAX : textToInteger(mpi_max_input);
+	char * qsub_nrmpi_text = getenv("RELION_QSUB_NRMPI");
+	const char qsub_nrmpi_val = (qsub_nrmpi_text ? atoi(qsub_nrmpi_text) : DEFAULTNRMPI);
+	if (has_mpi)
+	{
+		joboptions["nr_mpi"] = JobOption("Number of MPI procs:", qsub_nrmpi_val , 1, mpi_max, 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX.");
+	}
+
+	const char *thread_max_input = getenv("RELION_THREAD_MAX");
+	int thread_max = (thread_max_input == NULL) ? DEFAULTTHREADMAX : textToInteger(thread_max_input);
+	char * qsub_nrthr_text = getenv("RELION_QSUB_NRTHREADS");
+	const char qsub_nrthreads_val = (qsub_nrthr_text ? atoi(qsub_nrthr_text) : DEFAULTNRTHREADS);
+	if (has_thread)
+	{
+		joboptions["nr_threads"] = JobOption("Number of threads:", qsub_nrthreads_val, 1, thread_max, 1, "Number of shared-memory (POSIX) threads to use in parallel. \
+When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX.");
+	}
+
+	const char * use_queue_input = getenv("RELION_QUEUE_USE");
+	bool use_queue = (use_queue_input == NULL) ? DEFAULTQUEUEUSE : textToBool(use_queue_input);
+	joboptions["do_queue"] = JobOption("Submit to queue?", use_queue, "If set to Yes, the job will be submit to a queue, otherwise \
+the job will be executed locally. Note that only MPI jobs may be sent to a queue. The default can be set through the environment variable RELION_QUEUE_USE.");
+
+	// Check for environment variable RELION_QUEUE_NAME
+	const char * default_queue = getenv("RELION_QUEUE_NAME");
+	if (default_queue==NULL)
+	{
+		default_queue = DEFAULTQUEUENAME;
+	}
+
+	// Need the std::string(), as otherwise it will be overloaded and passed as a boolean....
+	joboptions["queuename"] = JobOption("Queue name: ", std::string(default_queue), "Name of the queue to which to submit the job. The default name can be set through the environment variable RELION_QUEUE_NAME.");
+
+	// Check for environment variable RELION_QSUB_COMMAND
+	const char * default_command = getenv("RELION_QSUB_COMMAND");
+	if (default_command==NULL)
+	{
+		default_command = DEFAULTQSUBCOMMAND;
+	}
+
+	joboptions["qsub"] = JobOption("Queue submit command:", std::string(default_command), "Name of the command used to submit scripts to the queue, e.g. qsub or bsub.\n\n\
+Note that the person who installed RELION should have made a custom script for your cluster/queue setup. Check this is the case \
+(or create your own script following the RELION Wiki) if you have trouble submitting jobs. The default command can be set through the environment variable RELION_QSUB_COMMAND.");
+
+	// additional options that may be set through environment variables RELION_QSUB_EXTRAi and RELION_QSUB_EXTRAi (for more flexibility)
+	char * extra_count_text = getenv("RELION_QSUB_EXTRA_COUNT");
+	const char extra_count_val = (extra_count_text ? atoi(extra_count_text) : 2);
+	for (int i=1; i<=extra_count_val; i++)
+	{
+		std::stringstream out;
+		out<<i;
+		const std::string i_str=out.str();
+		char * extra_text = getenv((std::string("RELION_QSUB_EXTRA")+i_str).c_str());
+		if (extra_text != NULL)
+		{
+			const std::string query_default=std::string("RELION_QSUB_EXTRA")+i_str+"_DEFAULT";
+			char *extra_default = getenv(query_default.c_str());
+			char emptychar[] = "";
+			if (extra_default == NULL)
+			{
+				extra_default=emptychar;
+			}
+			const std::string query_help=std::string("RELION_QSUB_EXTRA")+i_str+"_HELP";
+			char *extra_help = getenv(query_help.c_str());
+			std::string txt;
+			if (extra_help == NULL)
+			{
+				txt = std::string("Extra option to pass to the qsub template script. Any occurrences of XXXextra")+i_str+"XXX will be changed by this value.";
+			}
+			else
+			{
+				txt=std::string(extra_help);
+			}
+			joboptions[std::string("qsub_extra")+i_str] = JobOption(std::string(extra_text), std::string(extra_default), txt.c_str());
+		}
+	}
+
+	// Check for environment variable RELION_QSUB_TEMPLATE
+	char * default_location = getenv("RELION_QSUB_TEMPLATE");
+	char default_qsub[] = DEFAULTQSUBLOCATION;
+	if (default_location == NULL)
+	{
+		default_location = default_qsub;
+	}
+	joboptions["qsubscript"] = JobOption("Standard submission script:", std::string(default_location), "Script Files (*.{csh,sh,bash,script})", ".",
+"The template for your standard queue job submission script. \
+Its default location may be changed by setting the environment variable RELION_QSUB_TEMPLATE. \
+In the template script a number of variables will be replaced: \n \
+XXXcommandXXX = relion command + arguments; \n \
+XXXqueueXXX = The queue name; \n \
+XXXmpinodesXXX = The number of MPI nodes; \n \
+XXXthreadsXXX = The number of threads; \n \
+XXXcoresXXX = XXXmpinodesXXX * XXXthreadsXXX; \n \
+XXXdedicatedXXX = The minimum number of dedicated cores on each node; \n \
+XXXnodesXXX = The number of requested nodes = CEIL(XXXcoresXXX / XXXdedicatedXXX); \n \
+If these options are not enough for your standard jobs, you may define a user-specified number of extra variables: XXXextra1XXX, XXXextra2XXX, etc. \
+The number of extra variables is controlled through the environment variable RELION_QSUB_EXTRA_COUNT. \
+Their help text is set by the environment variables RELION_QSUB_EXTRA1, RELION_QSUB_EXTRA2, etc \
+For example, setenv RELION_QSUB_EXTRA_COUNT 1, together with setenv RELION_QSUB_EXTRA1 \"Max number of hours in queue\" will result in an additional (text) ein the GUI \
+Any variables XXXextra1XXX in the template script will be replaced by the corresponding value.\
+Likewise, default values for the extra entries can be set through environment variables RELION_QSUB_EXTRA1_DEFAULT, RELION_QSUB_EXTRA2_DEFAULT, etc. \
+But note that (unlike all other entries in the GUI) the extra values are not remembered from one run to the other.");
+
+	// Check for environment variable RELION_QSUB_TEMPLATE
+	char * my_minimum_dedicated = getenv ("RELION_MINIMUM_DEDICATED");
+	int minimum_nr_dedicated = (my_minimum_dedicated == NULL) ? DEFAULTMININIMUMDEDICATED : textToInteger(my_minimum_dedicated);
+	joboptions["min_dedicated"] = JobOption("Minimum dedicated cores per node:", minimum_nr_dedicated, 1, 64, 1, "Minimum number of dedicated cores that need to be requested on each node. This is useful to force the queue to fill up entire nodes of a given size. The default can be set through the environment variable RELION_MINIMUM_DEDICATED.");
+
+	// Need the std::string(), as otherwise it will be overloaded and passed as a boolean....
+	joboptions["other_args"] = JobOption("Additional arguments:", std::string(""), "In this box command-line arguments may be provided that are not generated by the GUI. \
+This may be useful for testing developmental options and/or expert use of the program. \
+To print a list of possible options, run the corresponding program from the command line without any arguments.");
+
+	// Set the variable name in all joboptions
+
+	std::map<std::string, JobOption>::iterator it;
+	for ( it = joboptions.begin(); it != joboptions.end(); it++ )
+	{
+		(it->second).variable = it->first;
+	}
+}
+
+bool RelionJob::getCommands(std::string &outputname, std::vector<std::string> &commands,
+		std::string &final_command, bool do_makedir, int job_counter, std::string &error_message)
+{
+	bool result = false;
+
+	if (type == PROC_IMPORT)
+	{
+		result = getCommandsImportJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_MOTIONCORR)
+	{
+		result = getCommandsMotioncorrJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_CTFFIND)
+	{
+		result = getCommandsCtffindJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_MANUALPICK)
+	{
+		result = getCommandsManualpickJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_AUTOPICK)
+	{
+		result = getCommandsAutopickJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_EXTRACT)
+	{
+		result = getCommandsExtractJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_CLASSSELECT)
+	{
+		result = getCommandsSelectJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_2DCLASS)
+	{
+		result = getCommandsClass2DJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_INIMODEL)
+	{
+		result = getCommandsInimodelJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_3DCLASS)
+	{
+		result = getCommandsClass3DJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_3DAUTO)
+	{
+		result = getCommandsAutorefineJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_MULTIBODY)
+	{
+		result = getCommandsMultiBodyJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_MASKCREATE)
+	{
+		result = getCommandsMaskcreateJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_JOINSTAR)
+	{
+		result = getCommandsJoinstarJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_SUBTRACT)
+	{
+		result = getCommandsSubtractJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_POST)
+	{
+		result = getCommandsPostprocessJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_RESMAP)
+	{
+		result = getCommandsLocalresJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_MOTIONREFINE)
+	{
+		result = getCommandsMotionrefineJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_CTFREFINE)
+	{
+		result = getCommandsCtfrefineJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_DYNAMIGHT)
+	{
+		result = getCommandsDynaMightJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_MODELANGELO)
+	{
+		result = getCommandsModelAngeloJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_IMPORT)
+	{
+		result = getCommandsTomoImportJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_SUBTOMO)
+	{
+		result = getCommandsTomoSubtomoJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_CTFREFINE)
+	{
+		result = getCommandsTomoCtfRefineJob(outputname, commands, final_command, do_makedir, job_counter,
+											 error_message);
+	}
+	else if (type == PROC_TOMO_ALIGN)
+	{
+		result = getCommandsTomoAlignJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_ALIGN_TILTSERIES)
+	{
+		result = getCommandsTomoAlignTiltSeriesJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_EXCLUDE_TILT_IMAGES)
+	{
+		result = getCommandsTomoExcludeTiltImagesJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_RECONSTRUCT_TOMOGRAM)
+	{
+		result = getCommandsTomoReconstructTomogramsJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_DENOISE_TOMOGRAM)
+	{
+		result = getCommandsTomoDenoiseTomogramsJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_PICK_TOMOGRAM)
+	{
+		result = getCommandsTomoPickTomogramsJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_TOMO_RECONSTRUCT)
+	{
+		result = getCommandsTomoReconPartJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else if (type == PROC_EXTERNAL)
+	{
+		result = getCommandsExternalJob(outputname, commands, final_command, do_makedir, job_counter, error_message);
+	}
+	else
+	{
+		REPORT_ERROR("ERROR: unrecognised job-type: type = " + integerToString(type));
+	}
+
+	return result;
+}
+

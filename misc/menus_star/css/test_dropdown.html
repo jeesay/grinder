@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<style>
+.drop_container
+{
+  position:relative;
+  float:left;
+}
+.always_visible
+{
+  background-color:#FAFAFA;
+  color:#333333;
+  font-weight:bold;
+  cursor:pointer;
+  border:2px silver solid;
+  margin:0px;
+  margin-right:5px;
+  font-size:14px;
+  font-family:"Times New Roman", Times, serif;
+}
+.always_visible:hover + .hidden_container
+{
+  display:block;
+  position:absolute;
+  color:green;
+}
+.hidden_container
+{
+  display:none;
+  border:1px gray solid;
+  left:0px;
+  background-color:#FAFAFA;
+  padding:5px;
+  z-index:1;
+}
+.hidden_container:hover
+{
+  display:block;
+  position:absolute;
+}
+.link
+{
+  color:blue;
+  white-space:nowrap;
+  margin:3px;
+  display:block;
+}
+.link:hover
+{
+  color:white;
+  background-color:blue;
+}
+.line_1
+{
+  width:800px;
+  border:1px tomato solid;
+  padding:5px;
+}
+</style>      
+</head>
+
+<body>
+
+<div class="line_1">
+<div class="drop_container">
+  <select class="always_visible" disabled><option>Select</option></select>
+  <div class="hidden_container">
+  <a href="http://www.google.gr" class="link">Option_ 1</a>
+  <a href="http://www.google.gr" class="link">Option__ 2</a>
+  <a href="http://www.google.gr" class="link">Option___ 3</a>
+  <a href="http://www.google.gr" class="link">Option____ 4</a>
+  </div>
+</div>
+<div class="drop_container">
+  <select class="always_visible" disabled><option>Select</option></select>
+  <div class="hidden_container">
+  <a href="http://www.google.gr" class="link">____1</a>
+  <a href="http://www.google.gr" class="link">___2</a>
+  <a href="http://www.google.gr" class="link">__3</a>
+  <a href="http://www.google.gr" class="link">_4</a>
+  </div>
+</div>
+<div style="clear:both;"></div>
+</div>
+
+<br>
+
+<div class="line_1">
+ <div class="drop_container">
+  <div class="always_visible">Select___</div>
+  <div class="hidden_container">
+  <a href="http://www.google.gr" class="link">Option_ 1</a>
+  <a href="http://www.google.gr" class="link">Option__ 2</a>
+  <a href="http://www.google.gr" class="link">Option___ 3</a>
+  <a href="http://www.google.gr" class="link">Option____ 4</a>
+  </div>
+</div>
+ <div class="drop_container">
+  <div class="always_visible">Select___</div>
+  <div class="hidden_container">
+  <a href="http://www.google.gr" class="link">Option_ 1</a>
+  <a href="http://www.google.gr" class="link">Option__ 2</a>
+  <a href="http://www.google.gr" class="link">Option___ 3</a>
+  <a href="http://www.google.gr" class="link">Option____ 4</a>
+  </div>
+</div>
+<div style="clear:both;"></div>
+</div>
+
+</body>
+</html>
+

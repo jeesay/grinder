@@ -1,0 +1,97 @@
+void RelionJob::initialiseTomoPickTomogramsJob()
+{
+	hidden_name = ".gui_tomo_pick_tomogram";
+
+	joboptions["in_tomoset"] = JobOption("Input tomograms.star:", LABEL_TOMOGRAMS_CPIPE, 1, "", "STAR files (*.star)",  "Input tomograms star file that contains the reconstructed tomograms in which to pick particles. ");
+	//joboptions["cache_size"] = JobOption("Number of cached tomograms:", 5, 1, 10, 1, "This controls the number of cached tomograms in Napari.");
+
+	joboptions["pick_mode"] = JobOption("Picking mode:", job_tomo_pick_mode, 1, "Type of picking mode to use: particles, spheres or (todo:) cylinders.");
+
+	// for filaments, cylinders and spheres
+	joboptions["particle_spacing"] = JobOption("Particle spacing (A):",-1,10,250,10, "Spacing (in Angstroms) between particles sampled on a sphere, on surfaces, or in filaments. This option will be ignored if you are picking individual particles");
+
+    joboptions["in_star_file"] = JobOption("Input particles.star (optional):", LABEL_PARTS_CPIPE, 1, "", "Particle STAR file (*.star)", "\
+If Picking mode='particles', this star file is used to generate initial particle annotations on the input tomograms.\n\n\
+If for a given tomogram X, the 'X_particles.star' file already exists in the 'annotations' directory, new annotations will not be created.\n\n\
+For other picking modes, this file is ignored.");
+
+}
+bool RelionJob::getCommandsTomoPickTomogramsJob(std::string &outputname, std::vector<std::string> &commands,
+                                       std::string &final_command, bool do_makedir, int job_counter, std::string &error_message)
+{
+	commands.clear();
+	initialisePipeline(outputname, job_counter);
+	std::string command0, command, command2;
+
+	if (error_message != "") return false;
+
+    if (joboptions["pick_mode"].getString() == "particles" && joboptions["in_star_file"].getString().length() > 0)
+    {
+        command0 = "`which relion_python_tomo_get_particle_poses`";
+        command0 += " particles-from-star";
+        command0 += " --tomograms-file " + joboptions["in_tomoset"].getString();
+        command0 += " --annotations-directory " + outputname + "annotations";
+        command0 += " --in-star-file " + joboptions["in_star_file"].getString();
+
+        command0 += " " + joboptions["other_args"].getString();
+        commands.push_back(command0);
+
+        Node node(joboptions["in_star_file"].getString(), joboptions["in_star_file"].node_type);
+        inputNodes.push_back(node);
+    }
+
+	command="`which relion_python_tomo_pick` ";
+
+	if (joboptions["in_tomoset"].getString() == "")
+	{
+		error_message = "ERROR: you need to provide an input STAR file";
+		return false;
+	}
+
+	/*
+	if (joboptions["pick_mode"].getString() == "surfaces" || joboptions["pick_mode"].getString() == "filaments")
+	{
+		error_message = "ERROR: sorry 'surfaces/filaments' picking is yet to be implemented. Please bear with us...";
+		return false;
+	}
+	*/
+
+	command += " " + joboptions["pick_mode"].getString();
+	command += " --tilt-series-star-file " + joboptions["in_tomoset"].getString();
+	//command += " --cache-size " + joboptions["cache_size"].getString() + ' ';
+
+	Node node(joboptions["in_tomoset"].getString(), joboptions["in_tomoset"].node_type);
+	inputNodes.push_back(node);
+
+	command += " --output-directory " + outputname;
+
+	// Other arguments for extraction
+	command += " " + joboptions["other_args"].getString();
+	commands.push_back(command);
+
+	command2 = "`which relion_python_tomo_get_particle_poses`";
+	command2 += " " + joboptions["pick_mode"].getString();
+	command2 += " --tilt-series-star-file " + joboptions["in_tomoset"].getString();
+	command2 += " --annotations-directory " + outputname + "annotations";
+	command2 += " --output-directory " + outputname;
+
+	FileName fnt = joboptions["pick_mode"].getString();
+	if (!fnt.contains("particles"))
+		command2 += " --spacing-angstroms " + joboptions["particle_spacing"].getString();
+
+	// Other arguments for get-poses
+	command2 += " " + joboptions["other_args"].getString();
+	commands.push_back(command2);
+
+	std::string mytype = LABEL_TOMOPICK_PARTS_PARTS;
+    if (fnt.contains("filaments")) mytype = LABEL_TOMOPICK_PARTS_FILAMENT;
+    else if (fnt.contains("spheres")) mytype = LABEL_TOMOPICK_PARTS_SPHERE;
+    else if (fnt.contains("surface")) mytype = LABEL_TOMOPICK_PARTS_SURFACE;
+    Node node2(outputname+"particles.star", mytype);
+	outputNodes.push_back(node2);
+	Node node3(outputname+"optimisation_set.star", LABEL_TOMOPICK_OPTSET);
+	outputNodes.push_back(node3);
+
+	return prepareFinalCommand(outputname, commands, final_command, do_makedir, error_message);
+}
+
