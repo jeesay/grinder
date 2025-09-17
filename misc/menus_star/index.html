@@ -120,7 +120,7 @@
 </dialog>
   <script type="module">
   import {StarGate} from "./src/stargate.js";
-  import {w_leftpanel, w_tab_tools} from "./src/widget.js";
+  import {w_leftpanel, w_tab_tools, w_params_show} from "./src/widget.js";
   
   const fetchFile = async filename => {
     const file = await fetch(filename);
@@ -132,10 +132,14 @@
   }
 
   const from_startable = (data) => data.rows.map( (row) => {
-    let obj = {children: []};
+    let obj = {};
     for (let h in data.header) {
       obj[data.header[h]] = row[h];
     }
+    if (['tab','fieldset','switch'].includes(obj.widget)) {
+        obj.children = [];
+    }
+
     return obj;
   });
       
@@ -147,6 +151,7 @@
       widget:'section',
       style: {display: 'none'},
       parent:db.parent,
+      tab_count: 1,
       children: [
         {
           id : 'tools',
@@ -160,6 +165,7 @@
     }
     console.info(star.children);
     // Create all the tabs + fieldsets + widgets
+    let tab_count = 1;
     star.children.forEach( (top,index) => {
       // Add Radio widgets in Tools fieldsets
       const tool_fields = root.children[0].children;
@@ -172,15 +178,36 @@
         icon: top.icon,
         widget:top.widget,
         parent:top.parent,
+        help: top.help,
+        on_click: (ev) => w_params_show({id: `args_${index}`, section: root.id})
       });
       // Create other tabs
       let args = {id: `args_${index}`,widget:'params', style: {display: 'none'}, parent:found.id, children: []};
       root.children.push(args);
+      // Create tabs
       from_startable(top.groups)
         .filter(w => w.widget === 'tab')
-        .forEach(w => {
+        .forEach((w,i) => {
+          w.children = [];
+          w.index = tab_count;
           args.children.push(w);
-      })
+          tab_count++;
+      });
+      // Create `fieldsets`
+      from_startable(top.groups)
+        .filter(w => ['fieldset','switch'].includes(w.widget) )
+        .forEach((fs,i) => {
+          fs.children = [];
+          console.info('fieldset',fs,args.children);
+          const found_fs =  args.children.find((el) => el.id === fs.parent);
+          // Create widgets in each `fieldset`
+          console.info('WIDGET',fs.id,top);
+          let _tmp = from_startable(top[fs.id]);
+          let _debug = _tmp.filter( w => w.widget === 'range');
+          fs.children.push(_debug);
+          found_fs.children.push(fs);
+      });
+      
     });
 /*    let _wdg_groups = from_table(db.groups);
     _wdg_groups.forEach( (wdg) => {

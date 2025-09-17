@@ -69,15 +69,15 @@ const w_switch = (desc) => {
 
 const w_switch_button = (desc) => {
   return [
-    h('label',desc.label),
+    h('label',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h('div.switch_button',
       [
-        h(`input#${desc.name}_on_off.param`, 
+        h(`input#${desc.id}_on_off.param`, 
           {
             attrs: {
               type:'checkbox',
-              name:desc.name
+              name:desc.label
             },
             props: {
               checked: (desc.default === true) ? true : false
@@ -99,7 +99,7 @@ const w_switch_button = (desc) => {
         ),
         h('label',
           {
-            attrs: {'for':`${desc.name}_on_off`},
+            attrs: {'for':`${desc.id}_on_off`},
 /*            on: {changed: (ev) => {console.log(ev.target); ev.target.disabled = !ev.target.disabled} } */
           },
           'Toggle'
@@ -110,7 +110,7 @@ const w_switch_button = (desc) => {
 }
 
 const w_file = (desc) => {
-  let ds = {inputfile: desc.name};
+  let ds = {inputfile: desc.id};
   if ('filetype' in desc) {
     ds.title = GRINDER.filetypes[desc.filetype].dialog_title;
     ds.filter = GRINDER.filetypes[desc.filetype].filter;
@@ -129,7 +129,7 @@ const w_file = (desc) => {
       style: (desc.status === 'hidden') ? {display: 'none'} : {display:'flex'}
     },
     [
-      h('label',{attrs: {'for':desc.name}},desc.label),
+      h('label',{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
       h(`input#${desc.name}.param`, 
         {
@@ -414,11 +414,11 @@ const w_navtab = (desc) => {
   console.info('navtab',desc);
   // Remove all the previous children
   // parent.innerHTML = '';
-  let i = 0; // HACK
+  let i = desc.index; // HACK
   // Step #1 Header
   const el = h(`article#${desc.label}.tab`,
     [
-      h(`input#tab-${i+1}.tab-switch`, 
+      h(`input#tab-${i}.tab-switch`, 
         {
           attrs: { 
             type:'radio',
@@ -430,7 +430,7 @@ const w_navtab = (desc) => {
           on: ('on_click' in desc) ? {click: desc.on_click} : {}
         }
       ),
-      h('label.tab-label',{attrs: {'for': `tab-${i+1}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),
+      h('label.tab-label',{attrs: {'for': `tab-${i}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),
       h('div.tab-content', 
         ('children' in desc) ? w_group(desc): []
       )
@@ -502,6 +502,13 @@ const w_fieldset = (desc) => {
 const w_params = (desc) => {
   console.log('div',desc.id);
   return h(`div#${desc.id}.params`, {style: desc.style,dataset: {parent: desc.parent}},w_group(desc));
+}
+
+const w_params_show = (args) => {
+  console.log('param',args.id, args.section);
+  // Reset all other params tabs
+  document.getElementById(args.section).querySelectorAll('div.params').forEach(w => w.style.display='none');
+  document.getElementById(args.id).style.display = 'block';
 }
 
 const w_section = (desc) => {
@@ -630,4 +637,4 @@ const submit_command = (tool) => (ev) => {
   GRELION.websocket.send(JSON.stringify(event));
 }
 
-export {w_leftpanel,w_tab_tools};
+export {w_leftpanel,w_tab_tools, w_params_show};

@@ -4,84 +4,104 @@
 # > spa/01-Import
 cat > label.txt <<EOL
 #
-_main.label    'Raw movies'
-_main.widget    radio
-_main.toolbox   movies
-_main.help     'Set this to Yes if you plan to import raw movies'
+_id        import_movies
+_label     'Raw movies'
+_widget    radio
+_parent    movies
+_help      'Set this to Yes if you plan to import raw multi-frame movies. Don\'t import files outside the project directory.\nPlease make a symbolic link by an absolute path before importing.'
+_comment   'import_movies'
 EOL
-echo data_movies | cat - label.txt menu_template.star > spa/01_import/01_import_movies.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/01.star
 cat > label.txt <<EOL
 #
-_main.label    'Raw micrographs'
-_main.widget    radio
-_main.toolbox   movies
-_main.help     'Set this to Yes if you plan to import raw micrographs'
+_id        import_micrographs
+_label    'Raw micrographs'
+_widget   radio
+_parent   movies
+_help     'Set this to Yes if you plan to import raw single-frame micrographs'
+_comment  'import_micrographs'
 EOL
-echo data_micrographs | cat - label.txt menu_template.star > spa/01_import/02_import_micrographs.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/02.star
 cat > label.txt <<EOL
 #
-_main.label    'Micrographs STAR File (.star)'
-_main.widget    radio
-_main.toolbox   movies
-_main.help     ''
+_id        import_micrographs_starfile
+_label    'Micrographs STAR File (.star)'
+_widget   radio
+_parent   movies
+_help     ''
+_comment  'import_micrographs_starfile'
 EOL
-echo data_micrographs_star | cat - label.txt menu_template.star > spa/01_import/03_import_micrographs_starfile.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/03.star
 cat > label.txt <<EOL
 #
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   particles
-_main.help     ''
+_id       import_particle_coords
+_label    'Particles coordinates (.box, *_pick.star)'
+_widget    radio
+_parent   particles
+_help     ''
+_comment  'import_particle_coords'
 EOL
-echo data_ptcls_coords | cat - label.txt menu_template.star > spa/01_import/04_import_particle_coords.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/04.star
 cat > label.txt <<EOL
 #
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   particles
-_main.help     ''
+_id       particles_starfile
+_label    'Particles STAR file (.star)'
+_widget    radio
+_parent   particles
+_help     ''
+_comment  'import_particle_starfile'
 EOL
-echo data_ptcls_star | cat - label.txt menu_template.star > spa/01_import/05_import_particle_starfile.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/05.star
 cat > label.txt <<EOL
 #
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   refs
-_main.help     ''
+_id       import_ref
+_label    'Multiple (2D or 3D) references (.star or .mrcs)'
+_widget   radio
+_parent   refs
+_help     'import_ref'
+_comment  'import_movies'
 EOL
-echo data_import_ref | cat - label.txt menu_template.star > spa/01_import/06_import_ref.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/06.star
 cat > label.txt <<EOL
 #
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   refs
-_main.help     ''
+_id       import_ref3d
+_label    '3D reference (.star)'
+_widget    radio
+_parent   refs
+_help     ''
+_comment  'import_ref3d'
 EOL
-echo data_import_ref3d | cat - label.txt menu_template.star > spa/01_import/07_import_ref3d.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/07.star
 cat > label.txt <<EOL
 #
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   masks
-_main.help     ''
+_id       import_mask3d
+_label    '3D mask (.mrc)'
+_widget    radio
+_parent   masks
+_help     ''
+_comment  'import_mask3d'
 EOL
-echo data_import_mask3d | cat - label.txt menu_template.star > spa/01_import/08_import_mask3d.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/08.star
 cat > label.txt <<EOL
 #
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   masks
-_main.help     ''
+_id       import_mask_half
+_label    'Unfiltered half-mask (unfil.mrc)'
+_widget    radio
+_parent   masks
+_help     ''
+_comment  'import_mask_half'
 EOL
-echo data_import_mask_half | cat - label.txt menu_template.star > spa/01_import/09_import_mask_half.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/09.star
 cat > label.txt <<EOL
 #
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   others
-_main.help     ''
+_id       import_other
+_label    'MTF, Gain ref., Defect, etc.'
+_widget    radio
+_parent   others
+_help     ''
+_comment  'import_other'
 EOL
-echo data_import_other | cat - label.txt menu_template.star > spa/01_import/10_import_other.star
+echo data_ | cat - label.txt menu_template.star > spa/01_import/10.star
 
 exit
 

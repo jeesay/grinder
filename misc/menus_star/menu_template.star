@@ -1,6 +1,6 @@
 #
-_main.id           relion.xxx.yyy
-_main.hidden_name  '.gui_zzz'
+_relion_id    relion.xxx.yyy
+_hidden_name  '.gui_zzz'
 #
 loop_
 _groups.id
@@ -8,7 +8,7 @@ _groups.label
 _groups.icon
 _groups.widget
 _groups.default
-_groups.parent_id
+_groups.parent
 _groups.help
 io       'I/O'                    bi-arrow-down-up       tab ? ? ?
 settings 'Settings'               bi-tools               tab ? ? ?
@@ -20,10 +20,13 @@ input    'Input'                  bi-arrow-bar-down      fieldset ?      io     
 cont     'Continue Job'           bi-send-plus           fieldset hidden io       ?
 general  'General'                bi-chat-right-text     fieldset ?      settings ?
 other    'Other Parameters'       bi-chat-right-dots     fieldset ?      settings ?
-disk     'Disk Access'            bi-hdd-rack-fill       fieldset ?      compute  ?    
+disk     'Disk Access'            bi-database            fieldset ?      compute  ?    
 use_gpu  'Use GPU Acceleration?'  bi-gpu-card            switch   false  compute  'If set to Yes, the job will try to use GPU acceleration.'
 process  'Processes'              bi-gear-fill           fieldset ?      running  ?
 do_queue 'Submit to queue?'       bi-box-arrow-in-right  switch   false  running 'If set to Yes, the job will be submitted to a queue, otherwise the job will be executed locally. Note that only MPI jobs may be sent to a queue. The default can be set through the environment variable RELION_QUEUE_USE.'
+exec     'Execute Command'        bi-send-plus           fieldset ?      running 'No help'
+script   'Check Command'          bi-terminal-plus       fieldset ?      running 'No help'
+
 #
 # Command Options
 loop_
@@ -35,7 +38,7 @@ _input.arg0     # filetype
 _input.arg1     # placeholder
 _input.arg2     # Directory
 _input.help
-todo     ?   file ? LABEL_PARTS_CPIPE 'STAR files (*.star). Image stacks (not recommended, read help!) (*.{spi,mrcs})' ? 'No help'
+todo  'TODO Label'   file ? LABEL_PARTS_CPIPE 'STAR files (*.star). Image stacks (not recommended, read help!) (*.{spi,mrcs})' ? 'No help'
 #
 loop_
 _cont.id
@@ -135,14 +138,14 @@ nr_mpi "Number of MPI procs:" range '{qsub_nrmpi_val}' 1 '{mpi_max}' 1 "Number o
 nr_threads "Number of threads:" range '{qsub_nrthreads_val}' 1 '{getenv("RELION_THREAD_MAX")}' 1 "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX."
 #
 loop_
-_queue.id
-_queue.label
-_queue.widget
-_queue.default
-_queue.arg0
-_queue.arg1
-_queue.arg2
-_queue.help
+_do_queue.id
+_do_queue.label
+_do_queue.widget
+_do_queue.default
+_do_queue.arg0
+_do_queue.arg1
+_do_queue.arg2
+_do_queue.help
 queuename  'Queue name' text '' ? ? ? ?
 qsub       'Queue submit command' text '' ? ? ? ?
 qsubscript 'Standard submission script'text '' ? ? ?
@@ -171,11 +174,45 @@ _continue.id
 _continue.label
 _continue.widget
 _continue.default
-_continue.arg0
-_continue.arg1
-_continue.arg2
+_continue.arg0     # filetype
+_continue.arg1     # placeholder
+_continue.arg2     # directory
 _continue.help
-todo ? ? ? ? ? ? ?
+fn_cont "Continue from here: " file  ? "STAR Files (*_optimiser.star)" CURRENT_ODIR  
+;Select the `*_optimiser.star` file for the iteration \
+from which you want to continue a previous run. \
+Note that the Output rootname of the continued run and the rootname of the previous run cannot be the same. \
+If they are the same, the program will automatically add a `_ctX` to the output rootname, \
+with X being the iteration from which one continues the previous run.
+;
+#
+loop_
+_exec.id
+_exec.label
+_exec.widget
+_exec.default
+_exec.arg0     # icon
+_exec.arg1     # ??
+_exec.arg2     # parent
+_exec.help
+do_schedule 'Schedule' button_toolbar '' bi-calendar-plus ? ? 'No help'
+do_continue 'Continue' button_toolbar '' bi-send-plus     ? ? 'No help'
+do_run      'Run!'     button_toolbar '' bi-send          ? ? 'No help'
+#
+loop_
+_script.id
+_script.label
+_script.widget
+_script.default
+_script.arg0      
+_script.arg1
+_script.arg2    # parent
+_script.help
+relion_cli  'RELION Command Line' details    '' ? ? ? 'RELION Command as it appears in `note.txt`'
+full_cli    'Full Command Line'   details    '' ? ? ? 'Full Command sent to the computer/server'
+show_relion ?                     paragraph  '' ? ? relion_cli ?
+show_full   ?                     paragraph  '' ? ? full_cli   ?
+ 
 #
 loop_
 _cli.type
