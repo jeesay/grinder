@@ -60,13 +60,11 @@
   </aside>
   
   <main>
-    <section class="tabs">
-    </section>
   </main>
   </div>
   <footer>
   </footer>
-  <!-- File Chooser 
+  <!-- File Chooser   -->
   <dialog class="filechooser" aria-labelledby="dialog_title" aria-describedby="dialog_description">
     <div class="header">
       <nav>
@@ -107,7 +105,7 @@
       <a id="cancel" href="#">Cancel</a>
     </footer>
   </dialog>
-  -->
+
   <!--Popup -->
   <dialog id= "popup" class="popup">
       <div class="header">
@@ -122,7 +120,7 @@
 </dialog>
   <script type="module">
   import {StarGate} from "./src/stargate.js";
-  import {w_leftpanel} from "./src/widget.js";
+  import {w_leftpanel, w_tab_tools} from "./src/widget.js";
   
   const fetchFile = async filename => {
     const file = await fetch(filename);
@@ -130,25 +128,124 @@
     
     const obj = new StarGate();
     obj.parseSTAR(text);
+    return obj.blocks();
+  }
+
+  const from_startable = (data) => data.rows.map( (row) => {
+    let obj = {children: []};
+    for (let h in data.header) {
+      obj[data.header[h]] = row[h];
+    }
+    return obj;
+  });
+      
+  const to_tree = (star) => {
+    const db = star.datablocks.default;
+    let root = {
+      id : db.id,
+      label: '',
+      widget:'section',
+      style: {display: 'none'},
+      parent:db.parent,
+      children: [
+        {
+          id : 'tools',
+          label: db.label,
+          widget:'tab',
+          icon:db.icon,
+          parent:db.id,
+          children:from_startable(db.table)
+        }
+      ]
+    }
+    console.info(star.children);
+    // Create all the tabs + fieldsets + widgets
+    star.children.forEach( (top,index) => {
+      // Add Radio widgets in Tools fieldsets
+      const tool_fields = root.children[0].children;
+      console.info(top.id,top.parent,tool_fields);
+      const found =  tool_fields.find((el) => el.id === top.parent);
+      console.log('FOUND',found);
+      found.children.push({
+        id:top.id,
+        label:top.label,
+        icon: top.icon,
+        widget:top.widget,
+        parent:top.parent,
+      });
+      // Create other tabs
+      let args = {id: `args_${index}`,widget:'params', style: {display: 'none'}, parent:found.id, children: []};
+      root.children.push(args);
+      from_startable(top.groups)
+        .filter(w => w.widget === 'tab')
+        .forEach(w => {
+          args.children.push(w);
+      })
+    });
+/*    let _wdg_groups = from_table(db.groups);
+    _wdg_groups.forEach( (wdg) => {
+      if (wdg.widget === 'tab') {
+        wdg.children = [];
+
+      }
+    });
+*/
+    return root;
+  }
+  
+  const fetchRootFile = async filename => {
+    const file = await fetch(filename);
+    const text = await file.text();
+    
+    const obj = new StarGate();
+    obj.parseSTAR(text);
     const left_panel = obj.datablock('grinder_spa').table('tool_panel');
     console.info(left_panel);
+    // Create items in left panel
     w_leftpanel(document.querySelector('aside ul'),left_panel);
+    // Create Tools panel
+    for (let tab of left_panel) {
+      console.info('Tab Data',tab);
+      const tools = await fetchFile(tab.path + tab.starfile);
+      tools.children = [];
+      const range = Array.from({ length: 20 }, (_, i) => (i+1).toString().padStart(2, '0'));
+      for (let name of range) {
+        const response = await fetch(tab.path + name + '.star');
+        if (response.ok) {
+          const child_txt = await response.text();
+          const _tmp = await fetchFile(tab.path + name + '.star');
+          tools.children.push(_tmp.datablocks.default);
+        }
+      }
 
-    console.info(left_panel);
+      const wdg_tree = to_tree(tools);
+      console.info('TOOL',wdg_tree);
+      w_tab_tools(document.querySelector('main'),wdg_tree);
+
+    }
+    // Add events
     document.querySelectorAll('aside ul li')
       .forEach( (w,i) => {
         if (i !== 0) {
           w.addEventListener('click', (ev) => {
+            // Reset
             document.querySelectorAll('aside ul li').forEach(ww => ww.classList.remove("active"));
+            document.querySelectorAll('section').forEach(ww => ww.style.display = 'none');
             w.classList.add("active");
-            w_navtab(document.querySelector('section'),menus[w.id]);
+            const child = document.querySelector(`section#${w.dataset.tool_id}`);
+            // Reset display
+            console.info(w.id);
+            let section = document.querySelector(`[data-parent=${w.id}]`);
+            section.style.display = 'block';
+            section.querySelector('input').checked = true; // First child
+            // w_navtab(document.querySelector('section'),menus[w.id]);
           });
         }
       }
     );
   }
   
-  fetchFile('./spa/grinder_spa.star');
+  fetchRootFile('./spa/grinder_spa.star');
 
   // Go to Home, first
   document.querySelector('aside #home').click();
