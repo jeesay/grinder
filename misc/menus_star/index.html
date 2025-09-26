@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Grinder</title>
+  <title>Grinder v0.2</title>
   <link rel="stylesheet" href="css/grinder.css" type="text/css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,7 +55,7 @@
   <aside class="tools">
     <ul>
       <li id="connect"><i class="bi bi-wifi-off"></i>Unconnected</li>
-      <li id="home"><i class="bi bi-house-door"></i> Home</li>
+<!--      <li id="home"><i class="bi bi-house-door"></i> Home</li> -->
     </ul>
   </aside>
   
@@ -120,7 +120,7 @@
 </dialog>
   <script type="module">
   import {StarGate} from "./src/stargate.js";
-  import {w_leftpanel, w_tab_tools, w_params_show} from "./src/widget.js";
+  import {w_leftpanel, w_tab_tools, w_params} from "./src/widget.js";
   
   const fetchFile = async filename => {
     const file = await fetch(filename);
@@ -132,17 +132,18 @@
   }
 
   const from_startable = (data) => data.rows.map( (row) => {
-    let obj = {};
-    for (let h in data.header) {
-      obj[data.header[h]] = row[h];
-    }
-    if (['tab','fieldset','switch'].includes(obj.widget)) {
-        obj.children = [];
-    }
+      let obj = {};
+      for (let h in data.header) {
+        obj[data.header[h]] = row[h];
+      }
+      if (['tab','fieldset','switch','details', 'cli', 'toolbar'].includes(obj.widget)) {
+          obj.children = [];
+      }
+      return obj;
+    });
 
-    return obj;
-  });
-      
+  
+  let tab_count = 0;
   const to_tree = (star) => {
     const db = star.datablocks.default;
     let root = {
@@ -151,21 +152,23 @@
       widget:'section',
       style: {display: 'none'},
       parent:db.parent,
-      tab_count: 1,
+      tab_count: tab_count,
       children: [
         {
           id : 'tools',
           label: db.label,
           widget:'tab',
+          index: tab_count,
           icon:db.icon,
           parent:db.id,
           children:from_startable(db.table)
         }
-      ]
+      ],
+      grandchildren: []
     }
+    tab_count++;
     console.info(star.children);
     // Create all the tabs + fieldsets + widgets
-    let tab_count = 1;
     star.children.forEach( (top,index) => {
       // Add Radio widgets in Tools fieldsets
       const tool_fields = root.children[0].children;
@@ -179,11 +182,11 @@
         widget:top.widget,
         parent:top.parent,
         help: top.help,
-        on_click: (ev) => w_params_show({id: `args_${index}`, section: root.id})
+        on_click: (ev) => w_params({id: `args_${index}`, index: index, parent: top.parent,parent_label: top.label, grandchildren: root.grandchildren})
       });
       // Create other tabs
       let args = {id: `args_${index}`,widget:'params', style: {display: 'none'}, parent:found.id, children: []};
-      root.children.push(args);
+      root.grandchildren.push(args);
       // Create tabs
       from_startable(top.groups)
         .filter(w => w.widget === 'tab')
@@ -195,34 +198,25 @@
       });
       // Create `fieldsets`
       from_startable(top.groups)
-        .filter(w => ['fieldset','switch'].includes(w.widget) )
+        .filter(w => ['fieldset','switch','toolbar','details','cli'].includes(w.widget) )
         .forEach((fs,i) => {
-          fs.children = [];
           console.info('fieldset',fs,args.children);
           const found_fs =  args.children.find((el) => el.id === fs.parent);
           // Create widgets in each `fieldset`
           console.info('WIDGET',fs.id,top);
           let _tmp = from_startable(top[fs.id]);
-          let _debug = _tmp.filter( w => w.widget === 'range');
-          fs.children.push(_debug);
+          fs.children.push(..._tmp);
           found_fs.children.push(fs);
       });
       
     });
-/*    let _wdg_groups = from_table(db.groups);
-    _wdg_groups.forEach( (wdg) => {
-      if (wdg.widget === 'tab') {
-        wdg.children = [];
-
-      }
-    });
-*/
     return root;
   }
   
   const fetchRootFile = async filename => {
     const file = await fetch(filename);
     const text = await file.text();
+    const all_of_them = [{dummy: '?'}];
     
     const obj = new StarGate();
     obj.parseSTAR(text);
@@ -245,11 +239,19 @@
         }
       }
 
+      // Prepare all the widgets tree
       const wdg_tree = to_tree(tools);
       console.info('TOOL',wdg_tree);
-      w_tab_tools(document.querySelector('main'),wdg_tree);
-
+      all_of_them.push(wdg_tree);
+      // w_tab_tools(document.querySelector('main'),wdg_tree);
     }
+    return all_of_them;
+  }
+  
+    /********************* MAIN *********************/
+    
+    const widgets = await fetchRootFile('./spa/grinder_spa.star');
+    
     // Add events
     document.querySelectorAll('aside ul li')
       .forEach( (w,i) => {
@@ -259,20 +261,19 @@
             document.querySelectorAll('aside ul li').forEach(ww => ww.classList.remove("active"));
             document.querySelectorAll('section').forEach(ww => ww.style.display = 'none');
             w.classList.add("active");
+            // Section
+            document.querySelector('main').innerHTML = '';
+            w_tab_tools(document.querySelector('main'),widgets[i]);
+            const section = document.querySelector('section');
             const child = document.querySelector(`section#${w.dataset.tool_id}`);
             // Reset display
-            console.info(w.id);
-            let section = document.querySelector(`[data-parent=${w.id}]`);
             section.style.display = 'block';
             section.querySelector('input').checked = true; // First child
-            // w_navtab(document.querySelector('section'),menus[w.id]);
+
           });
         }
       }
     );
-  }
-  
-  fetchRootFile('./spa/grinder_spa.star');
 
   // Go to Home, first
   document.querySelector('aside #home').click();

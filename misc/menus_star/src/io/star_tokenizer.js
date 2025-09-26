@@ -38,9 +38,11 @@ export const tokenize = (txt) => {
   }
 
   const stringToken = (type,predicate) => (w,i,array) => {
+    // Remove leading delimiters
+    array[i] = array[i].slice(1,array[i].length);
     let [j,str] = appendWord(predicate,array,i);
     // Remove leading delimiters
-    const v = str.slice(1,str.length-1);
+    const v = str.slice(0,str.length-1);
     return [{type,v},j];
   }
 
@@ -77,12 +79,12 @@ export const tokenize = (txt) => {
       newToken: basicToken(CIF.TOKEN)
     },
     {
-      predicate: isMultiLine,
-      newToken: stringToken(CIF.STRING, word => (word[0] !== ';') )
-    },
-    {
       predicate: isNumber,
       newToken: numericToken(CIF.NUMBER)
+    },
+    {
+      predicate: isMultiLine,
+      newToken: stringToken(CIF.STRING, word => (word[0] !== ';') )
     },
     {
       predicate: isString,
@@ -127,7 +129,7 @@ export const tokenize = (txt) => {
   let tok = null;
   const setTokenAt = setToken(words);
 
-  // TODO Use (tail) recursion
+  // TODO Could use (tail) recursion
   while (index < words.length) {
     [tok,index] = setTokenAt(index);
     tokens.push(tok);

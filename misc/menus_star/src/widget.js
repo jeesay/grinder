@@ -46,9 +46,9 @@ const w_button = (desc) => {
   // TODO
   return h('div.row',
     [
-      h('label',{attrs: {'for':desc.name}},desc.label),
+      h('label',{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-      h(`button#${desc.name}`,
+      h(`button#${desc.id}`,
         {
           on: ('on_click' in desc) ? {click: desc.on_click} : {}
         },
@@ -59,7 +59,10 @@ const w_button = (desc) => {
 
 const w_switch = (desc) => {
   // TODO
-  return h('fieldset.switch',
+  return h(`fieldset.switch${(desc.default === "true") ? '' : '.inactive'}`,
+    {
+      attrs: {disabled: (desc.default === "true") ? true : false}
+    },
     [
       h('legend',w_switch_button(desc)),
       ...w_group(desc)
@@ -80,7 +83,7 @@ const w_switch_button = (desc) => {
               name:desc.label
             },
             props: {
-              checked: (desc.default === true) ? true : false
+              checked: (desc.default === "true") ? true : false
             },
             on: {
               click: (ev) => {
@@ -110,10 +113,15 @@ const w_switch_button = (desc) => {
 }
 
 const w_file = (desc) => {
+  console.info('file',desc);
+  const prop = (desc.arg0 !== "?") ? desc.arg0 : '';
+  const placeholder = desc.arg1;
+  const nodetype = desc.arg2;
+
   let ds = {inputfile: desc.id};
   if ('filetype' in desc) {
-    ds.title = GRINDER.filetypes[desc.filetype].dialog_title;
-    ds.filter = GRINDER.filetypes[desc.filetype].filter;
+    ds.title = GRINDER.filetypes[filetype].dialog_title;
+    ds.filter = GRINDER.filetypes[filetype].filter;
   }
   else {
     if ('dialog_title' in desc) {
@@ -131,13 +139,13 @@ const w_file = (desc) => {
     [
       h('label',{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-      h(`input#${desc.name}.param`, 
+      h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`, 
         {
           attrs: {
             type:'text',
-            value: desc.default,
-            placeholder: desc.placeholder || '',
-            name:desc.name
+            value: (desc.default === '?') ? '' : desc.default,
+            placeholder: placeholder || '',
+            name:desc.id
           },
           dataset: ('option' in desc) ? {option: desc.option} : {}
         }
@@ -147,6 +155,7 @@ const w_file = (desc) => {
           attrs: {
             type:'button',
             value: 'Browse...',
+            title: nodetype
           },
           dataset: ds,
           on: {
@@ -158,16 +167,52 @@ const w_file = (desc) => {
   );
 }
 
-const w_text = (desc) => h('div.row',
+const w_string = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.label),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.name}.param`, 
+    h(`input#${desc.id}.param`, 
       {
         attrs: {
           type:'text',
           value: desc.default,
-          name:desc.name
+          name:desc.id
+        },
+        dataset: ('option' in desc) ? {option: desc.option} : {}
+      }
+    )
+  ]
+);
+
+const w_string_ro = (desc) => h('div.row',
+  [
+    h('label',{attrs: {'for':desc.id}},desc.label),
+    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h(`input#${desc.id}.param`, 
+      {
+        attrs: {
+          type:'text',
+          value: desc.default,
+          name:desc.id,
+          readOnly:true
+        },
+        dataset: ('option' in desc) ? {option: desc.option} : {}
+      }
+    )
+  ]
+);
+
+
+const w_text = (desc) => h('div.row',
+  [
+    h('label',{attrs: {'for':desc.id}},desc.label),
+    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h(`textarea#${desc.id}.param`, 
+      {
+        attrs: {
+          type:'text',
+          value: desc.default,
+          name:desc.id
         },
         dataset: ('option' in desc) ? {option: desc.option} : {}
       }
@@ -178,9 +223,9 @@ const w_text = (desc) => h('div.row',
 
 const w_paragraph = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.label),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`span#${desc.name}`, desc.content)
+    h(`span#${desc.id}`, desc.content)
   ]
 );
 
@@ -202,15 +247,15 @@ const w_paragraph = (desc) => h('div.row',
 */
 const w_int = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.label),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.name}.param`, 
+    h(`input#${desc.id}.param`, 
       {
         attrs: {
           type:'number',
           value: desc.default,
           lang:'en',
-          name:desc.name
+          name:desc.id
         },
         dataset: ('option' in desc) ? {option: desc.option} : {}
       }
@@ -226,22 +271,22 @@ const w_float = (desc) => {
 
 const w_range = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.label),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h('div.range_slider',
       {
         style: {display:'flex'}
       },
       [
-        h(`input#${desc.name}.param`, 
+        h(`input#${desc.id}.param`, 
           {
             attrs: {
               type:'range',
-              min: desc.range_min,
-              max: desc.range_max,
-              step: desc.range_step,
+              min: desc.arg0,
+              max: desc.arg1,
+              step: desc.arg2,
               value: desc.default,
-              name:desc.name
+              name:desc.id
             },
             dataset: ('option' in desc) ? {option: desc.option} : {},
             on: {input: (ev) => {ev.target.nextElementSibling.value = ev.target.value} }
@@ -268,14 +313,14 @@ const w_range = (desc) => h('div.row',
         style: {display:'none'}
       },
       [
-        h(`input#${desc.name}.param`, 
+        h(`input#${desc.id}.param_`, 
           {
             attrs: {
               type:'number',
               value: desc.default,
-              step: desc.range_step,
+              step: desc.arg2,
               lang:'en',
-              name:desc.name
+              name:desc.id
             },
             dataset: ('option' in desc) ? {option: desc.option} : {}
           }
@@ -301,16 +346,16 @@ const w_range = (desc) => h('div.row',
 
 const w_bool = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.label),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.name}.param`, 
+    h(`input#${desc.id}.param`, 
       {
         attrs: {
           type:'checkbox',
-          name:desc.name
+          name:desc.id
         },
         props: {
-          checked: (desc.default === true) ? true : false
+          checked: (desc.default === 'true') ? true : false,
         },
         dataset: ('option' in desc) ? {option: desc.option} : {}
       }
@@ -410,11 +455,18 @@ const w_tab_tools_old = (parent,desc) => {
   parent.appendChild(el);
 
 }
+
+const w_import = (desc) => {
+  console.log('import',desc);
+  return h('span',desc.default);
+  // TODO
+}
+
 const w_navtab = (desc) => {
-  console.info('navtab',desc);
+   console.error(`Has children in ${desc.id}?`,('children' in desc) && (desc.children.length > 0));
   // Remove all the previous children
   // parent.innerHTML = '';
-  let i = desc.index; // HACK
+  let i = desc.index + 1; // HACK
   // Step #1 Header
   const el = h(`article#${desc.label}.tab`,
     [
@@ -432,10 +484,12 @@ const w_navtab = (desc) => {
       ),
       h('label.tab-label',{attrs: {'for': `tab-${i}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),
       h('div.tab-content', 
-        ('children' in desc) ? w_group(desc): []
+        (('children' in desc) && (desc.children.length > 0)) ? w_group(desc): []
       )
     ]
   );
+  console.info('navtab',desc, desc.index, el);
+
   return el;
 }
 const w_navtab_old = (parent,desc) => {
@@ -472,10 +526,10 @@ const w_navtab_old = (parent,desc) => {
 const w_select = (desc) => {
   return h('div.row',
   [
-    h('label',{attrs: {'for': desc.name}},desc.label + ' '),
+    h('label',{attrs: {'for': desc.id}},desc.label + ' '),
     h('i.bi.bi-question-circle',{attrs: {title: desc.help}}),
     h('div.select-dropdown',[
-      h(`select#${desc.name}`,
+      h(`select#${desc.id}`,
         {
           on: ('on_change' in desc) ? {click: desc.on_change} : {}
         },
@@ -487,7 +541,16 @@ const w_select = (desc) => {
 
 const w_toolbar = (desc) => {
   console.log('toolbar',desc.label);
-  return h('div.toolbar',desc.children.map( wdg => h('button',wdg.title)));
+  return h('div.toolbar',
+    desc.children.map( wdg => {
+      if (wdg.arg1 != "?") {
+        return h('a.button',[h(`i.bi.${wdg.arg1}`), h('span',wdg.label)]);
+      }
+      else {
+        return h('a.button',wdg.label);
+      }
+    }
+  ));
 }
 
 const w_fieldset = (desc) => {
@@ -500,8 +563,18 @@ const w_fieldset = (desc) => {
 }
 
 const w_params = (desc) => {
-  console.log('div',desc.id);
-  return h(`div#${desc.id}.params`, {style: desc.style,dataset: {parent: desc.parent}},w_group(desc));
+  console.log('params',desc.id);
+  const args = desc.grandchildren[desc.index];
+  console.log(args);
+  // Reset
+  document.querySelectorAll('#args.params').forEach(w => w.remove() );
+  const el = h(`div#args.params`, 
+    {dataset: {parent: desc.parent}},
+    w_group(args)
+  );
+  console.log('Done!',el);
+  el.querySelectorAll('.tab-content').forEach(w => w.prepend(h('h3.title',desc.parent_label)));
+  document.querySelector('section').appendChild(el);
 }
 
 const w_params_show = (args) => {
@@ -513,12 +586,34 @@ const w_params_show = (args) => {
 
 const w_section = (desc) => {
   console.log('section',desc.id);
-  return h(`section#${desc.id}.tabs`, {style: desc.style, dataset: {parent: desc.parent}}, w_group(desc));
+  return h(`section#${desc.id}.tabs`, {style: desc.style, dataset: {parent: desc.parent}},[...w_group(desc),h(`div#args.params`)]);
 }
 
 const w_details = (desc) => {
   console.log('details',desc.label);
-  return h(`details#${desc.name}`,[h('summary',desc.label),...w_group(desc)]);
+  return h(`details#${desc.id}`,[h('summary',desc.label),...w_group(desc)]);
+}
+
+const w_cli = (desc) => {
+  console.log('command-line (cli)',desc);
+
+  // Private function
+  const gen_cli = (ev) => {
+    const all_args = document.querySelector('section #args.params').querySelectorAll('input.param');
+    // Create command-line from all the args set up in the GUI
+    let cli = '';
+    all_args.forEach( (w) => cli += (w.id+ ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n') );
+    console.log('CLI ARGS',cli);
+    document.getElementById('source_code').innerText = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
+  }
+  
+  // Main
+  return h(`details#${desc.id}.cli`,
+    {
+      on: {click: gen_cli }
+    },
+    [h('summary',desc.label),h('p#source_code','')]
+  );
 }
 
 const w_table = (desc) => {
@@ -530,36 +625,36 @@ const w_table = (desc) => {
   if (desc.children?.[1]) {
     components.push(w_table_body(desc.children[1]));
   }
-  return h(`table#${desc.name}`,components);
+  return h(`table#${desc.id}`,components);
 }
 
 const w_table_head = (desc) => {
   console.log('table_head',desc.label);
-  return  h(`thead#${desc.name}`,[h('tr',[...w_group(desc)])]);
+  return  h(`thead#${desc.id}`,[h('tr',[...w_group(desc)])]);
 }
 
 const w_table_body = (desc) => {
   console.log('table_body',desc.label);
-  return h(`tbody#${desc.name}`,[...w_group(desc)]);
+  return h(`tbody#${desc.id}`,[...w_group(desc)]);
 }
 
 const w_table_row = (desc) => {
-  return h(`tr#${desc.name}`,[...w_group(desc)]);
+  return h(`tr#${desc.id}`,[...w_group(desc)]);
 }
 
 const w_table_cell = (desc) => {
-  return h(`td#${desc.name}`,desc.value);
+  return h(`td#${desc.id}`,desc.value);
 }
 
 const w_group = (desc) => {
   console.info('group',desc);
   // Primitive Widgets
   const types = [
-    'label','h3','button','bool','int','float','file','params','text','range',
+    'label','h3','button','bool','cli','import','int','float','file','params','string','string_ro','text','range',
     'radio','select','option','section','switch','fieldset','details',
     'tab','table','thead','tbody','trow','tcell','toolbar','paragraph'];
   const creators = [
-    w_label,w_h3,w_button,w_bool,w_int,w_float,w_file,w_params,w_text,w_range,
+    w_label,w_h3,w_button,w_bool,w_cli,w_import,w_int,w_float,w_file,w_params,w_string,w_string_ro,w_text,w_range,
     w_radio,w_select,w_option,w_section,w_switch,
     w_fieldset,w_details,w_navtab,
     w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_paragraph
@@ -572,6 +667,7 @@ const w_group = (desc) => {
   const els =  desc.children.map( child => {
     console.info(child);
     if (types.indexOf(child.widget) !== -1) {
+      console.info('group child',child);
       return creators[types.indexOf(child.widget)](child);
     }
   });
@@ -637,4 +733,4 @@ const submit_command = (tool) => (ev) => {
   GRELION.websocket.send(JSON.stringify(event));
 }
 
-export {w_leftpanel,w_tab_tools, w_params_show};
+export {w_leftpanel,w_tab_tools, w_params};

@@ -16,7 +16,6 @@ const parseComment = (tok,obj) => {
 }
 
 const parseEOL = (tok,obj) => {
-  console.log('parseEOL');
   // Reset 
   obj._admin_.next = [CIF.DATABLOCK,CIF.TOKEN,CIF.TABLE];
   obj._admin_.state = CIF.NONE;
@@ -83,7 +82,7 @@ const setCategory = (cat,attr,obj) => {
 const parseToken = (tok,obj) => {
   // Remove the leading underscore `_` and Split `category` and `attribute` 
   let [cat,attr] = tok.v.slice(1).split('.');
-  console.log('cat,attr',cat,attr);
+  // HACK console.log('cat,attr',cat,attr);
   if (!attr && obj._admin_.state === CIF.TABLE) {
     attr = cat;
     cat = 'table';
@@ -133,7 +132,7 @@ const parseValue = (tok,obj) => {
 
 const setHeader = (cat,attr,obj) => {
   let obj_block = obj._admin_.datablock;
-  console.log(`create Table ${cat}`);
+  // console.log(`create Table ${cat}`);
   if (cat in obj_block === false) {
     // Create Table
     obj_block[cat] = {
@@ -182,7 +181,7 @@ const setRowValue = (tok,obj) => {
 const parseTable = (tok,obj) => {
   obj._admin_.state = CIF.TABLE;
   obj._admin_.next = [CIF.TOKEN];
-  console.log(obj._admin_.state,'parseTable',tok);
+  // console.log(obj._admin_.state,'parseTable',tok);
   return obj;
 }
 
@@ -196,7 +195,7 @@ const parseTable = (tok,obj) => {
  * @author Jean-Christophe Taveau
  */
 const parseDataBlock = (tok,obj) => {
-  console.log('new DB',tok.v);
+  // console.log('new DB',tok.v);
   const id = (tok.v.length > 1) ? tok.v : 'default';
   obj._admin_.next = [CIF.TOKEN,CIF.TABLE]; // TOKEN, TABLE
   const db = {id};
@@ -205,7 +204,7 @@ const parseDataBlock = (tok,obj) => {
   obj._admin_.current = null;
   obj._admin_.attr = null;
 
-  console.log(obj);
+  // console.log(obj);
   return obj;
 }
 
@@ -246,8 +245,8 @@ const parseSTAR = (txt) => {
   // Second Pass - Parse
   let structure = parser(tokens);
   delete structure._admin_;
-  console.log(structure);
-  console.info('End');
+  // console.log(structure);
+  // console.info('End');
   return structure;
 }
 
