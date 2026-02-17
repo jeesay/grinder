@@ -145,7 +145,8 @@
   
   let tab_count = 0;
   const to_tree = (star) => {
-    const db = star.datablocks.default;
+    const db = star;
+    console.info('DB',star);
     let root = {
       id : db.id,
       label: '',
@@ -175,6 +176,9 @@
       console.info(top.id,top.parent,tool_fields);
       const found =  tool_fields.find((el) => el.id === top.parent);
       console.log('FOUND',found);
+      if (!('children' in found)) {
+        found.children = []
+      }
       found.children.push({
         id:top.id,
         label:top.label,
@@ -221,18 +225,22 @@
     const obj = new StarGate();
     obj.parseSTAR(text);
     const left_panel = obj.datablock('grinder_spa').table('tool_panel');
-    console.info(left_panel);
+    console.info('PANEL',left_panel);
     // Create items in left panel
     w_leftpanel(document.querySelector('aside ul'),left_panel);
     // Create Tools panel
     for (let tab of left_panel) {
       console.info('Tab Data',tab);
-      const tools = await fetchFile(tab.path + tab.starfile);
+      // tab.path = 'spa/'+ tab.starfile.split('/')[0] + '/' //HACK
+      const _tmp = await fetchFile(tab.path + tab.starfile);
+      console.info('TMP',_tmp)
+      let tools = _tmp.datablocks.default
       tools.children = [];
       const range = Array.from({ length: 20 }, (_, i) => (i+1).toString().padStart(2, '0'));
       for (let name of range) {
         const response = await fetch(tab.path + name + '.star');
         if (response.ok) {
+          console.info('LOAD: ' + name)
           const child_txt = await response.text();
           const _tmp = await fetchFile(tab.path + name + '.star');
           tools.children.push(_tmp.datablocks.default);
@@ -240,6 +248,7 @@
       }
 
       // Prepare all the widgets tree
+      console.info('TOOLS',tools)
       const wdg_tree = to_tree(tools);
       console.info('TOOL',wdg_tree);
       all_of_them.push(wdg_tree);
