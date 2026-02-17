@@ -19,9 +19,11 @@
 
 'use strict';
 
+import {h} from "./dom.js";
+
 const w_label = (desc) => {
   // TODO
-  return h('label',desc.title);
+  return h('label',desc.label);
 }
 
 const w_option = (desc) => {
@@ -32,32 +34,35 @@ const w_option = (desc) => {
         value: desc.value
       }
     },
-    desc.title);
+    desc.label);
 }
 
 const w_h3 = (desc) => {
   // TODO
-  return h('h3',desc.title);
+  return h('h3',desc.label);
 }
 
 const w_button = (desc) => {
   // TODO
   return h('div.row',
     [
-      h('label',{attrs: {'for':desc.name}},desc.title),
+      h('label',{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-      h(`button#${desc.name}`,
+      h(`button#${desc.id}`,
         {
           on: ('on_click' in desc) ? {click: desc.on_click} : {}
         },
-        desc.title
+        desc.label
       )
     ])
 }
 
 const w_switch = (desc) => {
   // TODO
-  return h('fieldset.switch',
+  return h(`fieldset.switch${(desc.default === "true") ? '' : '.inactive'}`,
+    {
+      attrs: {disabled: (desc.default === "true") ? true : false}
+    },
     [
       h('legend',w_switch_button(desc)),
       ...w_group(desc)
@@ -67,18 +72,18 @@ const w_switch = (desc) => {
 
 const w_switch_button = (desc) => {
   return [
-    h('label',desc.title),
+    h('label',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h('div.switch_button',
       [
-        h(`input#${desc.name}_on_off.param`, 
+        h(`input#${desc.id}_on_off.param`, 
           {
             attrs: {
               type:'checkbox',
-              name:desc.name
+              name:desc.label
             },
             props: {
-              checked: (desc.default === true) ? true : false
+              checked: (desc.default === "true") ? true : false
             },
             on: {
               click: (ev) => {
@@ -97,7 +102,7 @@ const w_switch_button = (desc) => {
         ),
         h('label',
           {
-            attrs: {'for':`${desc.name}_on_off`},
+            attrs: {'for':`${desc.id}_on_off`},
 /*            on: {changed: (ev) => {console.log(ev.target); ev.target.disabled = !ev.target.disabled} } */
           },
           'Toggle'
@@ -108,10 +113,15 @@ const w_switch_button = (desc) => {
 }
 
 const w_file = (desc) => {
-  let ds = {inputfile: desc.name};
+  console.info('file',desc);
+  const prop = (desc.arg0 !== "?") ? desc.arg0 : '';
+  const placeholder = desc.arg1;
+  const nodetype = desc.arg2;
+
+  let ds = {inputfile: desc.id};
   if ('filetype' in desc) {
-    ds.title = GRINDER.filetypes[desc.filetype].dialog_title;
-    ds.filter = GRINDER.filetypes[desc.filetype].filter;
+    ds.title = GRINDER.filetypes[filetype].dialog_title;
+    ds.filter = GRINDER.filetypes[filetype].filter;
   }
   else {
     if ('dialog_title' in desc) {
@@ -127,15 +137,15 @@ const w_file = (desc) => {
       style: (desc.status === 'hidden') ? {display: 'none'} : {display:'flex'}
     },
     [
-      h('label',{attrs: {'for':desc.name}},desc.title),
+      h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`,{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-      h(`input#${desc.name}.param`, 
+      h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`, 
         {
           attrs: {
             type:'text',
-            value: desc.default,
-            placeholder: desc.placeholder || '',
-            name:desc.name
+            value: (desc.default === '?') ? '' : desc.default,
+            placeholder: placeholder || '',
+            name:desc.id
           },
           dataset: ('option' in desc) ? {option: desc.option} : {}
         }
@@ -145,6 +155,7 @@ const w_file = (desc) => {
           attrs: {
             type:'button',
             value: 'Browse...',
+            title: nodetype
           },
           dataset: ds,
           on: {
@@ -156,16 +167,52 @@ const w_file = (desc) => {
   );
 }
 
-const w_text = (desc) => h('div.row',
+const w_string = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.title),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.name}.param`, 
+    h(`input#${desc.id}.param`, 
       {
         attrs: {
           type:'text',
           value: desc.default,
-          name:desc.name
+          name:desc.id
+        },
+        dataset: ('option' in desc) ? {option: desc.option} : {}
+      }
+    )
+  ]
+);
+
+const w_string_ro = (desc) => h('div.row',
+  [
+    h('label',{attrs: {'for':desc.id}},desc.label),
+    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h(`input#${desc.id}.param`, 
+      {
+        attrs: {
+          type:'text',
+          value: desc.default,
+          name:desc.id,
+          readOnly:true
+        },
+        dataset: ('option' in desc) ? {option: desc.option} : {}
+      }
+    )
+  ]
+);
+
+
+const w_text = (desc) => h('div.row',
+  [
+    h('label',{attrs: {'for':desc.id}},desc.label),
+    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h(`textarea#${desc.id}.param`, 
+      {
+        attrs: {
+          type:'text',
+          value: desc.default,
+          name:desc.id
         },
         dataset: ('option' in desc) ? {option: desc.option} : {}
       }
@@ -176,9 +223,9 @@ const w_text = (desc) => h('div.row',
 
 const w_paragraph = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.title),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`span#${desc.name}`, desc.content)
+    h(`span#${desc.id}`, desc.content)
   ]
 );
 
@@ -200,15 +247,15 @@ const w_paragraph = (desc) => h('div.row',
 */
 const w_int = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.title),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.name}.param`, 
+    h(`input#${desc.id}.param`, 
       {
         attrs: {
           type:'number',
           value: desc.default,
           lang:'en',
-          name:desc.name
+          name:desc.id
         },
         dataset: ('option' in desc) ? {option: desc.option} : {}
       }
@@ -224,22 +271,22 @@ const w_float = (desc) => {
 
 const w_range = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.title),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h('div.range_slider',
       {
         style: {display:'flex'}
       },
       [
-        h(`input#${desc.name}.param`, 
+        h(`input#${desc.id}.param`, 
           {
             attrs: {
               type:'range',
-              min: desc.range_min,
-              max: desc.range_max,
-              step: desc.range_step,
+              min: desc.arg0,
+              max: desc.arg1,
+              step: desc.arg2,
               value: desc.default,
-              name:desc.name
+              name:desc.id
             },
             dataset: ('option' in desc) ? {option: desc.option} : {},
             on: {input: (ev) => {ev.target.nextElementSibling.value = ev.target.value} }
@@ -266,14 +313,14 @@ const w_range = (desc) => h('div.row',
         style: {display:'none'}
       },
       [
-        h(`input#${desc.name}.param`, 
+        h(`input#${desc.id}.param_`, 
           {
             attrs: {
               type:'number',
               value: desc.default,
-              step: desc.range_step,
+              step: desc.arg2,
               lang:'en',
-              name:desc.name
+              name:desc.id
             },
             dataset: ('option' in desc) ? {option: desc.option} : {}
           }
@@ -299,16 +346,16 @@ const w_range = (desc) => h('div.row',
 
 const w_bool = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.name}},desc.title),
+    h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.name}.param`, 
+    h(`input#${desc.id}.param`, 
       {
         attrs: {
           type:'checkbox',
-          name:desc.name
+          name:desc.id
         },
         props: {
-          checked: (desc.default === true) ? true : false
+          checked: (desc.default === 'true') ? true : false,
         },
         dataset: ('option' in desc) ? {option: desc.option} : {}
       }
@@ -332,12 +379,12 @@ const w_bool = (desc) => h('div.row',
 */
 const w_radio = (desc) => h('div.row',
   [
-    h(`input#${desc.name}.param`, 
+    h(`input#${desc.id}.param`, 
       {
         attrs: {
           type:'radio',
           name:desc.group,
-          value:desc.name
+          value:desc.id
         },
         props: {
           checked: (desc.default === true) ? true : false
@@ -346,19 +393,112 @@ const w_radio = (desc) => h('div.row',
         on: ('on_click' in desc) ? {click: desc.on_click} : {}
       }
     ),
-    h('label',{attrs: {'for': desc.name}},desc.title + ' '),
+    h('label',{attrs: {'for': desc.id}},desc.label + ' '),
     h('i.bi.bi-question-circle',{attrs: {title: desc.help}})
   ]
   );
 
+const w_leftpanel = (parent,desc) => {
+  console.log('leftpanel',desc.label);
+  desc.forEach( (child,i) => {
+    const el = h(`li#${child.id}`,[h(`i.bi.${child.icon}`),child.label]);
+    parent.appendChild(el);
+  });
+}
 
-const w_navtab = (parent,desc) => {
+const w_tab_tools = (parent,desc) => {
+  const g = w_section(desc);
+  console.log(g);
+  parent.appendChild(g);
+}
+
+const w_tab_tools_old = (parent,desc) => {
+
+  const to_obj = (data) => data.rows.map( (row) => {
+        let obj = {children: []};
+        for (let h in data.header) {
+          obj[data.header[h]] = row[h];
+        }
+        return obj;
+      });
+      
+  desc.children = to_obj(desc.table);
+  console.log('TABS',desc);
+  const i = +desc.index;
+  const el = h(`section#${desc.id}.tabs`, 
+    {
+      style: {display: 'none'},
+      dataset: {parent_id: desc.parent} 
+    },
+    [
+      h(`article#tools.tab`, 
+      [
+        h(`input#tab-${i}.tab-switch`, 
+          {
+            attrs: { 
+              type:'radio',
+              name:'css-tabs',
+            },
+            props: {
+              checked: (i==0) ? true : false
+            },
+            on: ('on_click' in desc) ? {click: desc.on_click} : {}
+          }
+        ),
+        h('label.tab-label',{attrs: {'for': `tab-${i}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),
+        h('div.tab-content', 
+          ('children' in desc) ? w_group(desc): []
+        )
+      ])
+    ]
+  );
+  parent.appendChild(el);
+
+}
+
+const w_import = (desc) => {
+  console.log('import',desc);
+  return h('span',desc.default);
+  // TODO
+}
+
+const w_navtab = (desc) => {
+   console.error(`Has children in ${desc.id}?`,('children' in desc) && (desc.children.length > 0));
+  // Remove all the previous children
+  // parent.innerHTML = '';
+  let i = desc.index + 1; // HACK
+  // Step #1 Header
+  const el = h(`article#${desc.label}.tab`,
+    [
+      h(`input#tab-${i}.tab-switch`, 
+        {
+          attrs: { 
+            type:'radio',
+            name:'css-tabs'
+          },
+          props: {
+            checked: (i==0) ? true : false
+          },
+          on: ('on_click' in desc) ? {click: desc.on_click} : {}
+        }
+      ),
+      h('label.tab-label',{attrs: {'for': `tab-${i}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),
+      h('div.tab-content', 
+        (('children' in desc) && (desc.children.length > 0)) ? w_group(desc): []
+      )
+    ]
+  );
+  console.info('navtab',desc, desc.index, el);
+
+  return el;
+}
+const w_navtab_old = (parent,desc) => {
   // Remove all the previous children
   parent.innerHTML = '';
   // Step #1 Header
   desc.forEach( (child,i) => {
     console.log('TABS',child);
-    const el = h(`article#${child.name}.tab`, 
+    const el = h(`article#${child.label}.tab`,
       [
         h(`input#tab-${i+1}.tab-switch`, 
           {
@@ -378,6 +518,7 @@ const w_navtab = (parent,desc) => {
         )
       ]
     );
+    console.info(el);
     parent.appendChild(el);
   });
 }
@@ -385,10 +526,10 @@ const w_navtab = (parent,desc) => {
 const w_select = (desc) => {
   return h('div.row',
   [
-    h('label',{attrs: {'for': desc.name}},desc.title + ' '),
+    h('label',{attrs: {'for': desc.id}},desc.label + ' '),
     h('i.bi.bi-question-circle',{attrs: {title: desc.help}}),
     h('div.select-dropdown',[
-      h(`select#${desc.name}`,
+      h(`select#${desc.id}`,
         {
           on: ('on_change' in desc) ? {click: desc.on_change} : {}
         },
@@ -399,26 +540,84 @@ const w_select = (desc) => {
 }
 
 const w_toolbar = (desc) => {
-  console.log('toolbar',desc.title);
-  return h('div.toolbar',desc.children.map( wdg => h('button',wdg.title)));
+  console.log('toolbar',desc.label);
+  return h('div.toolbar',
+    desc.children.map( wdg => {
+      if (wdg.arg1 != "?") {
+        return h('a.button',[h(`i.bi.${wdg.arg1}`), h('span',wdg.label)]);
+      }
+      else {
+        return h('a.button',wdg.label);
+      }
+    }
+  ));
 }
 
 const w_fieldset = (desc) => {
-  console.log('fieldset',desc.title);
-  return h('fieldset',
+  console.log('fieldset',desc.label);
+  return h(`fieldset#${desc.id}`,
     [
-      h('legend',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.title] : desc.title),...w_group(desc)
+      h('legend',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),...w_group(desc)
     ]
   );
 }
 
+const w_params = (desc) => {
+  console.log('params',desc.id);
+  const args = desc.grandchildren[desc.index];
+  console.log(args);
+  // Reset
+  document.querySelectorAll('#args.params').forEach(w => w.remove() );
+  const el = h(`div#args.params`, 
+    {dataset: {parent: desc.parent}},
+    w_group(args)
+  );
+  console.log('Done!',el);
+  el.querySelectorAll('.tab-content').forEach(w => w.prepend(h('h3.title',desc.parent_label)));
+  document.querySelector('section').appendChild(el);
+}
+
+const w_params_show = (args) => {
+  console.log('param',args.id, args.section);
+  // Reset all other params tabs
+  document.getElementById(args.section).querySelectorAll('div.params').forEach(w => w.style.display='none');
+  document.getElementById(args.id).style.display = 'block';
+}
+
+const w_section = (desc) => {
+  console.log('section',desc.id);
+  return h(`section#${desc.id}.tabs`, {style: desc.style, dataset: {parent: desc.parent}},[...w_group(desc),h(`div#args.params`)]);
+}
+
 const w_details = (desc) => {
-  console.log('details',desc.title);
-  return h(`details#${desc.name}`,[h('summary',desc.title),...w_group(desc)]);
+  console.log('details',desc.label);
+  return h(`details#${desc.id}`,[h('summary',desc.label),...w_group(desc)]);
+}
+
+const w_cli = (desc) => {
+  console.log('command-line (cli)',desc);
+
+  // Private function
+  const gen_cli = (ev) => {
+    const all_args = document.querySelector('section #args.params').querySelectorAll('input.param');
+    // Create command-line from all the args set up in the GUI
+    let cli = '';
+    all_args.forEach( (w) => cli += (w.id+ ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n') );
+    console.log('CLI ARGS',cli);
+    document.getElementById('source_code').innerText = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
+  }
+  
+  // Main
+  return h(`details#${desc.id}.cli`,
+    {
+      on: {click: gen_cli }
+    },
+    [h('summary',desc.label),h('p#source_code','')]
+  );
 }
 
 const w_table = (desc) => {
-  console.log('table',desc.title);
+  console.log('table',desc.label);
   let components = [];
   if (desc.children?.[0]) {
     components.push(w_table_head(desc.children[0]));
@@ -426,46 +625,49 @@ const w_table = (desc) => {
   if (desc.children?.[1]) {
     components.push(w_table_body(desc.children[1]));
   }
-  return h(`table#${desc.name}`,components);
+  return h(`table#${desc.id}`,components);
 }
 
 const w_table_head = (desc) => {
-  console.log('table_head',desc.title);
-  return  h(`thead#${desc.name}`,[h('tr',[...w_group(desc)])]);
+  console.log('table_head',desc.label);
+  return  h(`thead#${desc.id}`,[h('tr',[...w_group(desc)])]);
 }
 
 const w_table_body = (desc) => {
-  console.log('table_body',desc.title);
-  return h(`tbody#${desc.name}`,[...w_group(desc)]);
+  console.log('table_body',desc.label);
+  return h(`tbody#${desc.id}`,[...w_group(desc)]);
 }
 
 const w_table_row = (desc) => {
-  return h(`tr#${desc.name}`,[...w_group(desc)]);
+  return h(`tr#${desc.id}`,[...w_group(desc)]);
 }
 
 const w_table_cell = (desc) => {
-  return h(`td#${desc.name}`,desc.value);
+  return h(`td#${desc.id}`,desc.value);
 }
 
 const w_group = (desc) => {
+  console.info('group',desc);
   // Primitive Widgets
   const types = [
-    'label','h3','button','bool','int','float','file','text','range',
-    'radio','select','option','switch','fieldset','details',
-    'table','thead','tbody','trow','tcell','toolbar','paragraph'];
+    'label','h3','button','bool','cli','import','int','float','file','params','string','string_ro','text','range',
+    'radio','select','option','section','switch','fieldset','details',
+    'tab','table','thead','tbody','trow','tcell','toolbar','paragraph'];
   const creators = [
-    w_label,w_h3,w_button,w_bool,w_int,w_float,w_file,w_text,w_range,
-    w_radio,w_select,w_option,w_switch,
-    w_fieldset,w_details,
+    w_label,w_h3,w_button,w_bool,w_cli,w_import,w_int,w_float,w_file,w_params,w_string,w_string_ro,w_text,w_range,
+    w_radio,w_select,w_option,w_section,w_switch,
+    w_fieldset,w_details,w_navtab,
     w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_paragraph
   ];
   if ('children' in desc === false) {
-    console.log(desc);
+    console.error(desc);
   }
 
   // Build HTML Elements
   const els =  desc.children.map( child => {
+    console.info(child);
     if (types.indexOf(child.widget) !== -1) {
+      console.info('group child',child);
       return creators[types.indexOf(child.widget)](child);
     }
   });
@@ -530,3 +732,5 @@ const submit_command = (tool) => (ev) => {
   console.log(event);
   GRELION.websocket.send(JSON.stringify(event));
 }
+
+export {w_leftpanel,w_tab_tools, w_params};
