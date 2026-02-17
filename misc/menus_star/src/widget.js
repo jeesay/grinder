@@ -137,7 +137,7 @@ const w_file = (desc) => {
       style: (desc.status === 'hidden') ? {display: 'none'} : {display:'flex'}
     },
     [
-      h('label',{attrs: {'for':desc.id}},desc.label),
+      h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`,{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
       h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`, 
         {

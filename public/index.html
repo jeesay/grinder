@@ -79,11 +79,11 @@
       <li id="connect"><i class="bi bi-wifi-off"></i>Unconnected</li>
       <li id="home"><i class="bi bi-house-door"></i> Home</li>
       <li id="import"><i class="bi bi-download"></i> Import</li>
-      <li id="motioncorr"><i class="bi bi-graph-up"></i> Motion correction</li>
-      <li id="ctf"><i class="bi bi-bullseye"></i> CTF computation</li>
-      <li id="picking"><i class="bi bi-fullscreen"></i> Picking</li>
-      <li id="extract"><i class="bi bi-crop"></i> Particle extraction</li>
-      <li id="class2d"><i class="bi bi-sort-numeric-down"></i> 2D classification</li>
+      <li id="motioncorr"><i class="bi bi-bullseye"></i> Pre-processing</li>
+      <!-- li id="ctf"><i class="bi bi-bullseye"></i> CTF computation</li -->
+      <li id="picking"><i class="bi bi-crop"></i> Particles</li>
+      <!-- li id="extract"><i class="bi bi-crop"></i> Particle extraction</li -->
+      <!-- li id="class2d"><i class="bi bi-sort-numeric-down"></i> 2D classification</li -->
       <li id="rec3d"><i class="bi bi-badge-3d"></i> 3D</li>
       <li id="postprocess"><i class="bi bi-stars"></i> Post-processing</li>
       <li id="metrics"><i class="bi bi-trophy"></i>Metrics</li>
@@ -158,6 +158,8 @@
     </div>
 </dialog>
   <script>
+
+  
     document.querySelectorAll('aside ul li')
       .forEach( (w,i) => {
         if (i !== 0) {

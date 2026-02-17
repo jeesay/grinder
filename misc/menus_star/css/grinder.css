@@ -27,6 +27,15 @@ body{
   margin: 0 auto;
 }
 
+a.button {
+  background-color: #ddd;
+  padding: 8px 12px;
+  margin: 10px;
+  border-radius: 2px;
+}
+a.button:hover {
+  background-color: #acacac;
+}
 /* Menubar */
 
 header,.inner,footer {
@@ -230,7 +239,7 @@ main {
   z-index: 1;
   top: 2.75em;
   left: 0;
-  padding: 1.618rem;
+  padding: 1rem 1.618rem;
   background: #fff;
   color: #2c3e50;
   border-bottom: 0.25rem solid #bdc3c7;
@@ -243,6 +252,12 @@ main {
   width: 150px;
   text-align: right;
   margin-right: 10px;
+}
+
+.tab-content .title {
+  padding: 10px;
+  margin: 0 0 0.5rem 0;
+  background-color: #eee;
 }
 
 .tab-switch:checked + .tab-label {
@@ -312,6 +327,11 @@ details[open] summary {
     margin-right: 10px;
 }
 
+.row label.required:after {
+  content: "(✻)";
+  text-align: right;
+  color: red;
+}
 /* Menubar */
 
 @media screen and (min-width: 650px) {
@@ -415,6 +435,11 @@ input[type=text] {
   text-overflow: clip;
   overflow: hidden;
 /*  text-align: left; */
+}
+
+input[type=text]:read-only {
+  cursor: not-allowed;
+  color: #aaa;
 }
 
 .browse {
