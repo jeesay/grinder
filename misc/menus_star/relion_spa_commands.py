@@ -3799,6 +3799,6 @@ def getCommands(cmdtype,subtype):
     
 # Main
 
-cmd = getCommands(rh.PROC_IMPORT)
+cmd = getCommands(rh.PROC_IMPORT, rh.PROC_IMPORT_RAW_GRR)
 print(cmd)
 
