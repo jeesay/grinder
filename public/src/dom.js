@@ -184,4 +184,4 @@ const span = (...args) => {
   return nodeHTML(`span${id}`,...others);
 }
 
-
+export {h,a,button,div,input,p,span};
