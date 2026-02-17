@@ -1,5 +1,14 @@
+import {StarGate} from "./stargate.js";
+//import {*} from "./ws_client.js";
+//import {*} from "./dom.js";
+//import {*} from "./job.js";
+//import {*} from "./history.js";
+//import {*} from "./browse.js";
+//import {*} from "./widget.js";
+
 const GRINDER = {
   version: '0.1',
+  authors: ["Jean-Christophe Taveau"],
   server: new WSClient(),
   filetypes: {
     CURRENT_ODIR: {
@@ -274,7 +283,7 @@ const connect_to_ws_server = async () => {
     let cli = {
       end:0,
       action: {
-        tool: 'grelion.py',
+        tool: 'grinder.py',
         title:'project',
         args:'--get default_pipeline.json'
       }
