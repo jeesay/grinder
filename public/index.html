@@ -120,7 +120,7 @@
 </dialog>
   <script type="module">
   import {StarGate} from "./src/stargate.js";
-  import {w_leftpanel, w_tab_tools, w_params} from "./src/widget.js";
+  import {w_leftpanel, w_tab_tools, w_tabgroup} from "./src/widget.js";
   
   const fetchFile = async filename => {
     const file = await fetch(filename);
@@ -136,25 +136,31 @@
       for (let h in data.header) {
         obj[data.header[h]] = row[h];
       }
-      if (['tab','fieldset','switch','details', 'cli', 'toolbar'].includes(obj.widget)) {
-          obj.children = [];
+      if (['tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(obj.widget)) {
+        obj.children = [];
       }
       return obj;
     });
 
-  
+  const is_table = (el) => typeof el == 'object' && 'header' in el
+  const get_tables = (star) => Object.keys(star).filter(key => is_table(star[key])).map(key => ({key,table:star[key]}))
+
   let tab_count = 0;
+  
   const to_tree = (star) => {
+    console.info(star,Object.keys(star));
+    // Initialize root
     const db = star;
-    console.info('DB',star);
+    console.info('DB',db);
     let root = {
       id : db.id,
       label: '',
       widget:'section',
       style: {display: 'none'},
       parent:db.parent,
-      tab_count: tab_count,
+      tab_count: tab_count, // ???
       children: [
+        // First tab from `00_tools.star`
         {
           id : 'tools',
           label: db.label,
@@ -163,14 +169,72 @@
           icon:db.icon,
           parent:db.id,
           children:from_startable(db.table)
+        },
+        // Second div from the other tabs
+        {
+          id : 'args',
+          label: db.label,
+          widget:'tabgroup',
+          index: tab_count,
+          icon:db.icon,
+          parent:db.id,
+          children:[]
         }
-      ],
-      grandchildren: []
+      ]
     }
+    
+    let flat_table;
+    if (star.children.length > 0) {
+        // star.children.forEach( child => {})
+        let child = star.children[0];  // HACK
+        // Create radio widget for tab #0 aka `Tools`
+        const radio = {
+          id : child.id,
+          label: child.label,
+          widget:'radio',
+          icon:child.icon,
+          parent:child.parent
+        }
+        const found =  root.children[0].children.find((el) => el.id === radio.parent);
+        found.children.push(radio);
+        // Create other tabs `Settings`, `Log`, `DataViz`, etc.
+        let tables = get_tables(child);
+        console.info('++++++++++++++ TABLES',tables);
+        // Convert each table into object
+        flat_table = tables.map(t => {
+            console.log(t.key);
+            let rows = from_startable(t.table);
+            console.info(rows);
+            rows.forEach(row => row.parent = t.key );
+            return rows // {key: t.key,table: rows}
+        }).flat();
+        flat_table = [{id:'tabs',children:[]},...flat_table];
+        console.info('++++++++++++++ TABLES',flat_table);
+        // Find out the genealogy aka find the children for group widgets
+        flat_table.forEach(wdgt => {
+          // Group widget
+          if (['tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(wdgt.widget)) {
+            wdgt.children = [];
+          }
+          if (wdgt.widget == 'tab') {
+            // wdgt.parent = db.id;
+            root.children[1].children.push(wdgt);
+          }
+          else if ('parent' in wdgt) {
+            const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+            flat_table[index].children.push(wdgt);
+          }
+        })
+        // Attach to parent root > tab Tools > refine
+        // root.children[0].children[2].children = flat_table;
+    }
+
+
+/*
     tab_count++;
-    console.info(star.children);
+    console.info(db.children);
     // Create all the tabs + fieldsets + widgets
-    star.children.forEach( (top,index) => {
+    db.children.forEach( (top,index) => {
       // Add Radio widgets in Tools fieldsets
       const tool_fields = root.children[0].children;
       console.info(top.id,top.parent,tool_fields);
@@ -209,18 +273,20 @@
           // Create widgets in each `fieldset`
           console.info('WIDGET',fs.id,top);
           let _tmp = from_startable(top[fs.id]);
+          console.info('WIDGET AFTER',_tmp);
           fs.children.push(..._tmp);
           found_fs.children.push(fs);
       });
       
     });
+*/
     return root;
   }
   
   const fetchRootFile = async filename => {
     const file = await fetch(filename);
     const text = await file.text();
-    const all_of_them = [{dummy: '?'}];
+    const all_of_them = [{dummy: '?'}]
     
     const obj = new StarGate();
     obj.parseSTAR(text);
@@ -233,7 +299,6 @@
       console.info('Tab Data',tab);
       // tab.path = 'spa/'+ tab.starfile.split('/')[0] + '/' //HACK
       const _tmp = await fetchFile(tab.path + tab.starfile);
-      console.info('TMP',_tmp)
       let tools = _tmp.datablocks.default
       tools.children = [];
       const range = Array.from({ length: 20 }, (_, i) => (i+1).toString().padStart(2, '0'));

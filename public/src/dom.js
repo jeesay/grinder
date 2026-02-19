@@ -131,7 +131,10 @@ const nodeHTML = (id,options,content,children) => {
   // Children
   children.forEach( (child,i) => {
     let c = (typeof(child) === 'string') ? document.createTextNode(child) : child;
-    el.appendChild(c);
+    console.error(i,c);
+    if (c) {
+      el.appendChild(c);
+    }
   });
   return el;
 };
