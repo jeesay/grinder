@@ -7,7 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Asap+Condensed&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+  <!-- link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"-->
   <base href="./">
 
   <script type="module" src="../src/main.js"></script>
@@ -144,11 +145,24 @@
 
   const is_table = (el) => typeof el == 'object' && 'header' in el
   const get_tables = (star) => Object.keys(star).filter(key => is_table(star[key])).map(key => ({key,table:star[key]}))
-
-  let tab_count = 0;
+  const flat_tables = (tables) => {
+    console.info('++++++++++++++ TABLES',tables);
+    // Convert each table into object
+    let flat_table = tables.map(t => {
+      console.log(t.key);
+      let rows = from_startable(t.table);
+      console.info(rows);
+      rows.forEach(row => row.parent = t.key );
+      return rows // {key: t.key,table: rows}
+    }).flat();
+    flat_table = [{id:'tabs',children:[]},...flat_table];
+    console.info('++++++++++++++ TABLES',flat_table);
+    return flat_table;
+  }
   
   const to_tree = (star) => {
     console.info(star,Object.keys(star));
+    let tab_count = 0;
     // Initialize root
     const db = star;
     console.info('DB',db);
@@ -158,78 +172,73 @@
       widget:'section',
       style: {display: 'none'},
       parent:db.parent,
-      tab_count: tab_count, // ???
+      tab_count: tab_count, // Required by the click
       children: [
         // First tab from `00_tools.star`
         {
           id : 'tools',
           label: db.label,
           widget:'tab',
-          index: tab_count,
+          index: tab_count++,
           icon:db.icon,
           parent:db.id,
           children:from_startable(db.table)
-        },
-        // Second div from the other tabs
-        {
-          id : 'args',
-          label: db.label,
-          widget:'tabgroup',
-          index: tab_count,
-          icon:db.icon,
-          parent:db.id,
-          children:[]
         }
       ]
     }
     
-    let flat_table;
     if (star.children.length > 0) {
-        // star.children.forEach( child => {})
-        let child = star.children[0];  // HACK
+      star.children.forEach( (child,index) => {
         // Create radio widget for tab #0 aka `Tools`
         const radio = {
           id : child.id,
           label: child.label,
           widget:'radio',
           icon:child.icon,
-          parent:child.parent
-        }
+          parent:child.parent,
+          on_click: (ev) => w_params({id: `toolset_${index}`, index: index, parent: top.parent,parent_label: top.label, grandchildren: root.grandchildren})
+        };
         const found =  root.children[0].children.find((el) => el.id === radio.parent);
         found.children.push(radio);
-        // Create other tabs `Settings`, `Log`, `DataViz`, etc.
-        let tables = get_tables(child);
-        console.info('++++++++++++++ TABLES',tables);
-        // Convert each table into object
-        flat_table = tables.map(t => {
-            console.log(t.key);
-            let rows = from_startable(t.table);
-            console.info(rows);
-            rows.forEach(row => row.parent = t.key );
-            return rows // {key: t.key,table: rows}
-        }).flat();
-        flat_table = [{id:'tabs',children:[]},...flat_table];
-        console.info('++++++++++++++ TABLES',flat_table);
-        // Find out the genealogy aka find the children for group widgets
-        flat_table.forEach(wdgt => {
-          // Group widget
-          if (['tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(wdgt.widget)) {
-            wdgt.children = [];
-          }
-          if (wdgt.widget == 'tab') {
-            // wdgt.parent = db.id;
-            root.children[1].children.push(wdgt);
-          }
-          else if ('parent' in wdgt) {
-            const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
-            flat_table[index].children.push(wdgt);
-          }
-        })
-        // Attach to parent root > tab Tools > refine
-        // root.children[0].children[2].children = flat_table;
+        // Second div from the other tabs
+        let toolset = {
+          id : `toolset_${index}`,
+          label: db.label,
+          widget:'tabgroup',
+          index: tab_count,
+          icon:db.icon,
+          parent:db.id,
+          children:[]
+        };
+        root.children.push(toolset)
+
+    // Create other tabs `Settings`, `Log`, `DataViz`, etc.
+    let tables = get_tables(child);
+    let flat_table = flat_tables(tables);
+    // Find out the genealogy aka find the children for group widgets
+    flat_table.forEach(wdgt => {
+      // Group widget
+      if (['tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(wdgt.widget)) {
+        wdgt.children = [];
+      }
+      // Attach the tab to the `toolset`
+      if (wdgt.widget == 'tab') {
+        // wdgt.parent = db.id;
+        wdgt.index = tab_count;
+        tab_count++;
+        toolset.children.push(wdgt);
+      }
+      else if ('parent' in wdgt) {
+        // Attach other widgets depending of their parent.
+        const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+        flat_table[index].children.push(wdgt);
+      }
+    }); 
+      // Attach to parent root > tab Tools > refine
+      // root.children[0].children[2].children = flat_table;
+
+      });
     }
-
-
 /*
     tab_count++;
     console.info(db.children);
@@ -351,7 +360,7 @@
 
   // Go to Home, first
   document.querySelector('aside #home').click();
-    
-  </script>
+</script>
+
 </body>
 </html>

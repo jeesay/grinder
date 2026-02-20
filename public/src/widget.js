@@ -569,7 +569,7 @@ const w_tabgroup = (desc) => {
   console.log('>>>>>>>>>>>>>>>>>< AARRRRGGGGSSSS: ',args);
   // Reset
   // document.querySelectorAll('#args.params').forEach(w => w.remove() );
-  const el = h(`div#args.params`, 
+  const el = h(`div#${desc.id}.toolset`, 
     {dataset: {parent: desc.parent}},
     w_group(desc)
   );
