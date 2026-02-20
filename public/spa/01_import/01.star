@@ -17,31 +17,27 @@ _tabs.widget
 _tabs.default
 _tabs.parent
 _tabs.help
-io       'I/O'                    bi-arrow-down-up       tab ? ? ?
-settings 'Settings'               bi-tools               tab ? ? ?
+io       'I/O'                    bi-arrow-down-up       tab ? ? 'No Help'
+settings 'Settings'               bi-tools               tab ? ? 'No Help'
 #
 loop_
 _io.id
 _io.label
+_io.icon
 _io.widget
 _io.default
-_io.arg0
-_io.arg1
-_io.arg2
 _io.help
-indata   'Input'                  bi-arrow-bar-down      fieldset ?      io       ?  "" 
+indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help'
 
 #
 loop_
 _settings.id
 _settings.label
+_settings.icon
 _settings.widget
 _settings.default
-_settings.arg0
-_settings.arg1
-_settings.arg2
 _settings.help
-general  'General'                bi-chat-right-text     fieldset ?      settings ?  ""
+general  'General'      bi-chat-right-text     fieldset ?      'No Help'
 #
 loop_
 _indata.id
