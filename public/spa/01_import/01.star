@@ -1,22 +1,13 @@
 data_
 #
-_id          import
-_label       'Import movies'
-_widget      radio
-_parent      movies
-_help        ''
-_proc_id     0
-_labelnew    relion.import
-_dirname     Import
-#
 loop_
-_tabs.id
-_tabs.label
-_tabs.icon
-_tabs.widget
-_tabs.default
-_tabs.parent
-_tabs.help
+_import_mov.id
+_import_mov.label
+_import_mov.icon
+_import_mov.widget
+_import_mov.default
+_import_mov.parent
+_import_mov.help
 io       'I/O'                    bi-arrow-down-up       tab ? ? 'No Help'
 settings 'Settings'               bi-tools               tab ? ? 'No Help'
 #
@@ -27,8 +18,9 @@ _io.icon
 _io.widget
 _io.default
 _io.help
-indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help'
-
+indata   'Input'       bi-arrow-bar-down      fieldset ?   'No Help'
+outdata   'Output'     bi-box-arrow-down      fieldset ?   'No help'
+command   'Script'     bi-regex               fieldset ?   'No help'
 #
 loop_
 _settings.id
@@ -54,6 +46,41 @@ fn_in_raw   "Raw input files:"    file    Micrographs/*.tif    "Movie or Image (
 Provide a Linux wildcard that selects all raw movies or micrographs to be imported. The path must be a relative path from the project directory. To import files outside the project directory, first make a symbolic link by an absolute path and then specify the link by a relative path. See the FAQ page on RELION wiki (https://www3.mrc-lmb.cam.ac.uk/relion/index.php/FAQs#What_is_the_right_way_to_import_files_outside_the_project_directory.3F) for details.Torh.PROCess compressed MRC movies, you need pbzip2, zstd and xz command in your PATH for bzip2, Zstandard and xzip compression, respectively.
 ;
 is_multiframe   "Are these multi-frame movies?"    bool    true    ?    ?    ?    "Set to Yes for multi-frame movies, set to No for single-frame micrographs."
+#
+loop_
+_outdata.id
+_outdata.label
+_outdata.widget
+_outdata.default  # None
+_outdata.arg0     # Status
+_outdata.arg1     # Placeholder
+_outdata.arg2     # Node Type
+_outdata.help
+n_img   "Output directory:"    string_ro    LABEL_PARTS_CPIPE    "STAR files (*.star)"    1    ?    "No Help"
+#
+loop_
+_command.index
+_command.type
+_command.arg
+_command.flag
+_command.boolean
+_command.assertion
+1  prog    'FN_IN={fn_in_raw}{pattern_in}'                    ?                    ?                    ?
+2  prog    relion_import                                      None                 None                 None
+2  flag    '--do_movies'                                      is_multiframe        True                 ?
+2  flag    '--do_micrographs'                                 is_multiframe        False                ?
+2  param   '--optics_group_name {optics_group_name}'          ?                    ?                    is_field_not_empty            
+2  flag    '--optics_group_mtf'                               ne,{fn_mtf},null     True                 ? 
+2  param   '--angpix {angpix}'                                ?                    ?                    ?                             
+2  param   '--kV {kV}'                                        ?                    ?                    ?                             
+2  param   '--Cs {Cs}'                                        ?                    ?                    ?                             
+2  param   '--Q0 {Q0}'                                        ?                    ?                    ?                             
+2  param   '--beamtilt_x {beamtilt_x}'                        ?                    ?                    ?                             
+2  param   '--beamtilt_y {beamtilt_y}'                        ?                    ?                    ?                             
+2  param   ' --i $FN_IN'                                      ?                    ?                    ?                             
+2  param   ' --odir Import/{RELION_NEW_JOB}'                  ?                    ?                    ?                             
+2  param   ' --ofile  {fn_out}'                               ?                    ?                    ?                             
+2  param   ' --pipeline-control Import/{RELION_NEW_JOB}'      ?                    ?                    ?          
 #
 loop_
 _general.id
