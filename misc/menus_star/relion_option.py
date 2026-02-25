@@ -1,4 +1,5 @@
 import relion_h as rh
+from typing import override
 
 
 def clear():
@@ -17,6 +18,8 @@ class JobOption:
         self.arg1   = '?'
         self.arg2   = '?'
         self.help   = '?'
+        self.tab = 'settings'
+        self.fieldset = 'general'
         if len(args) == 3 and type(args[1]) == bool:
             self.init_bool(*args)
         elif len(args) == 3:
@@ -164,3 +167,33 @@ class JobOption:
     def getBoolean(self):
         return self.valuevalue
 
+class JobOptionIO(JobOption):
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.tab='io'
+        self.fieldset='indata'
+
+class JobOptionTool(JobOption):
+    def __init__(self, tuple): # tuple : (_id, _label, _widget, _proc_id, _labelnew, _help, _filename)
+        self.id       = tuple[0]
+        self.label    = tuple[1]
+        self.widget   = tuple[2]
+        self.proc_id  = tuple[3]
+        self.labelnew = tuple[4]
+        self.help     = tuple[5]
+        self.filename = tuple[6]
+
+    @override
+    def to_star(self):
+        def simple_widget():
+            _i = self.id
+            _l = self.label
+            _w = self.widget
+            _p = f"{self.proc_id}"
+            _ln = f"{self.labelnew}"
+            _h = f"{self.help}"
+            _f = f"{self.filename}"
+            return f'{_i}   "{_l}"    {_w}    {_p}    {_ln}    {_h}    {_f}\n'
+
+        s = simple_widget()
+        return s

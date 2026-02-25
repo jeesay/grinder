@@ -295,9 +295,14 @@ def proc_type2dirname(x):
 	PROC_TOMO_EXCLUDE_TILT_IMAGES:  PROC_TOMO_EXCLUDE_TILT_IMAGES_DIRNAME,
 	PROC_EXTERNAL:                  PROC_EXTERNAL_DIRNAME}[x]
 
-proc_default_settings = {
-    'PROC_IMPORT':("import", "Import movies", "movies", "", PROC_IMPORT,PROC_IMPORT_DIRNAME,PROC_IMPORT_LABELNEW),
-	'PROC_MOTIONCORR':("motioncor", "Motion Correction", "motion", "", PROC_MOTIONCORR,PROC_MOTIONCORR_DIRNAME,PROC_MOTIONCORR_LABELNEW),
+proc_grinder_settings = {
+    'PROC_IMPORT_RAW_GRR'          : ("import_mov", "Import movies", "radio_tool", PROC_IMPORT,PROC_IMPORT_LABELNEW + ".raw", "'Import Micrographs or Movies'", "01.star"),
+	'PROC_IMPORT_PARTICLES_GRR'    : ("import_ptcls", "Import particles", "radio_tool", PROC_IMPORT,PROC_IMPORT_LABELNEW + ".other", "'Import Particles'", "02.star"),
+	'PROC_IMPORT_OTHER_GRR'        : ("import_other", "Import other files", "radio_tool", PROC_IMPORT, PROC_IMPORT_LABELNEW + ".other", "Import Other File", "03.star"),
+	'PROC_MOTIONCORR_OWN_GRR'      : ("motioncor", "Motion Correction", "radio_tool", PROC_MOTIONCORR,PROC_MOTIONCORR_LABELNEW + ".own", "RELIONs own implementation", "01.star"), 
+	'PROC_MOTIONCORR_MC2_GRR'      : ("motioncor2", "Motion Correction2", "radio_tool", PROC_MOTIONCORR, PROC_MOTIONCORR_LABELNEW + ".motioncor2", "MotionCorr executable", "02.star"), 
+
+	# A FAIRE
 	'PROC_CTFFIND':("ctf", "CTF with CTFFIND 4.1", "ctffind", "", PROC_CTFFIND,PROC_CTFFIND_DIRNAME,PROC_CTFFIND_LABELNEW),
 	'PROC_MANUALPICK':(PROC_MANUALPICK,PROC_MANUALPICK_DIRNAME,PROC_MANUALPICK_LABELNEW),
 	'PROC_AUTOPICK':(PROC_AUTOPICK,PROC_AUTOPICK_DIRNAME,PROC_AUTOPICK_LABELNEW),
@@ -342,9 +347,22 @@ job_sampling_options = [
     "0.1 degrees"
 ]
 
-job_nodetype_options = [
+# job_nodetype_options = [
+#     ("Particle coordinates (*.box, *_pick.star)","LABEL_IMPORT_COORDS"),
+#     ("Particles STAR file (.star)","LABEL_IMPORT_PARTS"),
+#     ("Multiple (2D or 3D) references (.star or .mrcs)","LABEL_IMPORT_2DIMG"),
+#     ("Micrographs STAR file (.star)","LABEL_IMPORT_MICS"),
+#     ("3D reference (.mrc)","LABEL_IMPORT_MAP"),
+#     ("3D mask (.mrc)","LABEL_IMPORT_MASK"),
+#     ("Unfiltered half-map (unfil.mrc)","LABEL_IMPORT_HALFMAP")
+# ]
+
+job_nodetype_options_particles = [
     ("Particle coordinates (*.box, *_pick.star)","LABEL_IMPORT_COORDS"),
-    ("Particles STAR file (.star)","LABEL_IMPORT_PARTS"),
+    ("Particles STAR file (.star)","LABEL_IMPORT_PARTS")
+]
+
+job_nodetype_options_other = [
     ("Multiple (2D or 3D) references (.star or .mrcs)","LABEL_IMPORT_2DIMG"),
     ("Micrographs STAR file (.star)","LABEL_IMPORT_MICS"),
     ("3D reference (.mrc)","LABEL_IMPORT_MAP"),

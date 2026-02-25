@@ -20,14 +20,14 @@ def get_str(key):
 def initialise(_job_type):
     type = _job_type
     opts = None
-    has_mpi = False 
-    has_thread =  False
-    has_gpu = False
-    if (type == "PROC_IMPORT"):
-        has_mpi = has_thread = has_gpu = False
+    rsg.init_joboptions()
+    global has_disk, has_gpu ,has_mpi, has_thread
+    
+    if (type == "PROC_IMPORT_RAW_GRR"):
+        has_mpi = has_thread = has_gpu = has_disk = False
         hidden_name = rsg.initialiseImportRawJob()
         opts = rsg.get_joboptions()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
         _main.append({"id" : id, 
                         "label" : label,
                         "parent" : parent,
@@ -40,12 +40,42 @@ def initialise(_job_type):
         # dirname = rh.proc_type2dirname(rh.PROC_IMPORT)
 #        getCommandsImportJobRaw(f'{dirname}/job{counter}/')
 #        getCommandsImportJobOther(f'{dirname}/job{counter}/')
+    elif (type == "PROC_IMPORT_PARTICLES_GRR") :
+        has_mpi = has_thread = has_gpu = has_disk = False
+        hidden_name = rsg.initialiseImportParticlesJob()
+        opts = rsg.get_joboptions()
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
+        _main.append({"id" : id, 
+                        "label" : label,
+                        "parent" : parent,
+                        "help" : help,
+                        "proc": proc_id,
+                        "dirname" : proc_dirname,
+                        "labelnew" : proc_label,
+                        "hidden_name" : hidden_name
+                        })
+    elif (type == "PROC_IMPORT_OTHER_GRR") :
+        has_mpi = has_thread = has_gpu = has_disk = False
+        hidden_name = rsg.initialiseImportOtherJob()
+        opts = rsg.get_joboptions()
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
+        _main.append({"id" : id, 
+                        "label" : label,
+                        "parent" : parent,
+                        "help" : help,
+                        "proc": proc_id,
+                        "dirname" : proc_dirname,
+                        "labelnew" : proc_label,
+                        "hidden_name" : hidden_name
+                        })
 
-    elif (type == "PROC_MOTIONCORR"):
-        has_mpi = has_thread = True
-        has_gpu = False
-        hidden_name = initialiseMotioncorrJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+    elif (type == "PROC_MOTIONCORR_OWN_GRR") or (type == "PROC_MOTIONCORR_MC2_GRR"):
+        has_mpi = has_thread = has_gpu = True
+        has_disk = False
+        hidden_name = rsg.initialiseMotioncorrJob()
+        opts = rsg.get_joboptions()
+        # print(opts)
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
         _main.append({"id" : id, 
                         "label" : label,
                         "parent" : parent,
@@ -58,9 +88,9 @@ def initialise(_job_type):
 
     elif (type == "PROC_CTFFIND"):
         has_mpi = True
-        has_thread = has_gpu = False
+        has_thread = has_gpu = has_disk = False
         hidden_name = initialiseCtffindJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
         _main.append({"id" : id, 
                         "label" : label,
                         "parent" : parent,
@@ -74,98 +104,98 @@ def initialise(_job_type):
     elif (type == "PROC_MANUALPICK"):
         has_mpi = has_thread = False
         initialiseManualpickJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_AUTOPICK"):
         has_mpi = True
-        has_thread = False
+        has_thread = has_gpu = has_disk = False
         initialiseAutopickJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_EXTRACT"):
         has_mpi = True
-        has_thread = False
+        has_thread = has_disk = has_gpu = False
         initialiseExtractJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_CLASSSELECT"):
         has_mpi = has_thread = False
         initialiseSelectJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_2DCLASS"):
-        has_mpi = has_thread = True
+        has_mpi = has_thread = has_disk = has_gpu = True
         initialiseClass2DJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_INIMODEL"):
-        has_mpi = has_thread = True
+        has_mpi = has_thread = has_disk = has_gpu = True
         initialiseInimodelJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_3DCLASS"):
-        has_mpi = has_thread = True
+        has_mpi = has_thread = has_disk = has_gpu = True
         initialiseClass3DJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_3DAUTO"):
-        has_mpi = has_thread = True
+        has_mpi = has_thread = has_disk = has_gpu = True
         initialiseAutorefineJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_MULTIBODY"):
-        has_mpi = has_thread = True
+        has_mpi = has_thread = has_disk = has_gpu = True
         initialiseMultiBodyJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_MASKCREATE"):
         has_mpi = False
         has_thread = True
         initialiseMaskcreateJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_JOINSTAR"):
         has_mpi = has_thread = False
         initialiseJoinstarJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_SUBTRACT"):
         has_mpi = True
         has_thread = False
         initialiseSubtractJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_POST"):
         has_mpi = has_thread = False
         initialisePostprocessJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_RESMAP"):
         has_mpi = True
         has_thread = False
         initialiseLocalresJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_MOTIONREFINE"):
         has_mpi = has_thread = True
         initialiseMotionrefineJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_CTFREFINE"):
         has_mpi = has_thread = True
         initialiseCtfrefineJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_DYNAMIGHT"):
         has_mpi = False
         has_thread = True
         initialiseDynaMightJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == "PROC_MODELANGELO"):
         has_mpi = has_thread = False
         initialiseModelAngeloJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_default_settings[type]
+        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
 
     elif (type == rh.PROC_TOMO_IMPORT):
         has_mpi = has_thread = False
@@ -256,9 +286,7 @@ _tabs.parent
 _tabs.help
 io       'I/O'                    bi-arrow-down-up       tab ? ? ?
 settings 'Settings'               bi-tools               tab ? ? ?
-display  'Display'                bi-palette             tab ? ? ?
-compute  'Compute'                bi-cpu                 tab ? ? ?
-running  'Running'                bi-send                tab ? ? ?
+log      'Logs'                   bi-binoculars-fill     tab ? ? ?
 result   'DataViz'                bi-eye                 tab ? ? ?
 """
 
@@ -404,7 +432,7 @@ load_queue '' import './spa/00_home/qsub.star' ? ? ? ?
 #
 """
 
-def compute_mpi():
+def compute_mpi_thread():
     return """
 loop_
 _process.id
@@ -419,6 +447,22 @@ nr_mpi "Number of MPI procs:" range '{QSUB_NRMPI_VAL}' 1 '{RELION_MPI_MAX}' 1 "N
 nr_threads "Number of threads:" range '{QSUB_NRTHREADS_VAL}' 1 "{RELION_THREAD_MAX}" 1 "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX."
 #
 """
+
+def compute_mpi():
+    return """
+loop_
+_mpi.id
+_mpi.label
+_mpi.widget
+_mpi.default
+_mpi.arg0
+_mpi.arg1
+_mpi.arg2
+_mpi.help
+nr_mpi "Number of MPI procs:" range '{QSUB_NRMPI_VAL}' 1 '{RELION_MPI_MAX}' 1 "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."
+#
+"""
+
 
 def cont_process():
     return """
@@ -464,11 +508,20 @@ do_continue 'Continue' button false ? bi-send-plus  ? 'No help'
 
 if __name__ == "__main__":
     is_tomo = False
+    has_mpi = False 
+    has_thread =  False
+    has_gpu = False
+    has_disk = False
     header()
 
+    # tools = rno.JobOptionTool(rh.proc_grinder_settings["PROC_IMPORT_RAW_GRR"])
+    # print(tools.to_star())
+
+    # print(rh.proc_grinder_settings["PROC_IMPORT_RAW_GRR"][0])
+
     dirs = {"00_home" : [], 
-            "01_import" : ["PROC_IMPORT"], 
-            "02_preprocess" :  ["PROC_MOTIONCORR", "PROC_CTFFIND"], 
+            "01_import" : ["PROC_IMPORT_RAW_GRR", "PROC_IMPORT_PARTICLES_GRR", "PROC_IMPORT_OTHER_GRR"],
+            "02_preprocess" :  ["PROC_MOTIONCORR_OWN_GRR", "PROC_MOTIONCORR_MC2_GRR","PROC_CTFFIND"], 
             "03_particles" : ["PROC_MANUALPICK", "PROC_AUTOPICK", "PROC_EXTRACT", "PROC_2DCLASS", "PROC_CLASSSELECT"],
             "04_3d" : ["PROC_3DCLASS", "PROC_3DAUTO", "PROC_INIMODEL"],
             "05_postprocess" : ["PROC_MASKCREATE", "PROC_POST", "PROC_MOTIONREFINE", "PROC_CTFREFINE"],
@@ -479,26 +532,37 @@ if __name__ == "__main__":
     
     indexes = [0 for i in range (9)]
 
-    jobs_list = ["PROC_IMPORT"] #, "PROC_MANUALPICK", 
+    jobs_list = ["PROC_IMPORT_RAW_GRR", "PROC_IMPORT_PARTICLES_GRR", "PROC_IMPORT_OTHER_GRR", "PROC_MOTIONCORR_OWN_GRR", "PROC_MOTIONCORR_MC2_GRR"] #, "PROC_CTFFIND", "PROC_MANUALPICK", 
                 #  "PROC_AUTOPICK", "PROC_EXTRACT", "PROC_CLASSSELECT", "PROC_2DCLASS", "PROC_3DCLASS", "PROC_3DAUTO", 
                 #  "PROC_MASKCREATE", "PROC_JOINSTAR", "PROC_SUBTRACT", "PROC_POST", "PROC_RESMAP", "PROC_INIMODEL", 
                 #  "PROC_MULTIBODY", "PROC_MOTIONREFINE", "PROC_CTFREFINE", "PROC_DYNAMIGHT", "PROC_MODELANGELO" ]
 
     for job in jobs_list :
-        tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), 'general': init_table('_general')}
+        print(job)
+        # tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), 'general': init_table('_general')}
+        tables = {'indata': init_table('_indata'), 'general': init_table('_general')}
+
         joboptions = {}
         _main = []
 
         for r in dirs.keys() :
             if job in dirs[r] :
+                # append in 00_tools file
+                tool_file = open(f"../../public/spa/{r}/00_tools_test.star", "a")
+                tool = rno.JobOptionTool(rh.proc_grinder_settings[f"{job}"])
+                tool_file.write(tool.to_star())
+                tool = None
+                tool_file.close()
+
+                # writing in 0_.star
                 indexes[list(dirs).index(r)]+=1
                 fic = open(f"../../public/spa/{r}/0{indexes[list(dirs).index(r)]}.star", "w")
 
                 joboptions = initialise(job)
                 # print(joboptions)
                 # add header from `_main`
-                for hd in range(len(_main)) :
-                    fic.write(f"""data_\n#\n_id          {_main[hd]["id"]}\n_label       {_main[hd]["label"]}\n_widget      radio\n_parent      {_main[hd]["parent"]}\n_help        {_main[hd]["help"]}\n_proc_id     {_main[hd]["proc"]}\n_labelnew    {_main[hd]["labelnew"]}\n_dirname     {_main[hd]["dirname"]}\n_hidden_name {_main[hd]["hidden_name"]}\n#""")
+                # for hd in range(len(_main)) :
+                #     fic.write(f"""data_\n#\n_id {_main[hd]["id"]:<50}\n_label       {_main[hd]["label"]}\n_widget      radio\n_parent      {_main[hd]["parent"]}\n_help        {_main[hd]["help"]}\n_proc_id     {_main[hd]["proc"]}\n_labelnew    {_main[hd]["labelnew"]}\n_dirname     {_main[hd]["dirname"]}\n_hidden_name {_main[hd]["hidden_name"]}\n#""")
                 #Tabs
                 fic.write(tabs())
                 #I/O
@@ -527,6 +591,18 @@ if __name__ == "__main__":
 
                 for t in tables:
                     fic.write(tables[t])
+                
+                print(f"MPI : {has_mpi} / Thread : {has_thread} / GPU : {has_gpu} / DISK : {has_disk}")
+                
+                # Optional Argument
+                if has_gpu :
+                    fic.write(compute_gpu())
+                if has_thread and has_mpi : 
+                    fic.write(compute_mpi_thread())
+                if has_mpi and not has_thread :
+                    fic.write(compute_mpi())
+                if has_disk :
+                    fic.write(disk_access())
                 fic.close()
 
 #     # version with print()
