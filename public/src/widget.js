@@ -492,6 +492,9 @@ const w_navtab = (desc) => {
 
   return el;
 }
+
+const w_toolmenu = w_navtab;
+
 const w_navtab_old = (parent,desc) => {
   // Remove all the previous children
   parent.innerHTML = '';
@@ -521,6 +524,14 @@ const w_navtab_old = (parent,desc) => {
     console.info(el);
     parent.appendChild(el);
   });
+}
+
+const w_radiotool = (desc) => {
+  // Create radio button linked to the `toolmenu`
+  const el = w_radio(desc);
+  // Create tabs and attach to `section`
+  const tabs= w_tabgroup(desc);
+  return tabs;
 }
 
 const w_select = (desc) => {
@@ -563,8 +574,17 @@ const w_fieldset = (desc) => {
   );
 }
 
-const w_tabgroup = (desc) => {
-  console.log('tabgroup',desc);
+const w_tool = (desc) => {
+  // Step #1 - Create the radio button
+  const el = w_radio(desc);
+  el.appendChild(desc.parent);
+  // Step #2 -  Create the toolset
+  const g = w_tabgroup(desc.children);
+  g.appendChild(desc.parent);
+}
+
+const w_toolset = (desc) => {
+  console.log('toolmenu',desc);
   const args = desc.children;
   console.log('>>>>>>>>>>>>>>>>>< AARRRRGGGGSSSS: ',args);
   // Reset
@@ -574,7 +594,7 @@ const w_tabgroup = (desc) => {
     w_group(desc)
   );
   console.log('Done!',el);
-  // el.querySelectorAll('.tab-content').forEach(w => w.prepend(h('h3.title',desc.parent_label)));
+  el.querySelectorAll('.tab-content').forEach(w => w.prepend(h('h3.title',desc.parent_label)));
   // document.querySelector('section').appendChild(el);
   return el;
 }
@@ -658,14 +678,14 @@ const w_group = (desc) => {
   console.info('group',desc);
   // Primitive Widgets
   const types = [
-    'label','h3','button','bool','cli','import','int','float','file','tabgroup','string','string_ro','text','range',
-    'radio','select','option','section','switch','fieldset','details',
-    'tab','table','thead','tbody','trow','tcell','toolbar','paragraph'];
+    'label','h3','button','bool','cli','import','int','float','file','toolset','string','string_ro','text','range',
+    'radio','radio_tool','select','option','section','switch','fieldset','details',
+    'tab','table','thead','tbody','trow','tcell','toolbar','toolmenu','paragraph'];
   const creators = [
-    w_label,w_h3,w_button,w_bool,w_cli,w_import,w_int,w_float,w_file,w_tabgroup,w_string,w_string_ro,w_text,w_range,
-    w_radio,w_select,w_option,w_section,w_switch,
+    w_label,w_h3,w_button,w_bool,w_cli,w_import,w_int,w_float,w_file,w_toolset,w_string,w_string_ro,w_text,w_range,
+    w_radio,w_radiotool,w_select,w_option,w_section,w_switch,
     w_fieldset,w_details,w_navtab,
-    w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_paragraph
+    w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_toolmenu,w_paragraph
   ];
   if ('children' in desc === false) {
     console.error(desc);
@@ -745,4 +765,4 @@ const submit_command = (tool) => (ev) => {
   GRELION.websocket.send(JSON.stringify(event));
 }
 
-export {w_leftpanel,w_tab_tools, w_tabgroup};
+export {w_leftpanel,w_tab_tools, w_toolmenu};
