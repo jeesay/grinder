@@ -374,7 +374,7 @@
           // Load radio_tool (radio button + toolset)
           const source = await fetchFile(tab.path + wdgt.filename);
           console.info('SOURCE',tab.path + wdgt.filename,source);
-          // Create the toolset parent of all the tool tabs
+          // Create the toolset - parent of all the tool tabs
           let toolset = Object.assign({}, wdgt);
           toolset.widget = 'toolset';
           toolset.index = tab_count;
@@ -386,6 +386,10 @@
           // Create the radio button
           wdgt.id += '_radio';
           wdgt.widget = 'radio';
+          wdgt.on_click = (e) => {
+            Array.from(document.querySelectorAll('.toolset')).map(el => el.style.display = 'none');
+            document.getElementById(toolset.id).style.display = 'block';
+          }
           delete wdgt.children;
           const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
           console.info('FIND PARENT',index,wdgt,flat_table[index]);

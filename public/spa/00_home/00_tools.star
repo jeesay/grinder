@@ -7,17 +7,35 @@ _index    1
 _parent   home
 #
 loop_
-_id
-_label 
-_icon
-_widget 
-_default
-_parent_id
-_help
-connect    'Server Connection' bi-wifi            fieldset ? home ?
-project    'Project'           bi-clipboard-data  fieldset ? home ?
-
-
-
-
-
+_home_main.id
+_home_main.label
+_home_main.icon
+_home_main.widget
+_home_main.default
+_home_main.help
+tool_menu      'Home'   bi-house-door toolmenu  ? ?
+#
+loop_
+_tool_menu.id
+_tool_menu.label 
+_tool_menu.icon
+_tool_menu.widget 
+_tool_menu.default
+_tool_menu.parent
+_tool_menu.help
+connect    'Server Connection'    bi-wifi            fieldset ? ? ?
+project    'Project Summary'      bi-clipboard-data  fieldset ? ? ?
+#
+loop_
+_connect.id
+_connect.label
+_connect.widget
+_connect.default  # None
+_connect.arg0     # Status
+_connect.arg1     # Placeholder
+_connect.arg2     # Node Type
+_connect.help
+url        'URL'        string  '127.0.0.1' ?       ? ? 'URL displayed by `grinder-server`'
+port       'Port'       string  8000        ?       ? ? 'Port displayed by `grinder-server`'
+do_connect 'Connect'    button  true        bi-send ? ? 'Send the connection request'
+#

@@ -527,11 +527,11 @@ const w_navtab_old = (parent,desc) => {
 }
 
 const w_radiotool = (desc) => {
-  // Create radio button linked to the `toolmenu`
-  const el = w_radio(desc);
-  // Create tabs and attach to `section`
-  const tabs= w_tabgroup(desc);
-  return tabs;
+//  // Create radio button linked to the `toolmenu`
+//  const el = w_radio(desc);
+//  // Create tabs and attach to `section`
+//  const tabs= w_tabgroup(desc);
+//  return tabs;
 }
 
 const w_select = (desc) => {
@@ -575,12 +575,12 @@ const w_fieldset = (desc) => {
 }
 
 const w_tool = (desc) => {
-  // Step #1 - Create the radio button
-  const el = w_radio(desc);
-  el.appendChild(desc.parent);
-  // Step #2 -  Create the toolset
-  const g = w_tabgroup(desc.children);
-  g.appendChild(desc.parent);
+  // // Step #1 - Create the radio button
+  // const el = w_radio(desc);
+  // el.appendChild(desc.parent);
+  // // Step #2 -  Create the toolset
+  // const g = w_tabgroup(desc.children);
+  // g.appendChild(desc.parent);
 }
 
 const w_toolset = (desc) => {
@@ -590,11 +590,14 @@ const w_toolset = (desc) => {
   // Reset
   // document.querySelectorAll('#args.params').forEach(w => w.remove() );
   const el = h(`div#${desc.id}.toolset`, 
-    {dataset: {parent: desc.parent}},
+    {
+      style: {display: 'none'},
+      dataset: {parent: desc.parent}
+    },
     w_group(desc)
   );
   console.log('Done!',el);
-  el.querySelectorAll('.tab-content').forEach(w => w.prepend(h('h3.title',desc.parent_label)));
+  el.querySelectorAll('.tab-content').forEach(w => w.prepend(h('h3.title',desc.label)));
   // document.querySelector('section').appendChild(el);
   return el;
 }
