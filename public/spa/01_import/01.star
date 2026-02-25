@@ -8,8 +8,8 @@ _import_mov.widget
 _import_mov.default
 _import_mov.parent
 _import_mov.help
-io       'I/O'                    bi-arrow-down-up       tab ? ? 'No Help'
-settings 'Settings'               bi-tools               tab ? ? 'No Help'
+io       'I/O'                    bi-arrow-down-up       tab ? ? ?
+settings 'Settings'               bi-tools               tab ? ? ?
 #
 loop_
 _io.id
@@ -18,9 +18,7 @@ _io.icon
 _io.widget
 _io.default
 _io.help
-indata   'Input'       bi-arrow-bar-down      fieldset ?   'No Help'
-outdata   'Output'     bi-box-arrow-down      fieldset ?   'No help'
-command   'Script'     bi-regex               fieldset ?   'No help'
+indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help' 
 #
 loop_
 _settings.id
@@ -29,7 +27,7 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help'
+general  'General'      bi-chat-right-text     fieldset ?      'No Help' 
 #
 loop_
 _indata.id
@@ -48,41 +46,6 @@ Provide a Linux wildcard that selects all raw movies or micrographs to be import
 is_multiframe   "Are these multi-frame movies?"    bool    true    ?    ?    ?    "Set to Yes for multi-frame movies, set to No for single-frame micrographs."
 #
 loop_
-_outdata.id
-_outdata.label
-_outdata.widget
-_outdata.default  # None
-_outdata.arg0     # Status
-_outdata.arg1     # Placeholder
-_outdata.arg2     # Node Type
-_outdata.help
-n_img   "Output directory:"    string_ro    LABEL_PARTS_CPIPE    "STAR files (*.star)"    1    ?    "No Help"
-#
-loop_
-_command.index
-_command.type
-_command.arg
-_command.flag
-_command.boolean
-_command.assertion
-1  prog    'FN_IN={fn_in_raw}{pattern_in}'                    ?                    ?                    ?
-2  prog    relion_import                                      None                 None                 None
-2  flag    '--do_movies'                                      is_multiframe        True                 ?
-2  flag    '--do_micrographs'                                 is_multiframe        False                ?
-2  param   '--optics_group_name {optics_group_name}'          ?                    ?                    is_field_not_empty            
-2  flag    '--optics_group_mtf'                               ne,{fn_mtf},null     True                 ? 
-2  param   '--angpix {angpix}'                                ?                    ?                    ?                             
-2  param   '--kV {kV}'                                        ?                    ?                    ?                             
-2  param   '--Cs {Cs}'                                        ?                    ?                    ?                             
-2  param   '--Q0 {Q0}'                                        ?                    ?                    ?                             
-2  param   '--beamtilt_x {beamtilt_x}'                        ?                    ?                    ?                             
-2  param   '--beamtilt_y {beamtilt_y}'                        ?                    ?                    ?                             
-2  param   ' --i $FN_IN'                                      ?                    ?                    ?                             
-2  param   ' --odir Import/{RELION_NEW_JOB}'                  ?                    ?                    ?                             
-2  param   ' --ofile  {fn_out}'                               ?                    ?                    ?                             
-2  param   ' --pipeline-control Import/{RELION_NEW_JOB}'      ?                    ?                    ?          
-#
-loop_
 _general.id
 _general.label
 _general.widget
@@ -95,7 +58,7 @@ optics_group_name   "Optics group name:"    string    opticsGroup1    ?    ?    
 ;
 Name of this optics group. Each group of movies/micrographs with different optics characteristics for CTF refinement should have a unique name.
 ;
-fn_mtf   "MTF of the detector:"    string    ?    "STAR Files (*.star)"    .    ?
+fn_mtf   "MTF of the detector:"    file    ?    "STAR Files (*.star)"    .    ?
 ;
 As of release-3.1, the MTF of the detector is used in the refinement stages of refinement.  If you know the MTF of your detector, provide it here. Curves for some well-known detectors may be downloaded from the RELION Wiki. Also see there for the exact format 
  If you do not know the MTF of your detector and do not want to measure it, then by leaving this entry empty, you include the MTF of your detector in your overall estimated B-factor upon sharpening the map.Although that is probably slightly less accurate, the overall quality of your map will probably not suffer very much. 
