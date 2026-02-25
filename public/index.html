@@ -380,7 +380,7 @@
           toolset.widget = 'toolset';
           toolset.index = tab_count;
           toolset.parent = root.id;
-          tab_count++;
+          tab_count += 4;
           const tool = build_tree(source.datablocks.default,toolset);
           console.info('THE TOOL',tool);
           root.children.push(tool);
