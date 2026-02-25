@@ -8,11 +8,11 @@ def initialiseImportJob():
 def initialiseImportRawJob():
     hidden_name = ".gui_import"
 
-    joboptions["do_raw"] = rno.JobOption("Import raw movies/micrographs?", True, "Set this to Yes if you plan to import raw movies or micrographs")
-    joboptions["fn_in_raw"] = rno.JobOption("Raw input files:", "Micrographs/*.tif", "Movie or Image (*.{mrc,mrcs,tif,tiff,eer,mrc.bz2,mrcs.bz2,mrc.zst,mrcs.zst,mrc.xz,mrcs.xz})", ".", """Provide a Linux wildcard that selects all raw movies or micrographs to be imported. The path must be a relative path from the project directory. To import files outside the project directory, first make a symbolic link by an absolute path and then specify the link by a relative path. See the FAQ page on RELION wiki (https://www3.mrc-lmb.cam.ac.uk/relion/index.php/FAQs#What_is_the_right_way_to_import_files_outside_the_project_directory.3F) for details.\
+    joboptions["do_raw"] = rno.JobOptionIO("Import raw movies/micrographs?", True, "Set this to Yes if you plan to import raw movies or micrographs")
+    joboptions["fn_in_raw"] = rno.JobOptionIO("Raw input files:", "Micrographs/*.tif", "Movie or Image (*.{mrc,mrcs,tif,tiff,eer,mrc.bz2,mrcs.bz2,mrc.zst,mrcs.zst,mrc.xz,mrcs.xz})", ".", """Provide a Linux wildcard that selects all raw movies or micrographs to be imported. The path must be a relative path from the project directory. To import files outside the project directory, first make a symbolic link by an absolute path and then specify the link by a relative path. See the FAQ page on RELION wiki (https://www3.mrc-lmb.cam.ac.uk/relion/index.php/FAQs#What_is_the_right_way_to_import_files_outside_the_project_directory.3F) for details.\
 \
 Torh.PROCess compressed MRC movies, you need pbzip2, zstd and xz command in your PATH for bzip2, Zstandard and xzip compression, respectively.""")
-    joboptions["is_multiframe"] = rno.JobOption("Are these multi-frame movies?", True, "Set to Yes for multi-frame movies, set to No for single-frame micrographs.")
+    joboptions["is_multiframe"] = rno.JobOptionIO("Are these multi-frame movies?", True, "Set to Yes for multi-frame movies, set to No for single-frame micrographs.")
 
     joboptions["optics_group_name"] = rno.JobOption("Optics group name:", "opticsGroup1", """Name of this optics group. Each group of movies/micrographs with different optics characteristics for CTF refinement should have a unique name.""")
     joboptions["fn_mtf"] = rno.JobOption("MTF of the detector:", "", "STAR Files (*.star)", ".", """As of release-3.1, the MTF of the detector is used in the refinement stages of refinement.  \
@@ -27,30 +27,52 @@ Although that is probably slightly less accurate, the overall quality of your ma
     joboptions["beamtilt_x"] = rno.JobOption("Beamtilt in X (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the X-direction (in mrad). Set to zero if unknown.""")
     joboptions["beamtilt_y"] = rno.JobOption("Beamtilt in Y (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the Y-direction (in mrad). Set to zero if unknown.""")
 
-def initialiseImportOtherJob():
+    return hidden_name
+
+def initialiseImportParticlesJob():
     hidden_name = ".gui_import"
 
-    joboptions["do_other"] = rno.JobOption("Import other node types?", False, "Set this to Yes if you plan to import anything else than movies or micrographs")
+    joboptions["do_other"] = rno.JobOptionIO("Import other node types?", False, "Set this to Yes if you plan to import anything else than movies or micrographs")
 
-    joboptions["fn_in_other"] = rno.JobOption("Input file:", "ref.mrc", "Input file (*.*)", ".", """Select any file(s) to import. \n \n \
+    joboptions["fn_in_other"] = rno.JobOptionIO("Input file:", "ref.mrc", "Input file (*.*)", ".", """Select any file(s) to import. \n \n \
 Note that for importing coordinate files, one has to give a Linux wildcard, where the *-symbol is before the coordinate-file suffix, e.g. if the micrographs are called mic1.mrc and the coordinate files mic1.box or mic1_autopick.star, one HAS to give '*.box' or '*_autopick.star', respectively.\n \n \
 Also note that micrographs, movies and coordinate files all need to be in the same directory (with the same rootnames, e.g.mic1 in the example above) in order to be imported correctly. 3D masks or references can be imported from anywhere. \n \n \
 Note that movie-particle STAR files cannot be imported from a previous version of RELION, as the way movies are handled has changed in RELION-2.0. \n \n \
 For the import of a particle, 2D references or micrograph STAR file or of a 3D reference or mask, only a single file can be imported at a time. \n \n \
 Note that due to a bug in a fltk library, you cannot import from directories that contain a substring  of the current directory, e.g. dont important from /home/betagal if your current directory is called /home/betagal_r2. In this case, just change one of the directory names.""")
 
-    joboptions["node_type"] = rno.JobOption("Node type:", job_nodetype_options, 0, "Select the type of Node this is.")
+    joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_particles, 0, "Select the type of Node this is.")
     joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
+
+    return hidden_name
+
+def initialiseImportOtherJob():
+    hidden_name = ".gui_import"
+
+    joboptions["do_other"] = rno.JobOptionIO("Import other node types?", False, "Set this to Yes if you plan to import anything else than movies or micrographs")
+
+    joboptions["fn_in_other"] = rno.JobOptionIO("Input file:", "ref.mrc", "Input file (*.*)", ".", """Select any file(s) to import. \n \n \
+Note that for importing coordinate files, one has to give a Linux wildcard, where the *-symbol is before the coordinate-file suffix, e.g. if the micrographs are called mic1.mrc and the coordinate files mic1.box or mic1_autopick.star, one HAS to give '*.box' or '*_autopick.star', respectively.\n \n \
+Also note that micrographs, movies and coordinate files all need to be in the same directory (with the same rootnames, e.g.mic1 in the example above) in order to be imported correctly. 3D masks or references can be imported from anywhere. \n \n \
+Note that movie-particle STAR files cannot be imported from a previous version of RELION, as the way movies are handled has changed in RELION-2.0. \n \n \
+For the import of a particle, 2D references or micrograph STAR file or of a 3D reference or mask, only a single file can be imported at a time. \n \n \
+Note that due to a bug in a fltk library, you cannot import from directories that contain a substring  of the current directory, e.g. dont important from /home/betagal if your current directory is called /home/betagal_r2. In this case, just change one of the directory names.""")
+
+    joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_other, 0, "Select the type of Node this is.")
+    joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
+
+    return hidden_name
 
 
 def initialiseMotioncorrJob():
     hidden_name = ".gui_motioncorr";
+    is_tomo =  False
 
     if (is_tomo):
-        joboptions["input_star_mics"] = rno.JobOption("Input tilt series: ", LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file")
+        joboptions["input_star_mics"] = rno.JobOption("Input tilt series: ", rh.LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file")
 
     else:
-        joboptions["input_star_mics"] = rno.JobOption("Input movies STAR file:", "LABEL_MOVIES_CPIPE", 1, "", "STAR files (*.star)", "A STAR file with all micrographs to run MOTIONCORR on")
+        joboptions["input_star_mics"] = rno.JobOptionIO("Input movies STAR file:", "LABEL_MOVIES_CPIPE", 1, "", "STAR files (*.star)", "A STAR file with all micrographs to run MOTIONCORR on")
 
     if (not is_tomo):
         joboptions["first_frame_sum"] = rno.JobOption("First frame for corrected sum:", 1, 1, 32, 1, """First frame to use in corrected average (starts counting at 1). """)
@@ -105,7 +127,7 @@ Note that multiple MotionCor2rh.PROCesses should not share a GPU; otherwise, it 
     else:
         joboptions["group_for_ps"] = rno.JobOption("Sum power spectra every n frames:", 4, 0, 10, 0.5, """McMullan et al (Ultramicroscopy, 2015) suggest summing power spectra every 4.0 e/A2 gives optimal Thon rings""")
 
-
+    return hidden_name
 
 
 def initialiseCtffindJob():
@@ -1457,28 +1479,39 @@ def init_table(name):
     return f'#\nloop_\n{name}.id\n{name}.label\n{name}.widget\n{name}.default\n{name}.arg0\n{name}.arg1\n{name}.arg2\n{name}.help\n'
 
 joboptions = {}
-is_tomo = False
-tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), 'general': init_table('_general')}
-# initialise(rh.PROC_CTFFIND)
-# initialise(rh.PROC_3DAUTO)
-initialise(rh.PROC_MOTIONCORR)
-for e in joboptions.keys():
-    if joboptions[e].widget == 'node':
-        joboptions[e].widget = 'file'
-        joboptions[e].arg2 = 'inode'
-        tables['indata'] += joboptions[e].to_star(e) + '\n'
-    elif joboptions[e].widget == 'select':
-        print('select + option')
-        tables['general'] += joboptions[e].to_star(e) + '\n'
-        # Children
-        parent = e
-        if parent not in tables:
-            tables[parent] = init_table(f'_{parent}')
-        for opt in joboptions[e].radio_options:
-            # TODO
-            tables[parent] += opt.to_star(parent) + '\n'
-    else:
-        tables['general'] += joboptions[e].to_star(e) + '\n'
 
-for t in tables:
-    print(tables[t])
+def init_joboptions():
+    global joboptions
+    joboptions = {}
+
+
+def get_joboptions():
+    # print(joboptions)
+    return joboptions
+
+if __name__ == '__main__' :
+    is_tomo = False
+    tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), 'general': init_table('_general')}
+    # initialise(rh.PROC_CTFFIND)
+    # initialise(rh.PROC_3DAUTO)
+    initialise(rh.PROC_MOTIONCORR)
+    for e in joboptions.keys():
+        if joboptions[e].widget == 'node':
+            joboptions[e].widget = 'file'
+            joboptions[e].arg2 = 'inode'
+            tables['indata'] += joboptions[e].to_star(e) + '\n'
+        elif joboptions[e].widget == 'select':
+            print('select + option')
+            tables['general'] += joboptions[e].to_star(e) + '\n'
+            # Children
+            parent = e
+            if parent not in tables:
+                tables[parent] = init_table(f'_{parent}')
+            for opt in joboptions[e].radio_options:
+                # TODO
+                tables[parent] += opt.to_star(parent) + '\n'
+        else:
+            tables['general'] += joboptions[e].to_star(e) + '\n'
+
+    for t in tables:
+        print(tables[t])
