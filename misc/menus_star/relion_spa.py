@@ -648,3 +648,33 @@ if __name__ == "__main__":
 
 #                 for t in tables:
 #                     print(tables[t])
+
+"""
+
+# class rno.Tool
+tool = {
+    'header': {id:'import_mov'},
+    'tabs': {
+        'io': rno.Tab('????')
+    } # [Tab]
+}
+
+tool.tabs['io'].append('indata',rno.Table('indata'))
+tool.tabs['io'].append({'outdata', rno.Table('outdata')),
+tool.tabs['io'].append({'cli', rno.Table('cli')}
+tool.tabs['settings'].append({'general': rno.Table('general'))
+
+for jo in joboptions:
+    if isinstance(jo,rno.JobOptionIO):
+        tool.tabs['io].tables['indata'].append(jo)
+    elif isinstance(jo,rno.JobOption):
+        tool.tables['general'].append(jo)
+
+if has_gpu:
+    tool.tables['gpu'] = gpu_table
+if has_thread:
+    tool.tables['process'] = gpu_table    
+
+fc.write(str(tool))
+
+"""
