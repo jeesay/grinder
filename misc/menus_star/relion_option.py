@@ -1,9 +1,17 @@
 import relion_h as rh
-from typing import override
-
+from typing import List, Dict, Union, override
 
 def clear():
   pass
+
+def format_star_string(value):
+        """Gère les quotes et les blocs de texte multi-lignes (;)"""
+        s = str(value)
+        if '\n' in s: # Texte multi-lignes
+            return f"\n;\n{s}\n;"
+        if ' ' in s or s == '': # Texte avec espaces
+            return f"'{s}'" if '"' in s else f'"{s}"'
+        return s
   
 class JobOption:
 
@@ -185,15 +193,125 @@ class JobOptionTool(JobOption):
 
     @override
     def to_star(self):
-        def simple_widget():
-            _i = self.id
-            _l = self.label
-            _w = self.widget
-            _p = f"{self.proc_id}"
-            _ln = f"{self.labelnew}"
-            _h = f"{self.help}"
-            _f = f"{self.filename}"
-            return f'{_i}   "{_l}"    {_w}    {_p}    {_ln}    {_h}    {_f}\n'
+        parts = [
+            f"{self.id:<15}",
+            f"{self.label:<20}",
+            f"{self.widget:<10}",
+            f"{self.proc_id:<5}",
+            f"{self.labelnew:<30}",
+            f"{self.help:<30}",
+            f"{self.filename:<30}",
+            '\n'
+        ]
+        return "   ".join(parts)
+    
+        # def simple_widget():
+        #     _i = self.id
+        #     _l = self.label
+        #     _w = self.widget
+        #     _p = f"{self.proc_id}"
+        #     _ln = f"{self.labelnew}"
+        #     _h = f"{self.help}"
+        #     _f = f"{self.filename}"
+        #     return f'{_i}   "{_l}"    {_w}    {_p}    {_ln}    {_h}    {_f}\n'
 
-        s = simple_widget()
-        return s
+        # s = simple_widget()
+        # return s
+
+class Table:
+    def __init__(self, name: str, label: str = "", icon: str = "", widget: str = "fieldset", help_text: str = "?"):
+        self.name = name  # ex: indata
+        self.label = label
+        self.icon = icon
+        self.widget = widget # fieldset, range, etc.
+        self.help_text = help_text
+        self.options: List[JobOption] = []
+
+    def append(self, option: JobOption):
+        self.options.append(option)
+    
+
+    def to_definition_line(self, parent_name: str) -> str:
+        """Génère la ligne qui définit cette table dans l'en-tête de l'onglet"""
+        # Format: id label icon widget default help
+        return f"{self.name:<15} {format_star_string(self.label):<25} {self.icon:<20} {self.widget:<15} ?      {format_star_string(self.help_text)}"
+
+    def to_content_block(self) -> str:
+        """Génère le bloc loop_ complet avec les données"""
+        if not self.options: return ""
+        
+        prefix = f"_{self.name}"
+        header = f"#\nloop_\n{prefix}.id\n{prefix}.label\n{prefix}.widget\n{prefix}.default\n{prefix}.arg0\n{prefix}.arg1\n{prefix}.arg2\n{prefix}.help"
+        
+        lines = [opt.to_star(self.name) for opt in self.options]
+        return header + "\n" + "\n".join(lines) + "\n"
+    
+class Tab:
+    def __init__(self, name: str, label: str, icon: str):
+        self.name = name # ex: io
+        self.label = label
+        self.icon = icon
+        self.tables: Dict[str, Table] = {} # Dictionnaire de tables
+
+    def add_table(self, table: Table):
+        self.tables[table.name] = table
+
+    def to_definition_line(self) -> str:
+        """Génère la ligne pour le loop principal du Tool"""
+        # Format: id label icon widget default parent help
+        return f"{self.name:<10} {format_star_string(self.label):<25} {self.icon:<25} tab ? ? ?"
+
+    def get_structure_block(self) -> str:
+        """Génère le bloc loop_ qui liste les tables contenues dans cet onglet"""
+        if not self.tables: return ""
+        
+        prefix = f"_{self.name}"
+        header = f"#\nloop_\n{prefix}.id\n{prefix}.label\n{prefix}.icon\n{prefix}.widget\n{prefix}.default\n{prefix}.help"
+        
+        lines = [t.to_definition_line(self.name) for t in self.tables.values()]
+        return header + "\n" + "\n".join(lines) + "\n"
+    
+class Tool:
+    def __init__(self):
+        self.prefix = "tabs"
+        self.tabs: Dict[str, Tab] = {}
+
+    def add_tab(self, tab: Tab):
+        self.tabs[tab.name] = tab
+
+    def __str__(self):
+        output = ["data_"]
+        
+        # 1. HEADER GLOBAL (Liste des onglets)
+        output.append("#")
+        output.append("loop_")
+        for tag in ["id", "label", "icon", "widget", "default", "parent", "help"]:
+            output.append(f"_{self.prefix}.{tag}")
+        
+        for tab in self.tabs.values():
+            output.append(tab.to_definition_line())
+        
+        output.append("") # Ligne vide
+
+        # 2. DEFINITION DES ONGLETS (Liste des tables par onglet)
+        for tab in self.tabs.values():
+            output.append(tab.get_structure_block())
+
+        # 3. CONTENU DES TABLES (Les JobOptions)
+        for tab in self.tabs.values():
+            for table in tab.tables.values():
+                output.append(table.to_content_block())
+
+        return "\n".join(output)
+
+    # Méthodes helpers pour faciliter l'ajout comme dans votre pseudo-code
+    def get_or_create_tab(self, name, label="?", icon="?"):
+        if name not in self.tabs:
+            self.add_tab(Tab(name, label, icon))
+        return self.tabs[name]
+
+    def get_or_create_table(self, tab_name, table_name, label="?", icon="?"):
+        tab = self.tabs[tab_name] # Doit exister
+        if table_name not in tab.tables:
+            tab.add_table(Table(table_name, label, icon))
+        return tab.tables[table_name]

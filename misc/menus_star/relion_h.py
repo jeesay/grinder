@@ -296,11 +296,11 @@ def proc_type2dirname(x):
 	PROC_EXTERNAL:                  PROC_EXTERNAL_DIRNAME}[x]
 
 proc_grinder_settings = {
-    'PROC_IMPORT_RAW_GRR'          : ("import_mov", "Import movies", "radio_tool", PROC_IMPORT,PROC_IMPORT_LABELNEW + ".raw", "'Import Micrographs or Movies'", "01.star"),
-	'PROC_IMPORT_PARTICLES_GRR'    : ("import_ptcls", "Import particles", "radio_tool", PROC_IMPORT,PROC_IMPORT_LABELNEW + ".other", "'Import Particles'", "02.star"),
-	'PROC_IMPORT_OTHER_GRR'        : ("import_other", "Import other files", "radio_tool", PROC_IMPORT, PROC_IMPORT_LABELNEW + ".other", "Import Other File", "03.star"),
-	'PROC_MOTIONCORR_OWN_GRR'      : ("motioncor", "Motion Correction", "radio_tool", PROC_MOTIONCORR,PROC_MOTIONCORR_LABELNEW + ".own", "RELIONs own implementation", "01.star"), 
-	'PROC_MOTIONCORR_MC2_GRR'      : ("motioncor2", "Motion Correction2", "radio_tool", PROC_MOTIONCORR, PROC_MOTIONCORR_LABELNEW + ".motioncor2", "MotionCorr executable", "02.star"), 
+    'PROC_IMPORT_RAW_GRR'          : ("import_mov", "'Import movies'", "radio_tool", PROC_IMPORT,PROC_IMPORT_LABELNEW + ".raw", "'Import Micrographs or Movies'", "01.star"),
+	'PROC_IMPORT_PARTICLES_GRR'    : ("import_ptcls", "'Import particles'", "radio_tool", PROC_IMPORT,PROC_IMPORT_LABELNEW + ".other", "'Import Particles'", "02.star"),
+	'PROC_IMPORT_OTHER_GRR'        : ("import_other", "'Import other files'", "radio_tool", PROC_IMPORT, PROC_IMPORT_LABELNEW + ".other", "'Import Other File'", "03.star"),
+	'PROC_MOTIONCORR_OWN_GRR'      : ("motioncor", "'Motion Correction'", "radio_tool", PROC_MOTIONCORR,PROC_MOTIONCORR_LABELNEW + ".own", "'RELIONs own implementation'", "01.star"), 
+	'PROC_MOTIONCORR_MC2_GRR'      : ("motioncor2", "'Motion Correction2'", "radio_tool", PROC_MOTIONCORR, PROC_MOTIONCORR_LABELNEW + ".motioncor2", "'MotionCorr executable'", "02.star"), 
 
 	# A FAIRE
 	'PROC_CTFFIND':("ctf", "CTF with CTFFIND 4.1", "ctffind", "", PROC_CTFFIND,PROC_CTFFIND_DIRNAME,PROC_CTFFIND_LABELNEW),
@@ -332,7 +332,7 @@ proc_grinder_settings = {
 	'PROC_TOMO_EXCLUDE_TILT_IMAGES':(PROC_TOMO_EXCLUDE_TILT_IMAGES,PROC_TOMO_EXCLUDE_TILT_IMAGES_DIRNAME,PROC_TOMO_EXCLUDE_TILT_IMAGES_LABELNEW),
 	'PROC_TOMO_DENOISE_TOMOGRAM':(PROC_TOMO_DENOISE_TOMOGRAM,PROC_TOMO_DENOISE_DIRNAME,PROC_TOMO_DENOISE_LABELNEW),
 	'PROC_TOMO_PICK_TOMOGRAM':(PROC_TOMO_PICK_TOMOGRAM,PROC_TOMO_PICK_DIRNAME,PROC_TOMO_PICK_LABELNEW),
-	'PROC_EXTERNAL':(PROC_EXTERNAL,PROC_EXTERNAL_DIRNAME,PROC_EXTERNAL_LABELNEW),
+	'PROC_EXTERNAL':(PROC_EXTERNAL,PROC_EXTERNAL_DIRNAME,PROC_EXTERNAL_LABELNEW)
 }
 
 job_sampling_options = [

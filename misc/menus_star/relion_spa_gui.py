@@ -114,11 +114,8 @@ Note that multiple MotionCor2rh.PROCesses should not share a GPU; otherwise, it 
     # Dose-weight
     if (not is_tomo):
         joboptions["do_dose_weighting"] = rno.JobOption("Do dose-weighting?", True ,"If set to Yes, the averaged micrographs will be dose-weighted.")
-    if (not is_tomo):
         joboptions["do_save_noDW"] = rno.JobOption("Save non-dose weighted as well?", False, """Aligned but non-dose weighted images are sometimes useful in CTF estimation, although there is no difference in most cases. Whichever the choice, CTF refinement job is always done on dose-weighted particles.""")
-    if (not is_tomo) :
         joboptions["dose_per_frame"] = rno.JobOption("Dose per frame (e/A2):", 1, 0, 5, 0.2, """Dose per movie frame (in electrons per squared Angstrom).""")
-    if (not is_tomo) :
         joboptions["pre_exposure"] = rno.JobOption("Pre-exposure (e/A2):", 0, 0, 5, 0.5, """Pre-exposure dose (in electrons per squared Angstrom).""")
 
     joboptions["do_save_ps"] = rno.JobOption("Save sum of power spectra?", True, """Sum of non-dose weighted power spectra provides better signal for CTF estimation. The power spectra can be used by CTFFIND4 but not by GCTF. This option is not available for UCSF MotionCor2. You must use this option when writing in float16.""")

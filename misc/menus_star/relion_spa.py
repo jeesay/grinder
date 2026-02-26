@@ -271,8 +271,7 @@ _innode       "MicrographMovieGroupMetadata.star.relion" # LABEL_MOVIES_CPIPE
 _outnode      "MicrographMovieGroupMetadata.star.relion" # LABEL_IMPORT_MOVIES
 _dirname      "Import"                                   # PROC_IMPORT_DIRNAME - Import any file as a Node of a given type
 _hidden_name  '.gui_zzz'
-#
-"""
+#"""
     
 def tabs():
     return """
@@ -288,7 +287,7 @@ io       'I/O'                    bi-arrow-down-up       tab ? ? ?
 settings 'Settings'               bi-tools               tab ? ? ?
 log      'Logs'                   bi-binoculars-fill     tab ? ? ?
 result   'DataViz'                bi-eye                 tab ? ? ?
-"""
+#"""
 
 # def tabs():
 #     return """
@@ -321,7 +320,6 @@ result   'DataViz'                bi-eye                 tab ? ? ?
 
 def io():
     return """
-#
 loop_
 _io.id
 _io.label
@@ -329,11 +327,11 @@ _io.icon
 _io.widget
 _io.default
 _io.help
-indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help' """
+indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help' 
+#"""
 
 def settings():
     return """
-#
 loop_
 _settings.id
 _settings.label
@@ -341,12 +339,11 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help' 
-"""
+general  'General'      bi-chat-right-text     fieldset ?      'No Help'
+#"""
 
 def additional_args():
     return """
-#
 loop_
 _other.id
 _other.label
@@ -357,8 +354,7 @@ _other.arg1
 _other.arg2
 _other.help
 other_args 'Additional Arguments' string '' ? ? ? 'Additional arguments that need to be passed'
-#
-"""
+#"""
 
 def disk_access():
     return """
@@ -397,8 +393,7 @@ do_combine_thru_disc 'Combine iterations through disc?' bool false ? ? ?
 All MPI salves will then read in the combined results. This reduces heavy load on the network, but increases load on the disc I/O. 
 This will affect the time it takes between the progress-bar in the expectation step reaching its end (the mouse gets to the cheese) and the start of the ensuing maximisation step. It will depend on your system setup which is most efficient.
 ;
-#
-"""
+#"""
 
 def compute_gpu():
     return """
@@ -414,8 +409,7 @@ _use_gpu.help
 gpu_ids 'Which GPUs to use:' string '' ? ? ?
 ;This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','. For example: '0,0:1,1:0,0:1,1'
 ;
-#
-"""
+#"""
 
 def compute_queue():
     return """
@@ -429,8 +423,7 @@ _do_queue.arg1
 _do_queue.arg2
 _do_queue.help
 load_queue '' import './spa/00_home/qsub.star' ? ? ? ?
-#
-"""
+#"""
 
 def compute_mpi_thread():
     return """
@@ -445,8 +438,7 @@ _process.arg2
 _process.help
 nr_mpi "Number of MPI procs:" range '{QSUB_NRMPI_VAL}' 1 '{RELION_MPI_MAX}' 1 "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."
 nr_threads "Number of threads:" range '{QSUB_NRTHREADS_VAL}' 1 "{RELION_THREAD_MAX}" 1 "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX."
-#
-"""
+#"""
 
 def compute_mpi():
     return """
@@ -460,8 +452,7 @@ _mpi.arg1
 _mpi.arg2
 _mpi.help
 nr_mpi "Number of MPI procs:" range '{QSUB_NRMPI_VAL}' 1 '{RELION_MPI_MAX}' 1 "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."
-#
-"""
+#"""
 
 
 def cont_process():
@@ -482,8 +473,7 @@ Note that the Output rootname of the continued run and the rootname of the previ
 If they are the same, the program will automatically add a `_ctX` to the output rootname, \
 with X being the iteration from which one continues the previous run.
 ;
-#
-"""
+#"""
 
 def run_buttons():
     return """
@@ -499,8 +489,7 @@ _exec.help
 do_schedule 'Schedule' button true  ? bi-calendar-plus ? 'No help'
 do_run      'Run!'     button true  ? bi-send          ? 'No help'
 do_continue 'Continue' button false ? bi-send-plus  ? 'No help'
-#
-"""
+#"""
 
 ########################## M A I N ##########################
 #
@@ -537,6 +526,75 @@ if __name__ == "__main__":
                 #  "PROC_MASKCREATE", "PROC_JOINSTAR", "PROC_SUBTRACT", "PROC_POST", "PROC_RESMAP", "PROC_INIMODEL", 
                 #  "PROC_MULTIBODY", "PROC_MOTIONREFINE", "PROC_CTFREFINE", "PROC_DYNAMIGHT", "PROC_MODELANGELO" ]
 
+    # for job in jobs_list :
+    #     print(job)
+    #     # tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), 'general': init_table('_general')}
+    #     tables = {'indata': init_table('_indata'), 'general': init_table('_general')}
+
+    #     joboptions = {}
+    #     _main = []
+
+    #     for r in dirs.keys() :
+    #         if job in dirs[r] :
+    #             # append in 00_tools file
+    #             tool_file = open(f"../../public/spa/{r}/00_tools_test.star", "a")
+    #             tool = rno.JobOptionTool(rh.proc_grinder_settings[f"{job}"])
+    #             print(tool.to_star())
+    #             tool_file.write(tool.to_star())
+    #             tool = None
+    #             tool_file.close()
+
+    #             # writing in 0_.star
+    #             indexes[list(dirs).index(r)]+=1
+    #             fic = open(f"../../public/spa/{r}/0{indexes[list(dirs).index(r)]}.star", "w")
+    #             fic.write("data_\n#")
+    #             joboptions = initialise(job)
+    #             # print(joboptions)
+    #             # add header from `_main`
+    #             # for hd in range(len(_main)) :
+    #             #     fic.write(f"""data_\n#\n_id {_main[hd]["id"]:<50}\n_label       {_main[hd]["label"]}\n_widget      radio\n_parent      {_main[hd]["parent"]}\n_help        {_main[hd]["help"]}\n_proc_id     {_main[hd]["proc"]}\n_labelnew    {_main[hd]["labelnew"]}\n_dirname     {_main[hd]["dirname"]}\n_hidden_name {_main[hd]["hidden_name"]}\n#""")
+    #             #Tabs
+    #             fic.write(tabs())
+    #             #I/O
+    #             fic.write(io())
+    #             #Settings
+    #             fic.write(settings())
+    #             for e in joboptions.keys():
+    #                 if joboptions[e].widget == 'node':
+    #                     joboptions[e].widget = 'file'
+    #                     joboptions[e].arg2 = 'inode'
+    #                     tables['indata'] += joboptions[e].to_star(e) + '\n'
+    #                 elif joboptions[e].fieldset == 'indata' :
+    #                     tables['indata'] += joboptions[e].to_star(e) + '\n'
+    #                 elif joboptions[e].widget == 'select':
+    #                     # print('select + option')
+    #                     tables['general'] += joboptions[e].to_star(e) + '\n'
+    #                     # Children
+    #                     parent = e
+    #                     if parent not in tables:
+    #                         tables[parent] = init_table(f'_{parent}')
+    #                     for opt in joboptions[e].radio_options:
+    #                         # TODO
+    #                         tables[parent] += opt.to_star(parent) + '\n'
+    #                 else:
+    #                     tables['general'] += joboptions[e].to_star(e) + '\n'
+
+    #             for t in tables:
+    #                 fic.write(tables[t])
+                
+    #             print(f"MPI : {has_mpi} / Thread : {has_thread} / GPU : {has_gpu} / DISK : {has_disk}")
+                
+    #             # Optional Argument
+    #             if has_gpu :
+    #                 fic.write(compute_gpu())
+    #             if has_thread and has_mpi : 
+    #                 fic.write(compute_mpi_thread())
+    #             if has_mpi and not has_thread :
+    #                 fic.write(compute_mpi())
+    #             if has_disk :
+    #                 fic.write(disk_access())
+    #             fic.close()
+
     for job in jobs_list :
         print(job)
         # tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), 'general': init_table('_general')}
@@ -548,106 +606,65 @@ if __name__ == "__main__":
         for r in dirs.keys() :
             if job in dirs[r] :
                 # append in 00_tools file
-                tool_file = open(f"../../public/spa/{r}/00_tools_test.star", "a")
-                tool = rno.JobOptionTool(rh.proc_grinder_settings[f"{job}"])
-                tool_file.write(tool.to_star())
-                tool = None
-                tool_file.close()
+                # tool_file = open(f"../../public/spa/{r}/00_tools_test.star", "a")
+                # tool = rno.JobOptionTool(rh.proc_grinder_settings[f"{job}"])
+                # print(tool.to_star())
+                # tool_file.write(tool.to_star())
+                # tool = None
+                # tool_file.close()
 
                 # writing in 0_.star
                 indexes[list(dirs).index(r)]+=1
-                fic = open(f"../../public/spa/{r}/0{indexes[list(dirs).index(r)]}.star", "w")
-
+                # fic = open(f"../../public/spa/{r}/0{indexes[list(dirs).index(r)]}_test.star", "w")
+                # fic.write("data_\n#")
                 joboptions = initialise(job)
-                # print(joboptions)
-                # add header from `_main`
-                # for hd in range(len(_main)) :
-                #     fic.write(f"""data_\n#\n_id {_main[hd]["id"]:<50}\n_label       {_main[hd]["label"]}\n_widget      radio\n_parent      {_main[hd]["parent"]}\n_help        {_main[hd]["help"]}\n_proc_id     {_main[hd]["proc"]}\n_labelnew    {_main[hd]["labelnew"]}\n_dirname     {_main[hd]["dirname"]}\n_hidden_name {_main[hd]["hidden_name"]}\n#""")
-                #Tabs
-                fic.write(tabs())
-                #I/O
-                fic.write(io())
-                #Settings
-                fic.write(settings())
+                
+                tool = rno.Tool()
+
+                tool.add_tab(rno.Tab("io", "I/O", "bi-arrow-down-up"))
+                tool.add_tab(rno.Tab("settings", "Settings", "bi-tools"))
+                tool.add_tab(rno.Tab("log", "Logs", "bi-binoculars-fill"))
+                tool.add_tab(rno.Tab("result", "DataViz", "bi-eye"))
+
+                # I/O tab
+                io_tab = tool.tabs["io"]
+                io_tab.add_table(rno.Table("indata", "Input", "bi-arrow-bar-down", help_text="'No Help'"))
+
+                # Settings tab
+                settings_tab = tool.tabs["settings"]
+                settings_tab.add_table(rno.Table("general", "General", "bi-chat-right-text", help_text="'No Help'"))
+
+                # Remplissage des tables
+                indata = io_tab.tables["indata"]
+                general = settings_tab.tables["general"]
+
                 for e in joboptions.keys():
-                    if joboptions[e].widget == 'node':
-                        joboptions[e].widget = 'file'
-                        joboptions[e].arg2 = 'inode'
-                        tables['indata'] += joboptions[e].to_star(e) + '\n'
-                    elif joboptions[e].fieldset == 'indata' :
-                        tables['indata'] += joboptions[e].to_star(e) + '\n'
-                    elif joboptions[e].widget == 'select':
-                        # print('select + option')
-                        tables['general'] += joboptions[e].to_star(e) + '\n'
-                        # Children
-                        parent = e
-                        if parent not in tables:
-                            tables[parent] = init_table(f'_{parent}')
-                        for opt in joboptions[e].radio_options:
-                            # TODO
-                            tables[parent] += opt.to_star(parent) + '\n'
-                    else:
-                        tables['general'] += joboptions[e].to_star(e) + '\n'
+                    if e == "gpu_ids" or "nr_mpi" or "nr_thread" or "do_parallel_discio" or "nr_pool" or "do_preread_images" or "scratch_dir" or "do_combine_thru_disc": 
+                        continue
+                    elif isinstance(joboptions[e], rno.JobOptionIO):
+                        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                        indata.append(joboptions[e])
+                    elif isinstance(joboptions[e], rno.JobOption):
+                        print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+                        general.append(joboptions[e])
 
-                for t in tables:
-                    fic.write(tables[t])
-                
-                print(f"MPI : {has_mpi} / Thread : {has_thread} / GPU : {has_gpu} / DISK : {has_disk}")
-                
-                # Optional Argument
                 if has_gpu :
-                    fic.write(compute_gpu())
-                if has_thread and has_mpi : 
-                    fic.write(compute_mpi_thread())
+                    gpu_table = rno.Table("use_gpu", "GPU", "bi-gpu-card", help_text="'No Help'")
+                    settings_tab.add_table(gpu_table)
+                    gpu = settings_tab.tables["use_gpu"]
+                    gpu.append(joboptions["gpu_ids"])
                 if has_mpi and not has_thread :
-                    fic.write(compute_mpi())
-                if has_disk :
-                    fic.write(disk_access())
-                fic.close()
-
-#     # version with print()
-
-#     for job in jobs_list :
-#         joboptions = {}
-#         _main = []
-#         tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), '_main': init_table('__main')}
-
-#         for r in dirs.keys():
-        
-#             if job in dirs[r] :
-#                 indexes[list(dirs).index(r)]+=1
-#                 print(f"open file : ../../public/spa/{r}/0{indexes[list(dirs).index(r)]}.star, w")
-
-#                 initialise(job)
-#                 # add header from `_main`
-#                 for hd in range(len(_main)) :
-#                     print(f"""
-# data_
-# _id      {_main[hd]["id"]}
-# _parent  {_main[hd]["parent"]}
-# _widget  {_main[hd]["widget"]}
-# _label   {_main[hd]["label"]}
-# #
-# """)
-#                 for e in joboptions.keys():
-#                     if joboptions[e].widget == 'node':
-#                         joboptions[e].widget = 'file'
-#                         joboptions[e].arg2 = 'inode'
-#                         tables['indata'] += joboptions[e].to_star(e) + '\n'
-#                     elif joboptions[e].widget == 'select':
-#                         tables['_main'] += joboptions[e].to_star(e) + '\n'
-#                         # Children
-#                         parent = e
-#                         if parent not in tables:
-#                             tables[parent] = init_table(f'_{parent}')
-#                         for opt in joboptions[e].radio_options:
-#                             # TODO
-#                             tables[parent] += opt.to_star(parent) + '\n'
-#                     else:
-#                         tables['_main'] += joboptions[e].to_star(e) + '\n'
-
-#                 for t in tables:
-#                     print(tables[t])
+                    mpi_table = rno.Table("mpi", "Parallele Computing", "bi-speedometer", help_text="'No Help'")
+                    settings_tab.add_table(mpi_table)
+                    mpi = settings_tab.tables["mpi"]
+                    mpi.append(rno.JobOption("nr_mpi", "Number of MPI procs:", "range", "{QSUB_NRMPI_VAL}", 1, "{RELION_MPI_MAX}", 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."))
+                if has_mpi and has_thread :
+                    proc_table = rno.Table("process", "Parallel computing", "bi-chat-right-text", help_text="'No Help'")
+                    settings_tab.add_table(proc_table)
+                    process = settings_tab.tables["process"]
+                    process.append(rno.JobOption("nr_mpi", "Number of MPI procs:", "range", '{QSUB_NRMPI_VAL}', 1, '{RELION_MPI_MAX}', 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."))
+                    process.append(rno.JobOption("nr_threads", "Number of threads:", "range", "{QSUB_NRTHREADS_VAL}", 1, "{RELION_THREAD_MAX}", 1, "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX."))
+    print(str(tool))
 
 """
 
