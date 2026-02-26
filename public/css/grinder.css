@@ -555,6 +555,29 @@ output {
 .range_text input[type=number] {
   width: 285px;
 }
+
+.range-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Style for when the value is "Bypassing" the limits */
+.out-of-range {
+  border: 2px solid #ff4d4d !important;
+  color: #ff4d4d;
+  outline: none;
+  background-color: #fff0f0;
+}
+  
+.range-container input[type="number"] {
+  width: 70px;
+  padding: 5px;
+  transition: all 0.2s ease;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 /* Job History Table */
 
 #jhistory {
