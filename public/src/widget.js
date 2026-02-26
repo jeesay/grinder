@@ -333,12 +333,13 @@ const w_range = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`div#${desc.id}.range-container`,
+    h(`div#${desc.id}_container.range-container`,
       {
-        style: {display:'flex'}
+        style: {display:'flex'},
+        attrs: {value: desc.default}
       },
       [
-        h(`input#${desc.id}_range.param`, 
+        h(`input#${desc.id}_range`, 
           {
             attrs: {
               type:'range',
@@ -352,14 +353,14 @@ const w_range = (desc) => h('div.row',
             on: {input: (ev) => check_bounds(ev.target.value,ev.target) }
           }
         ),
-        h(`input#${desc.id}_number.param_`, 
+        h(`input#${desc.id}.param`, 
           {
             attrs: {
               type:'number',
               value: desc.default,
               step: desc.arg2,
               lang:'en',
-              name:desc.id + '_number'
+              name:desc.id
             },
             dataset: ('option' in desc) ? {option: desc.option} : {},
             on: {input: (ev) => check_bounds(ev.target.value,ev.target)}
@@ -731,12 +732,61 @@ const w_cli = (desc) => {
 
   // Private function
   const gen_cli = (ev) => {
-    const all_args = document.querySelector('section #args.params').querySelectorAll('input.param');
+    const all_args = document.querySelectorAll('section .param');
     // Create command-line from all the args set up in the GUI
     let cli = '';
     all_args.forEach( (w) => cli += (w.id+ ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n') );
     console.log('CLI ARGS',cli);
-    document.getElementById('source_code').innerText = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
+    const content = h('table.custom-table',
+      [
+        h('caption','Program parameters'),
+        h('thead',
+          [ h('tr',[h('th',{attrs: {scope: "col"}},'Key'),h('th',{attrs: {scope: "col"}},'Value')])]
+        ),
+        h('tbody',
+          Array.from(all_args).map(wdgt => h('tr',[h('td',{attrs: {scope: "row"}},wdgt.id),h('td',{attrs: {scope: "row"}},wdgt.value)])
+      ))
+      ]
+    );
+/*
+  <thead>
+    <tr>
+      <th scope="col">Nom</th>
+      <th scope="col">Principal intérêt</th>
+      <th scope="col">Âge</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Chris</th>
+      <td>Tables HTML</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th scope="row">Dennis</th>
+      <td>Accessibilité web</td>
+      <td>45</td>
+    </tr>
+    <tr>
+      <th scope="row">Sarah</th>
+      <td>Frameworks JavaScript</td>
+      <td>29</td>
+    </tr>
+    <tr>
+      <th scope="row">Karen</th>
+      <td>Performance web</td>
+      <td>36</td>
+    </tr>
+  </tbody>
+  <tfoot>
+    <tr>
+      <th scope="row" colspan="2">Âge moyen</th>
+      <td>33</td>
+    </tr>
+  </tfoot>
+</table>')
+*/
+    document.getElementById('source_code').appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
   }
   
   // Main

@@ -273,6 +273,50 @@ main {
   margin: 0 10px;
 }
 
+/* Container to make the table scrollable on small screens */
+.table-container {
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.custom-table {
+  border-collapse: collapse;
+  width: 50%;
+  /* font-family: sans-serif; */
+  font-size: 0.9rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+
+.custom-table thead tr {
+  background-color: #333333;
+  color: #ffffff;
+  text-align: left;
+  font-weight: bold;
+}
+
+.custom-table th,
+.custom-table td {
+  padding: 12px 15px;
+}
+
+/* Alternate Gray Rows (Zebra Striping) */
+.custom-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+/* Hover effect for better interactivity */
+.custom-table tbody tr:hover {
+  background-color: #ebebeb;
+  transition: background-color 0.2s ease;
+}
+
+/* Bottom border for the last row to give it a finished look */
+.custom-table tbody tr:last-of-type {
+  border-bottom: 2px solid #333333;
+}
+
 details {
     border: 1px solid #aaa;
     border-radius: 4px;

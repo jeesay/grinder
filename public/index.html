@@ -162,146 +162,6 @@
     return flat_table;
   }
   
-  const to_tree = (star) => {
-    console.info(star,Object.keys(star));
-    let tab_count = 0;
-    // Initialize root
-    const db = star;
-    console.info('DB',db);
-    // Get all tables and build hierarchy
-    let tables = get_tables(star);
-    let flat_table = flat_tables(tables);
-    let root = {
-      id : db.id,
-      label: db.label,
-      widget:db.widget,
-      style: {display: 'none'},
-      parent:db.parent,
-      tab_count: tab_count, // Required by the click
-      children: []
-      // children: [
-      //   // First tab from `00_tools.star`
-      //   {
-      //     id : 'tools',
-      //     label: db.label,
-      //     widget:'tab',
-      //     index: tab_count++,
-      //     icon:db.icon,
-      //     parent:db.id,
-      //     children:from_startable(db.table)
-      //   }
-
-    }
-
-    console.info('>>>>>>>>>>>>>>>>>>>>> NEW CAT',star.id);
-    if (star.id == 'import_tools') {
-    //   star.children.forEach( (child,index) => {
-    //     // Create radio widget for tab #0 aka `Tools`
-    //     const radio = {
-    //       id : child.id,
-    //       label: child.label,
-    //       widget:'radio',
-    //       icon:child.icon,
-    //       parent:child.parent,
-    //       on_click: (ev) => w_params({id: `toolset_${index}`, index: index, parent: top.parent,parent_label: top.label, grandchildren: root.grandchildren})
-    //     };
-    //     const found =  root.children[0].children.find((el) => el.id === radio.parent);
-    //     found.children.push(radio);
-    //     // Second div from the other tabs
-    //     let toolset = {
-    //       id : `toolset_${index}`,
-    //       label: db.label,
-    //       widget:'tabgroup',
-    //       index: tab_count,
-    //       icon:db.icon,
-    //       parent:db.id,
-    //       children:[]
-    //     };
-    //     root.children.push(toolset);
-
-    // Create other tabs `Settings`, `Log`, `DataViz`, etc.
-    // let tables = get_tables(child);
-    // let flat_table = flat_tables(tables);
-    // Find out the genealogy aka find the children for group widgets
-    flat_table.forEach(wdgt => {
-      console.log('WIDGET',wdgt);
-      // Group widget
-      // if (['tab','radio_tool','fieldset','switch','details', 'cli', 'toolbar','select'].includes(wdgt.widget)) {
-      //   wdgt.children = [];
-      // }
-      // Attach the tab to the `toolset`
-      if (wdgt.widget == 'toolmenu') {
-        console.log('ADD TOOLMENU',wdgt);
-        // wdgt.parent = db.id;
-        wdgt.index = tab_count;
-        tab_count++;
-        root.children.push(wdgt);
-      }
-      else if ('parent' in wdgt) {
-        // Attach other widgets depending of their parent.
-        const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
-        console.info('FIND PARENT',index,wdgt,flat_table[index]);
-        flat_table[index].children.push(wdgt);
-      }
-    }); 
-      // Attach to parent root > tab Tools > refine
-      // root.children[0].children[2].children = flat_table;
-
-      // });
-    }
-/*
-    tab_count++;
-    console.info(db.children);
-    // Create all the tabs + fieldsets + widgets
-    db.children.forEach( (top,index) => {
-      // Add Radio widgets in Tools fieldsets
-      const tool_fields = root.children[0].children;
-      console.info(top.id,top.parent,tool_fields);
-      const found =  tool_fields.find((el) => el.id === top.parent);
-      console.log('FOUND',found);
-      if (!('children' in found)) {
-        found.children = []
-      }
-      found.children.push({
-        id:top.id,
-        label:top.label,
-        icon: top.icon,
-        widget:top.widget,
-        parent:top.parent,
-        help: top.help,
-        on_click: (ev) => w_params({id: `args_${index}`, index: index, parent: top.parent,parent_label: top.label, grandchildren: root.grandchildren})
-      });
-      // Create other tabs
-      let args = {id: `args_${index}`,widget:'params', style: {display: 'none'}, parent:found.id, children: []};
-      root.grandchildren.push(args);
-      // Create tabs
-      from_startable(top.groups)
-        .filter(w => w.widget === 'tab')
-        .forEach((w,i) => {
-          w.children = [];
-          w.index = tab_count;
-          args.children.push(w);
-          tab_count++;
-      });
-      // Create `fieldsets`
-      from_startable(top.groups)
-        .filter(w => ['fieldset','switch','toolbar','details','cli'].includes(w.widget) )
-        .forEach((fs,i) => {
-          console.info('fieldset',fs,args.children);
-          const found_fs =  args.children.find((el) => el.id === fs.parent);
-          // Create widgets in each `fieldset`
-          console.info('WIDGET',fs.id,top);
-          let _tmp = from_startable(top[fs.id]);
-          console.info('WIDGET AFTER',_tmp);
-          fs.children.push(..._tmp);
-          found_fs.children.push(fs);
-      });
-      
-    });
-*/
-    return root;
-  }
-  
   const build_tree = (datablock,parent) => {
     // Get all tables and build hierarchy
     let tables = get_tables(datablock);
@@ -404,10 +264,8 @@
       }); 
       // Prepare all the widgets tree
       console.info('TOOLS',root)
-      // const wdgt_tree = to_tree(tools);
-      // console.info('TOOL',wdgt_tree);
+
       all_of_them.push(root);
-      // w_tab_tools(document.querySelector('main'),wdgt_tree);
     }
     return all_of_them;
   }
