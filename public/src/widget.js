@@ -268,12 +268,113 @@ const w_float = (desc) => {
   // TODO
   return w_int(desc);
 }
+/*
+<div class="range-container">
+  <input type="range" 
+         id="myRange" 
+         min="0" 
+         max="100" 
+         value="50" 
+         oninput="syncInput(this.value)">
+
+  <input type="number" 
+         id="myNumber" 
+         value="50" 
+         oninput="syncRange(this.value)">
+</div>
+
+  const range = document.getElementById('myRange');
+  const number = document.getElementById('myNumber');
+
+  function checkBounds(val) {
+    const min = parseInt(range.min);
+    const max = parseInt(range.max);
+    
+    // Add red styling if value is outside the 0-100 range
+    if (val < min || val > max) {
+      number.classList.add('out-of-range');
+    } else {
+      number.classList.remove('out-of-range');
+    }
+  }
+
+  function syncInput(val) {
+    number.value = val;
+    checkBounds(val);
+  }
+
+  function syncRange(val) {
+    range.value = val;
+    checkBounds(val);
+  }
+*/
+
+function check_bounds(val,widget) {
+  console.log(widget);
+  let range  = (widget.type === 'range') ? widget : widget.previousElementSibling;
+  let number = (widget.type === 'number') ? widget : widget.nextElementSibling
+  // Update values
+  widget.parentElement.value = val;
+  range.value = val;
+  number.value = val;
+  console.log(range,number);
+  const min = parseInt(range.min);;
+  const max = parseInt(range.max);
+
+  // Add red styling if value is outside the 0-100 range
+  if (val < min || val > max) {
+    number.classList.add('out-of-range');
+  } else {
+    number.classList.remove('out-of-range');
+  }
+}
 
 const w_range = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h('div.range_slider',
+    h(`div#${desc.id}.range-container`,
+      {
+        style: {display:'flex'}
+      },
+      [
+        h(`input#${desc.id}_range.param`, 
+          {
+            attrs: {
+              type:'range',
+              min: desc.arg0,
+              max: desc.arg1,
+              step: desc.arg2,
+              value: desc.default,
+              name:desc.id + '_range'
+            },
+            dataset: ('option' in desc) ? {option: desc.option} : {},
+            on: {input: (ev) => check_bounds(ev.target.value,ev.target) }
+          }
+        ),
+        h(`input#${desc.id}_number.param_`, 
+          {
+            attrs: {
+              type:'number',
+              value: desc.default,
+              step: desc.arg2,
+              lang:'en',
+              name:desc.id + '_number'
+            },
+            dataset: ('option' in desc) ? {option: desc.option} : {},
+            on: {input: (ev) => check_bounds(ev.target.value,ev.target)}
+
+          }
+        )
+      ])
+    ]
+  );
+
+const w_range_old = (desc) => h('div.row',
+  [
+    h('label',{attrs: {'for':desc.id}},desc.label),
+    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('div.range-container',
       {
         style: {display:'flex'}
       },
@@ -286,10 +387,10 @@ const w_range = (desc) => h('div.row',
               max: desc.arg1,
               step: desc.arg2,
               value: desc.default,
-              name:desc.id
+              name:desc.id + '_range'
             },
             dataset: ('option' in desc) ? {option: desc.option} : {},
-            on: {input: (ev) => {ev.target.nextElementSibling.value = ev.target.value} }
+            on: {input: (ev) => {number.value = ev.target.value; check_bounds(val,ev.target)} }
           }
         ),
         h('output.not-allowed', {dataset: ('option' in desc) ? {option: desc.option} : {} }, desc.default.toString()),
