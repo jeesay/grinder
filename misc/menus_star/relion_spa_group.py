@@ -1,15 +1,19 @@
 TOGGLE_DEACTIVATE = 0
+TOGGLE_LEAVE_ACTIVE = 1
 
 class Group:
     pass
+
 
 def place(a,b,c=True,d=0,e=True):
     pass
 
 is_tomo = False
-group1 = group2 = group3 = group4 = 0
+group1 = group2 = group3 = group4 = group5 = group6 = group7 = 0
+
 
 def initialiseImportWindow():
+    groups = []
     grp = Group()
     place(grp,"do_raw", TOGGLE_DEACTIVATE, group1, False)
     grp.end()
@@ -35,7 +39,10 @@ def initialiseImportWindow():
     grp = Group()
     place(grp,"optics_group_particles")
 
+    return groups
+
 def initialiseMotioncorrWindow():
+    groups = []
     grp = Group()
     place(grp,"input_star_mics", TOGGLE_DEACTIVATE)
     grp.end()
@@ -73,7 +80,10 @@ def initialiseMotioncorrWindow():
     place(grp,"gpu_ids")
     place(grp,"other_motioncor2_args", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseCtffindWindow():
+    groups = []
     grp = Group()
     place(grp,"input_star_mics", TOGGLE_DEACTIVATE)
     if not is_tomo:
@@ -102,7 +112,10 @@ def initialiseCtffindWindow():
     place(grp,"localsearch_nominal_defocus", TOGGLE_DEACTIVATE)
     place(grp,"exp_factor_dose", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseManualpickWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_in", TOGGLE_DEACTIVATE)
     grp.end()
@@ -129,7 +142,10 @@ def initialiseManualpickWindow():
     place(grp,"blue_value")
     place(grp,"red_value")
 
+    return groups
+
 def initialiseAutopickWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_input_autopick", TOGGLE_DEACTIVATE)
     place(grp,"angpix", TOGGLE_DEACTIVATE)
@@ -175,7 +191,8 @@ def initialiseAutopickWindow():
     place(grp,"psi_sampling_autopick", TOGGLE_DEACTIVATE)
     place(grp,"do_invert_refs", TOGGLE_DEACTIVATE)
     place(grp,"do_ctf_autopick", TOGGLE_DEACTIVATE, group2)
-    place(grp,"do_ignore_first_ctfpeak_autopick", TOGGLE_DEACTIVATE) # (current_y, "Ignore CTFs until first peak?", False,"Set this to Yes, only if this option was also used to generate the references.")
+    place(grp,"do_ignore_first_ctfpeak_autopick", TOGGLE_DEACTIVATE) 
+    # (current_y, "Ignore CTFs until first peak?", False,"Set this to Yes, only if this option was also used to generate the references.")
     place(grp,"threshold_autopick")
     place(grp,"mindist_autopick")
     place(grp,"maxstddevnoise_autopick")
@@ -201,7 +218,11 @@ def initialiseAutopickWindow():
     grp = Group()
     place(grp,"do_amyloid")
 
+    return groups
+
 def initialiseExtractWindow():
+    groups = []
+    groups = []
     grp = Group()
     place(grp,"star_mics", TOGGLE_DEACTIVATE)
     grp.end()
@@ -249,7 +270,10 @@ def initialiseExtractWindow():
     place(grp,"helical_nr_asu", TOGGLE_DEACTIVATE)
     place(grp,"helical_rise", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseSelectWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_model", TOGGLE_DEACTIVATE)
     place(grp,"fn_mic", TOGGLE_DEACTIVATE)
@@ -285,7 +309,10 @@ def initialiseSelectWindow():
     place(grp,"dendrogram_threshold", TOGGLE_LEAVE_ACTIVE)
     place(grp,"dendrogram_minclass", TOGGLE_LEAVE_ACTIVE)
 
+    return groups
+
 def initialiseClass2DWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_img", TOGGLE_DEACTIVATE)
     grp.end()
@@ -334,7 +361,10 @@ def initialiseClass2DWindow():
     place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
     place(grp,"gpu_ids", TOGGLE_LEAVE_ACTIVE)
 
+    return groups
+
 def initialiseInimodelWindow():
+    groups = []
     grp = Group()
     placeTomoInput(True, True, True, False)
     place(grp,"fn_img", TOGGLE_DEACTIVATE)
@@ -365,7 +395,10 @@ def initialiseInimodelWindow():
     place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
     place(grp,"gpu_ids", TOGGLE_LEAVE_ACTIVE)
 
+    return groups
+
 def initialiseClass3DWindow():
+    groups = []
     grp = Group()
     placeTomoInput(True, True, True, False)
     place(grp,"fn_img", TOGGLE_DEACTIVATE)
@@ -441,7 +474,10 @@ def initialiseClass3DWindow():
     place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group8)
     place(grp,"gpu_ids")
 
+    return groups
+
 def initialiseAutorefineWindow():
+    groups = []
     grp = Group()
     placeTomoInput(True, True, True, False)
     place(grp,"fn_img", TOGGLE_DEACTIVATE)
@@ -508,7 +544,10 @@ def initialiseAutorefineWindow():
     place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group5)
     place(grp,"gpu_ids")
 
+    return groups
+
 def initialiseMultiBodyWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_in", TOGGLE_DEACTIVATE)
     place(grp,"fn_cont", TOGGLE_REACTIVATE)
@@ -539,7 +578,10 @@ def initialiseMultiBodyWindow():
     place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group4)
     place(grp,"gpu_ids")
 
+    return groups
+
 def initialiseMaskcreateWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_in", TOGGLE_DEACTIVATE) # (current_y, "Input 3D map:", NODE_3DREF, "", "MRC map files (*.mrc)", "Provide an input MRC map from which to start binarizing the map.")
     place(grp,"lowpass_filter")
@@ -552,7 +594,10 @@ def initialiseMaskcreateWindow():
     place(grp,"do_helix", TOGGLE_LEAVE_ACTIVE, group1)
     place(grp,"helical_z_percentage")
 
+    return groups
+
 def initialiseJoinstarWindow():
+    groups = []
     grp = Group()
     place(grp,"do_part", TOGGLE_DEACTIVATE, group1)
     place(grp,"fn_part1", TOGGLE_DEACTIVATE)
@@ -570,7 +615,10 @@ def initialiseJoinstarWindow():
     place(grp,"fn_mov3", TOGGLE_DEACTIVATE)
     place(grp,"fn_mov4", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseSubtractWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_opt", TOGGLE_DEACTIVATE)
     place(grp,"fn_mask", TOGGLE_DEACTIVATE)
@@ -588,7 +636,10 @@ def initialiseSubtractWindow():
     grp =Group()
     place(grp,"new_box", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialisePostprocessWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_in", TOGGLE_DEACTIVATE) # (current_y, "One of the 2 unfiltered half-maps:", NODE_HALFMAP, "", "MRC map files (*half1_class001_unfil.mrc)",  "Provide one of the two unfiltered half-reconstructions that were output upon convergence of a 3D auto-refine run.")
     place(grp,"fn_mask", TOGGLE_DEACTIVATE) # (current_y, "Solvent mask:", NODE_MASK, "", "Image Files (*.{spi,vol,msk,mrc})", "Provide a soft mask where the protein is white (1) and the solvent is black (0). Often, the softer the mask the higher resolution estimates you will get. A soft edge of 5-10 pixels is often a good edge width.")
@@ -608,7 +659,10 @@ def initialisePostprocessWindow():
     place(grp,"fn_mtf")
     place(grp,"mtf_angpix")
 
+    return groups
+
 def initialiseLocresWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_in", TOGGLE_DEACTIVATE)
     place(grp,"fn_mask")
@@ -629,7 +683,10 @@ def initialiseLocresWindow():
     place(grp,"adhoc_bfac", TOGGLE_DEACTIVATE)
     place(grp,"fn_mtf", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseMotionrefineWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_mic", TOGGLE_DEACTIVATE)
     place(grp,"fn_data", TOGGLE_DEACTIVATE)
@@ -657,7 +714,10 @@ def initialiseMotionrefineWindow():
     place(grp,"minres", TOGGLE_DEACTIVATE)
     place(grp,"maxres", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseCtfrefineWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_data", TOGGLE_DEACTIVATE)
     place(grp,"fn_post", TOGGLE_DEACTIVATE)
@@ -676,7 +736,10 @@ def initialiseCtfrefineWindow():
     current_y += STEPY /2 
     place(grp,"minres", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseDynaMightWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_star", TOGGLE_DEACTIVATE)
     place(grp,"fn_map", TOGGLE_DEACTIVATE)
@@ -701,7 +764,10 @@ def initialiseDynaMightWindow():
     place(grp,"do_reconstruct",TOGGLE_REACTIVATE, group3, False)
     place(grp,"backproject_batchsize")
 
+    return groups
+
 def initialiseModelAngeloWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_map", TOGGLE_DEACTIVATE)
     place(grp,"p_seq", TOGGLE_DEACTIVATE)
@@ -720,7 +786,10 @@ def initialiseModelAngeloWindow():
     place(grp,"F3", TOGGLE_LEAVE_ACTIVE)
     place(grp,"E", TOGGLE_LEAVE_ACTIVE)
 
+    return groups
+
 def initialiseExternalWindow():
+    groups = []
     grp = Group()
     place(grp,"fn_exe", TOGGLE_DEACTIVATE)
     current_y += STEPY /2 
@@ -741,6 +810,8 @@ def initialiseExternalWindow():
     place2("param9_label", "param9_value", "Param9 label, value:", TOGGLE_LEAVE_ACTIVE)
     place2("param10_label", "param10_value", "Param10 label, value:", TOGGLE_LEAVE_ACTIVE)
 
+    return groups
+
 def placeTomoInput(bool has_tomograms, bool has_particles,
     place(grp,"in_optimisation", TOGGLE_DEACTIVATE)
     place(grp,"use_direct_entries", TOGGLE_DEACTIVATE, group0, False)
@@ -750,7 +821,10 @@ def placeTomoInput(bool has_tomograms, bool has_particles,
     if (has_manifolds) place(grp,"in_manifolds", TOGGLE_DEACTIVATE)
     current_y += STEPY /2 
 
+    return groups
+
 def initialiseTomoImportWindow():
+    groups = []
     grp = Group()
     place(grp,"movie_files", TOGGLE_DEACTIVATE)
     place(grp,"images_are_motion_corrected", TOGGLE_DEACTIVATE)
@@ -780,7 +854,10 @@ def initialiseTomoImportWindow():
     place(grp,"scale_factor", TOGGLE_DEACTIVATE)
     place(grp,"add_factor", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseTomoAlignTiltseriesWindow():
+    groups = []
     grp = Group()
     place(grp,"in_tiltseries", TOGGLE_DEACTIVATE)
     grp.end()
@@ -813,7 +890,10 @@ def initialiseTomoAlignTiltseriesWindow():
     place(grp,"other_aretomo_args", TOGGLE_DEACTIVATE)
     place(grp,"gpu_ids")
 
+    return groups
+
 def initialiseTomoReconstructTomogramsWindow():
+    groups = []
     grp = Group()
     place(grp,"in_tiltseries", TOGGLE_DEACTIVATE)
     current_y += STEPY /2 
@@ -833,7 +913,10 @@ def initialiseTomoReconstructTomogramsWindow():
     place(grp,"do_fourier", TOGGLE_DEACTIVATE, group2, False)
     place(grp,"ctf_intact_first_peak", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseTomoDenoiseTomogramsWindow():
+    groups = []
     grp = Group()
     place(grp,"in_tomoset", TOGGLE_DEACTIVATE)
     grp.end()
@@ -852,7 +935,10 @@ def initialiseTomoDenoiseTomogramsWindow():
     current_y += STEPY /2 
     place(grp,"denoising_tomo_name", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseTomoPickTomogramsWindow():
+    groups = []
     grp = Group()
     place(grp,"in_tomoset", TOGGLE_DEACTIVATE)
     # place(grp,"cache_size", TOGGLE_DEACTIVATE)
@@ -866,7 +952,10 @@ def initialiseTomoPickTomogramsWindow():
     grp =Group()
     place(grp,"in_star_file", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseTomoSubtomoWindow():
+    groups = []
     grp = Group()
     placeTomoInput(True, True, True, False)
     place(grp,"binning", TOGGLE_DEACTIVATE)
@@ -879,7 +968,10 @@ def initialiseTomoSubtomoWindow():
     place(grp,"do_stack2d", TOGGLE_DEACTIVATE)
     place(grp,"do_float16", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseTomoCtfRefineWindow():
+    groups = []
     grp = Group()
     placeTomoInput(True, True, True, False)
     place(grp,"in_halfmaps", TOGGLE_DEACTIVATE)
@@ -901,7 +993,10 @@ def initialiseTomoCtfRefineWindow():
     place(grp,"do_even_aberr", TOGGLE_DEACTIVATE, group4)
     place(grp,"nr_even_aberr", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseTomoAlignWindow():
+    groups = []
     grp = Group()
     placeTomoInput(True, True, True, False)
     place(grp,"in_halfmaps", TOGGLE_DEACTIVATE)
@@ -918,7 +1013,10 @@ def initialiseTomoAlignWindow():
     place(grp,"sigma_div", TOGGLE_DEACTIVATE)
     place(grp,"do_sq_exp_ker", TOGGLE_DEACTIVATE)
 
+    return groups
+
 def initialiseTomoReconParWindow():
+    groups = []
     grp = Group()
     placeTomoInput(True, True, True, False)
     place(grp,"binning", TOGGLE_DEACTIVATE)
@@ -936,7 +1034,10 @@ def initialiseTomoReconParWindow():
     place(grp,"helical_tube_outer_diameter")
     place(grp,"helical_z_percentage")
 
+    return groups
+
 def initialiseTomoExcludeTiltImagesWindow():
+    groups = []
     grp = Group()
     place(grp,"in_tiltseries", TOGGLE_DEACTIVATE)
     grp.end()
