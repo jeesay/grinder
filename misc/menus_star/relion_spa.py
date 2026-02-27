@@ -34,23 +34,29 @@ def get_starname(proc_id):
         return f'{index+1:02}.star'
     raise ValueError(proc_id)
 
+def get_proc_values(tuple):
+    seq = []
+
 # Initialise
 def initialise(_job_type):
     type = _job_type
     opts = None
     rsg.init_joboptions()
     global has_disk, has_gpu ,has_mpi, has_thread
+
+    # _main = rno.Table(["id","label","widget","proc_id","labelnew","dirname","hidden_name","help","filename"])
+    # row = rno.Row(get_proc_values(rh.proc_grinder_settings[type]))
     
     if (type == "PROC_IMPORT_RAW_GRR"):
         has_mpi = has_thread = has_gpu = has_disk = False
         hidden_name = rsg.initialiseImportRawJob()
         opts = rsg.get_joboptions()
         # outdata, prg = rhs.getCommandsImportawJob()
-        id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
-        _main = Table(["id","label","widget","proc_id","labelnew","dirname","hidden_name","help","filename"])
+        # id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
+        # _main = Table(["id","label","widget","proc_id","labelnew","dirname","hidden_name","help","filename"])
         # row = Row(get_proc_values(rh.proc_grinder_settings[type]))
-        row.append{"filename",get_starname(proc_id))
-        _main.append(row)
+        # row.append{"filename",get_starname(proc_id))
+        # _main.append(row)
         # dirname = rh.proc_type2dirname(rh.PROC_IMPORT)
 #        getCommandsImportJobRaw(f'{dirname}/job{counter}/')
 #        getCommandsImportJobOther(f'{dirname}/job{counter}/')
@@ -522,6 +528,8 @@ jobs_list = ["PROC_IMPORT_RAW_GRR", "PROC_IMPORT_PARTICLES_GRR", "PROC_IMPORT_OT
             #  "PROC_MASKCREATE", "PROC_JOINSTAR", "PROC_SUBTRACT", "PROC_POST", "PROC_RESMAP", "PROC_INIMODEL", 
             #  "PROC_MULTIBODY", "PROC_MOTIONREFINE", "PROC_CTFREFINE", "PROC_DYNAMIGHT", "PROC_MODELANGELO" ]
 
+header_cols = ["id", "label", "icon", "widget", "default", "parent", "help"]
+data_cols = ["id", "label", "widget", "default", "arg0", "arg1", "arg2", "help"]
 
 
 ########################## M A I N ##########################
@@ -624,16 +632,16 @@ if __name__ == "__main__":
         for r in dirs.keys() :
             if job in dirs[r] :
                 # append in 00_tools file
-                # tool_file = open(f"../../public/spa/{r}/00_tools_test.star", "a")
-                # tool = rno.JobOptionTool(rh.proc_grinder_settings[f"{job}"])
+                tool_file = open(f"../../public/spa/{r}/00_tools_test.star", "a")
+                tool = rno.JobOptionTool(rh.proc_grinder_settings[f"{job}"])
                 # print(tool.to_star())
-                # tool_file.write(tool.to_star())
-                # tool = None
-                # tool_file.close()
+                tool_file.write(tool.to_star())
+                tool = None
+                tool_file.close()
 
                 # writing in 0_.star
                 indexes[list(dirs).index(r)]+=1
-                # fic = open(f"../../public/spa/{r}/0{indexes[list(dirs).index(r)]}_test.star", "w")
+                fic = open(f"../../public/spa/{r}/0{indexes[list(dirs).index(r)]}_test.star", "w")
                 # fic.write("data_\n#")
                 joboptions = initialise(job)
                 
@@ -646,43 +654,54 @@ if __name__ == "__main__":
 
                 # I/O tab
                 io_tab = tool.tabs["io"]
-                io_tab.add_table(rno.Table("indata", "Input", "bi-arrow-bar-down", help_text="'No Help'"))
+                # io_tab.add_table(rno.Table("indata", header_cols))
+                io_tab.add_table(rno.Table("indata", "Input", "bi-arrow-bar-down", "No Help"))
 
                 # Settings tab
                 settings_tab = tool.tabs["settings"]
-                settings_tab.add_table(rno.Table("general", "General", "bi-chat-right-text", help_text="'No Help'"))
+                # settings_tab.add_table(rno.Table("general", header_cols))
+                settings_tab.add_table(rno.Table("general", "General", "bi-chat-right-text", "No Help"))
 
-                # Remplissage des tables
+                # Tables fill
                 indata = io_tab.tables["indata"]
                 general = settings_tab.tables["general"]
 
-                for e in joboptions.keys():
-                    if e == "gpu_ids" or "nr_mpi" or "nr_thread" or "do_parallel_discio" or "nr_pool" or "do_preread_images" or "scratch_dir" or "do_combine_thru_disc": 
+                for key, jo in joboptions.items():
+                    # print(jo)
+                    # row = rno.Row()
+                    # row.from_joboption(jo)
+                    # print(row)
+                    if key in ["gpu_ids", "nr_mpi", "nr_thread" , "do_parallel_discio" , "nr_pool" , "do_preread_images" , "scratch_dir" , "do_combine_thru_disc"] : 
                         continue
-                    elif isinstance(joboptions[e], rno.JobOptionIO):
-                        print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-                        indata.append(joboptions[e])
-                    elif isinstance(joboptions[e], rno.JobOption):
-                        print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
-                        general.append(joboptions[e])
+                    elif isinstance(jo, rno.JobOptionIO):
+                        # print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                        indata.append(key, jo)
+                        # indata.append(row)
+                    elif isinstance(jo, rno.JobOption):
+                        # print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+                        general.append(key, jo)
+                        # general.append(row)
 
                 if has_gpu :
                     gpu_table = rno.Table("use_gpu", "GPU", "bi-gpu-card", help_text="'No Help'")
                     settings_tab.add_table(gpu_table)
                     gpu = settings_tab.tables["use_gpu"]
-                    gpu.append(joboptions["gpu_ids"])
+                    gpu.append("gpu_ids", joboptions["gpu_ids"])
                 if has_mpi and not has_thread :
                     mpi_table = rno.Table("mpi", "Parallele Computing", "bi-speedometer", help_text="'No Help'")
                     settings_tab.add_table(mpi_table)
                     mpi = settings_tab.tables["mpi"]
-                    mpi.append(rno.JobOption("nr_mpi", "Number of MPI procs:", "range", "{QSUB_NRMPI_VAL}", 1, "{RELION_MPI_MAX}", 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."))
+                    mpi.append("nr_mpi", rno.JobOption("nr_mpi", "Number of MPI procs:", "range", "{QSUB_NRMPI_VAL}", 1, "{RELION_MPI_MAX}", 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."))
                 if has_mpi and has_thread :
                     proc_table = rno.Table("process", "Parallel computing", "bi-chat-right-text", help_text="'No Help'")
                     settings_tab.add_table(proc_table)
                     process = settings_tab.tables["process"]
-                    process.append(rno.JobOption("nr_mpi", "Number of MPI procs:", "range", '{QSUB_NRMPI_VAL}', 1, '{RELION_MPI_MAX}', 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."))
-                    process.append(rno.JobOption("nr_threads", "Number of threads:", "range", "{QSUB_NRTHREADS_VAL}", 1, "{RELION_THREAD_MAX}", 1, "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX."))
-    print(str(tool))
+                    process.append("nr_mpi", rno.JobOption("nr_mpi", "Number of MPI procs:", "range", '{QSUB_NRMPI_VAL}', 1, '{RELION_MPI_MAX}', 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."))
+                    process.append("nr_thread", rno.JobOption("nr_threads", "Number of threads:", "range", "{QSUB_NRTHREADS_VAL}", 1, "{RELION_THREAD_MAX}", 1, "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX."))
+                # print(indata)
+                # print(general)
+                fic.write(str(tool))
+                fic.close()
 
 """
 
