@@ -71,7 +71,7 @@ class JobOption:
         self.help = _helptext
 
 
-# FileName constructor
+    # FileName constructor
     def init_fn(self, _label, _default_value, _pattern, _directory, _helptext):
         # signature: std::string std::string std::string std::string std::string
         clear()
@@ -87,7 +87,7 @@ class JobOption:
         directory = _directory
 
 
-# InputNode constructor
+    # InputNode constructor
     def init_innode(self, _label, _nodetype, _node_type_depth, _default_value, _pattern, _helptext):
         # signature  (std::string std::string int  std::string std::string std::string
         clear()
@@ -103,7 +103,7 @@ class JobOption:
         node_type = _nodetype
 
 
-# Radio constructor
+    # Radio constructor
     def init_radio(self, _label, _radio_options, ioption, _helptext):
         # signature  (std::string, List, int,  std::string)
         clear()
@@ -121,7 +121,7 @@ class JobOption:
         joboption_type = rh.JOBOPTION_RADIO
 
 
-# Boolean constructor
+    # Boolean constructor
     def init_bool(self, _label, _boolvalue, _helptext):
         # signature  (std::string, bool, std::string)
         clear()
@@ -218,34 +218,71 @@ class JobOptionTool(JobOption):
         # s = simple_widget()
         # return s
 
-class Table:
-    def __init__(self, name: str, label: str = "", icon: str = "", widget: str = "fieldset", help_text: str = "?"):
-        self.name = name  # ex: indata
-        self.label = label
-        self.icon = icon
-        self.widget = widget # fieldset, range, etc.
-        self.help_text = help_text
-        self.options: List[JobOption] = []
+class Row:
+    def __init__(self,*args, **kwargs):
+        print(args,kwargs)
+        self.content = kwargs
 
-    def append(self, option: JobOption):
-        self.options.append(option)
+    def from_joboption(self,jo):
+        self.content = jo.__dict__
+
+    @property
+    def columns(self):
+        return self.content.keys()
     
+    @property
+    def values(self):
+        return self.content.values()
+    
+    def get(self,k):
+        return self.content[k]
+    
+    def __str__(self):
+        return self.__repr__()
+    
+    def __repr__(self):
+        def quoted(s):
+            if type(s) == str and ' ' in s:
+                return f'"{s}"'
+            return s
+        
+        return  ''.join([f'{quoted(v):<20} '  for v in self.values])
+    
+class Table:
+    def __init__(self, id,columns):
+        self.id = id
+        self.columns = columns
+        self.rows: List[Row] = []
+
+    def append(self, option: Row):
+        row = {}
+        for k in self.columns:
+            if k in option.columns:
+                row[k] = option.get(k)
+            else:
+                row[k] = '?'
+
+        self.rows.append(Row(**row))
 
     def to_definition_line(self, parent_name: str) -> str:
         """Génère la ligne qui définit cette table dans l'en-tête de l'onglet"""
         # Format: id label icon widget default help
         return f"{self.name:<15} {format_star_string(self.label):<25} {self.icon:<20} {self.widget:<15} ?      {format_star_string(self.help_text)}"
 
-    def to_content_block(self) -> str:
+    def __repr__(self) -> str:
         """Génère le bloc loop_ complet avec les données"""
-        if not self.options: return ""
+        if not self.rows: 
+            return ""
         
-        prefix = f"_{self.name}"
-        header = f"#\nloop_\n{prefix}.id\n{prefix}.label\n{prefix}.widget\n{prefix}.default\n{prefix}.arg0\n{prefix}.arg1\n{prefix}.arg2\n{prefix}.help"
+        prefix = f"_{self.id}"
+        header = f"#\nloop_\n"
+        for col in self.columns:
+            header += f'{prefix}.{col:<20}\n'
         
-        lines = [opt.to_star(self.name) for opt in self.options]
-        return header + "\n" + "\n".join(lines) + "\n"
+        rows = [str(opt) for opt in self.rows]
+        return header + "\n".join(rows) + "\n"
     
+
 class Tab:
     def __init__(self, name: str, label: str, icon: str):
         self.name = name # ex: io
@@ -315,3 +352,16 @@ class Tool:
         if table_name not in tab.tables:
             tab.add_table(Table(table_name, label, icon))
         return tab.tables[table_name]
+    
+
+if __name__ == '__main__' :
+    table = Table('test',['a','b','c'])
+    row0 = Row(a=1,b='range',c=100)
+    row1 = Row(a=10,b='Movie or Image (*.{mrc,mrcs,tif,tiff,eer,mrc.bz2,mrcs.bz2,mrc.zst,mrcs.zst,mrc.xz,mrcs.xz})',c=100)
+    row2 = Row(a=1,b='range',c=100)
+    print(row0)
+    print(str(row0))
+    table.append(row0)
+    table.append(row1)
+    table.append(row2)
+    print(table)

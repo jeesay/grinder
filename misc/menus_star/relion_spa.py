@@ -16,6 +16,24 @@ def get_str(key):
     if key not in joboptions: return ""
     return str(joboptions[key].value)
 
+def get_dirname(proc_id):
+    for tup in dirs.items():
+        if proc_id in tup[1]:
+            return tup[0]
+    raise ValueError(proc_id)
+        
+def get_proc_index(proc_id):
+    for tup in dirs.items():
+        if proc_id in tup[1]:
+            return tup[1].index(proc_id)
+    return -1
+
+def get_starname(proc_id):
+    index = get_proc_index(proc_id)
+    if index != -1:
+        return f'{index+1:02}.star'
+    raise ValueError(proc_id)
+
 # Initialise
 def initialise(_job_type):
     type = _job_type
@@ -27,16 +45,12 @@ def initialise(_job_type):
         has_mpi = has_thread = has_gpu = has_disk = False
         hidden_name = rsg.initialiseImportRawJob()
         opts = rsg.get_joboptions()
+        # outdata, prg = rhs.getCommandsImportawJob()
         id, label, parent, help, proc_id, proc_dirname, proc_label = rh.proc_grinder_settings[type]
-        _main.append({"id" : id, 
-                        "label" : label,
-                        "parent" : parent,
-                        "help" : help,
-                        "proc": proc_id,
-                        "dirname" : proc_dirname,
-                        "labelnew" : proc_label,
-                        "hidden_name" : hidden_name
-                        })
+        _main = Table(["id","label","widget","proc_id","labelnew","dirname","hidden_name","help","filename"])
+        # row = Row(get_proc_values(rh.proc_grinder_settings[type]))
+        row.append{"filename",get_starname(proc_id))
+        _main.append(row)
         # dirname = rh.proc_type2dirname(rh.PROC_IMPORT)
 #        getCommandsImportJobRaw(f'{dirname}/job{counter}/')
 #        getCommandsImportJobOther(f'{dirname}/job{counter}/')
@@ -273,20 +287,19 @@ _dirname      "Import"                                   # PROC_IMPORT_DIRNAME -
 _hidden_name  '.gui_zzz'
 #"""
     
-def tabs():
-    return """
-loop_
-_tabs.id
-_tabs.label
-_tabs.icon
-_tabs.widget
-_tabs.default
-_tabs.parent
-_tabs.help
-io       'I/O'                    bi-arrow-down-up       tab ? ? ?
-settings 'Settings'               bi-tools               tab ? ? ?
-log      'Logs'                   bi-binoculars-fill     tab ? ? ?
-result   'DataViz'                bi-eye                 tab ? ? ?
+def tab(name):
+    basic_tabs = {
+        'io': rno.Tab('io','I/O','bi-arrow-down-up'),
+        'settings': rno.Tab('settings', 'Settings', 'bi-tools'),
+        'log': rno.Tab('log', 'Logs', 'bi-binoculars-fill'),
+        'result': rno.Tab('result','DataViz', 'bi-eye') 
+    }
+    if name not in ['io','settings','log','result']:
+        return "Unknown tab"
+
+    return tabs[name]
+
+
 #"""
 
 # def tabs():
@@ -489,10 +502,31 @@ _exec.help
 do_schedule 'Schedule' button true  ? bi-calendar-plus ? 'No help'
 do_run      'Run!'     button true  ? bi-send          ? 'No help'
 do_continue 'Continue' button false ? bi-send-plus  ? 'No help'
-#"""
+"""
+
+dirs = {"00_home" : [], 
+        "01_import" : ["PROC_IMPORT_RAW_GRR", "PROC_IMPORT_PARTICLES_GRR", "PROC_IMPORT_OTHER_GRR"],
+        "02_preprocess" :  ["PROC_MOTIONCORR_OWN_GRR", "PROC_MOTIONCORR_MC2_GRR","PROC_CTFFIND"], 
+        "03_particles" : ["PROC_MANUALPICK", "PROC_AUTOPICK", "PROC_EXTRACT", "PROC_2DCLASS", "PROC_CLASSSELECT"],
+        "04_3d" : ["PROC_3DCLASS", "PROC_3DAUTO", "PROC_INIMODEL"],
+        "05_postprocess" : ["PROC_MASKCREATE", "PROC_POST", "PROC_MOTIONREFINE", "PROC_CTFREFINE"],
+        "06_enhance" : ["PROC_RESMAP"],
+        "07_model" : ["PROC_DYNAMIGHT", "PROC_MODELANGELO"],
+        "08_tools" : ["PROC_JOINSTAR", "PROC_SUBTRACT", "PROC_MULTIBODY"]
+        }
+
+indexes = [0 for i in range (9)]
+
+jobs_list = ["PROC_IMPORT_RAW_GRR", "PROC_IMPORT_PARTICLES_GRR", "PROC_IMPORT_OTHER_GRR", "PROC_MOTIONCORR_OWN_GRR", "PROC_MOTIONCORR_MC2_GRR"] #, "PROC_CTFFIND", "PROC_MANUALPICK", 
+            #  "PROC_AUTOPICK", "PROC_EXTRACT", "PROC_CLASSSELECT", "PROC_2DCLASS", "PROC_3DCLASS", "PROC_3DAUTO", 
+            #  "PROC_MASKCREATE", "PROC_JOINSTAR", "PROC_SUBTRACT", "PROC_POST", "PROC_RESMAP", "PROC_INIMODEL", 
+            #  "PROC_MULTIBODY", "PROC_MOTIONREFINE", "PROC_CTFREFINE", "PROC_DYNAMIGHT", "PROC_MODELANGELO" ]
+
+
 
 ########################## M A I N ##########################
 #
+
 
 
 if __name__ == "__main__":
@@ -508,24 +542,8 @@ if __name__ == "__main__":
 
     # print(rh.proc_grinder_settings["PROC_IMPORT_RAW_GRR"][0])
 
-    dirs = {"00_home" : [], 
-            "01_import" : ["PROC_IMPORT_RAW_GRR", "PROC_IMPORT_PARTICLES_GRR", "PROC_IMPORT_OTHER_GRR"],
-            "02_preprocess" :  ["PROC_MOTIONCORR_OWN_GRR", "PROC_MOTIONCORR_MC2_GRR","PROC_CTFFIND"], 
-            "03_particles" : ["PROC_MANUALPICK", "PROC_AUTOPICK", "PROC_EXTRACT", "PROC_2DCLASS", "PROC_CLASSSELECT"],
-            "04_3d" : ["PROC_3DCLASS", "PROC_3DAUTO", "PROC_INIMODEL"],
-            "05_postprocess" : ["PROC_MASKCREATE", "PROC_POST", "PROC_MOTIONREFINE", "PROC_CTFREFINE"],
-            "06_enhance" : ["PROC_RESMAP"],
-            "07_model" : ["PROC_DYNAMIGHT", "PROC_MODELANGELO"],
-            "08_tools" : ["PROC_JOINSTAR", "PROC_SUBTRACT", "PROC_MULTIBODY"]
-            }
+
     
-    indexes = [0 for i in range (9)]
-
-    jobs_list = ["PROC_IMPORT_RAW_GRR", "PROC_IMPORT_PARTICLES_GRR", "PROC_IMPORT_OTHER_GRR", "PROC_MOTIONCORR_OWN_GRR", "PROC_MOTIONCORR_MC2_GRR"] #, "PROC_CTFFIND", "PROC_MANUALPICK", 
-                #  "PROC_AUTOPICK", "PROC_EXTRACT", "PROC_CLASSSELECT", "PROC_2DCLASS", "PROC_3DCLASS", "PROC_3DAUTO", 
-                #  "PROC_MASKCREATE", "PROC_JOINSTAR", "PROC_SUBTRACT", "PROC_POST", "PROC_RESMAP", "PROC_INIMODEL", 
-                #  "PROC_MULTIBODY", "PROC_MOTIONREFINE", "PROC_CTFREFINE", "PROC_DYNAMIGHT", "PROC_MODELANGELO" ]
-
     # for job in jobs_list :
     #     print(job)
     #     # tables = {'indata': init_table('_indata'), 'odata': init_table('_odata'), 'general': init_table('_general')}
