@@ -1,11 +1,8 @@
 import relion_h as rh
 import relion_option as rno
 
-def initialiseImportJob():
-    initialiseImportRawJob()
-    initialiseImportOtherJob()
-    
-def initialiseImportRawJob():
+def initialiseImportJob(is_tomo):
+    joboptions = {}
     hidden_name = ".gui_import"
 
     joboptions["do_raw"] = rno.JobOptionIO("Import raw movies/micrographs?", True, "Set this to Yes if you plan to import raw movies or micrographs")
@@ -27,9 +24,53 @@ Although that is probably slightly less accurate, the overall quality of your ma
     joboptions["beamtilt_x"] = rno.JobOption("Beamtilt in X (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the X-direction (in mrad). Set to zero if unknown.""")
     joboptions["beamtilt_y"] = rno.JobOption("Beamtilt in Y (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the Y-direction (in mrad). Set to zero if unknown.""")
 
-    return hidden_name
 
-def initialiseImportParticlesJob():
+    joboptions["do_other"] = rno.JobOptionIO("Import other node types?", False, "Set this to Yes if you plan to import anything else than movies or micrographs")
+
+    joboptions["fn_in_other"] = rno.JobOptionIO("Input file:", "ref.mrc", "Input file (*.*)", ".", """Select any file(s) to import. \n \n \
+Note that for importing coordinate files, one has to give a Linux wildcard, where the *-symbol is before the coordinate-file suffix, e.g. if the micrographs are called mic1.mrc and the coordinate files mic1.box or mic1_autopick.star, one HAS to give '*.box' or '*_autopick.star', respectively.\n \n \
+Also note that micrographs, movies and coordinate files all need to be in the same directory (with the same rootnames, e.g.mic1 in the example above) in order to be imported correctly. 3D masks or references can be imported from anywhere. \n \n \
+Note that movie-particle STAR files cannot be imported from a previous version of RELION, as the way movies are handled has changed in RELION-2.0. \n \n \
+For the import of a particle, 2D references or micrograph STAR file or of a 3D reference or mask, only a single file can be imported at a time. \n \n \
+Note that due to a bug in a fltk library, you cannot import from directories that contain a substring  of the current directory, e.g. dont important from /home/betagal if your current directory is called /home/betagal_r2. In this case, just change one of the directory names.""")
+
+    joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_particles, 0, "Select the type of Node this is.")
+    joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
+
+
+    joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_other, 0, "Select the type of Node this is.")
+    joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
+
+    return hidden_name,joboptions
+
+def initialiseImportRawJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_import"
+
+    joboptions["do_raw"] = rno.JobOptionIO("Import raw movies/micrographs?", True, "Set this to Yes if you plan to import raw movies or micrographs")
+    joboptions["fn_in_raw"] = rno.JobOptionIO("Raw input files:", "Micrographs/*.tif", "Movie or Image (*.{mrc,mrcs,tif,tiff,eer,mrc.bz2,mrcs.bz2,mrc.zst,mrcs.zst,mrc.xz,mrcs.xz})", ".", """Provide a Linux wildcard that selects all raw movies or micrographs to be imported. The path must be a relative path from the project directory. To import files outside the project directory, first make a symbolic link by an absolute path and then specify the link by a relative path. See the FAQ page on RELION wiki (https://www3.mrc-lmb.cam.ac.uk/relion/index.php/FAQs#What_is_the_right_way_to_import_files_outside_the_project_directory.3F) for details.\
+\
+Torh.PROCess compressed MRC movies, you need pbzip2, zstd and xz command in your PATH for bzip2, Zstandard and xzip compression, respectively.""")
+    joboptions["is_multiframe"] = rno.JobOptionIO("Are these multi-frame movies?", True, "Set to Yes for multi-frame movies, set to No for single-frame micrographs.")
+
+    joboptions["optics_group_name"] = rno.JobOption("Optics group name:", "opticsGroup1", """Name of this optics group. Each group of movies/micrographs with different optics characteristics for CTF refinement should have a unique name.""")
+    joboptions["fn_mtf"] = rno.JobOption("MTF of the detector:", "", "STAR Files (*.star)", ".", """As of release-3.1, the MTF of the detector is used in the refinement stages of refinement.  \
+If you know the MTF of your detector, provide it here. Curves for some well-known detectors may be downloaded from the RELION Wiki. Also see there for the exact format \
+\n If you do not know the MTF of your detector and do not want to measure it, then by leaving this entry empty, you include the MTF of your detector in your overall estimated B-factor upon sharpening the map.\
+Although that is probably slightly less accurate, the overall quality of your map will probably not suffer very much. \n \n Note that when combining data from different detectors, the differences between their MTFs can no longer be absorbed in a single B-factor, and providing the MTF here is important!""")
+
+    joboptions["angpix"] = rno.JobOption("Pixel size (Angstrom):", 1.4, 0.5, 3, 0.1, "Pixel size in Angstroms. ")
+    joboptions["kV"] = rno.JobOption("Voltage (kV):", 300, 50, 500, 10, "Voltage the microscope was operated on (in kV)")
+    joboptions["Cs"] = rno.JobOption("Spherical aberration (mm):", 2.7, 0, 8, 0.1, """Spherical aberration of the microscope used to collect these images (in mm). Typical values are 2.7 (FEI Titan & Talos, most JEOL CRYO-ARM), 2.0 (FEI Polara), 1.4 (some JEOL CRYO-ARM) and 0.01 (microscopes with a Cs corrector).""")
+    joboptions["Q0"] = rno.JobOption("Amplitude contrast:", 0.1, 0, 0.3, 0.01, """Fraction of amplitude contrast. Often values around 10% work better than theoretically more accurate lower values...""")
+    joboptions["beamtilt_x"] = rno.JobOption("Beamtilt in X (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the X-direction (in mrad). Set to zero if unknown.""")
+    joboptions["beamtilt_y"] = rno.JobOption("Beamtilt in Y (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the Y-direction (in mrad). Set to zero if unknown.""")
+
+
+    return hidden_name,joboptions
+
+def initialiseImportParticlesJob(is_tomo):
+    joboptions = {}
     hidden_name = ".gui_import"
 
     joboptions["do_other"] = rno.JobOptionIO("Import other node types?", False, "Set this to Yes if you plan to import anything else than movies or micrographs")
@@ -44,9 +85,10 @@ Note that due to a bug in a fltk library, you cannot import from directories tha
     joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_particles, 0, "Select the type of Node this is.")
     joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
 
-    return hidden_name
+    return hidden_name,joboptions
 
-def initialiseImportOtherJob():
+def initialiseImportOtherJob(is_tomo):
+    joboptions = {}
     hidden_name = ".gui_import"
 
     joboptions["do_other"] = rno.JobOptionIO("Import other node types?", False, "Set this to Yes if you plan to import anything else than movies or micrographs")
@@ -61,11 +103,11 @@ Note that due to a bug in a fltk library, you cannot import from directories tha
     joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_other, 0, "Select the type of Node this is.")
     joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
 
-    return hidden_name
+    return hidden_name,joboptions
 
-
-def initialiseMotioncorrJob():
-    hidden_name = ".gui_motioncorr";
+def initialiseMotioncorrJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_motioncorr"
     is_tomo =  False
 
     if (is_tomo):
@@ -86,9 +128,9 @@ def initialiseMotioncorrJob():
 
     # Motioncor2
     default_location = "RELION_MOTIONCOR2_EXECUTABLE"
-#    default_motioncor2 = DEFAULTMOTIONCOR2LOCATION;
+#    default_motioncor2 = DEFAULTMOTIONCOR2LOCATION
 #    if (default_location == NULL):
-#        default_location = default_motioncor2;
+#        default_location = default_motioncor2
 
 
     # Common arguments RELION and UCSF implementation
@@ -124,16 +166,16 @@ Note that multiple MotionCor2rh.PROCesses should not share a GPU; otherwise, it 
     else:
         joboptions["group_for_ps"] = rno.JobOption("Sum power spectra every n frames:", 4, 0, 10, 0.5, """McMullan et al (Ultramicroscopy, 2015) suggest summing power spectra every 4.0 e/A2 gives optimal Thon rings""")
 
-    return hidden_name
+    return hidden_name,joboptions
 
-
-def initialiseCtffindJob():
-    hidden_name = ".gui_ctffind";
+def initialiseCtffindJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_ctffind"
 
     default_location = ""
 
     if (is_tomo):
-        joboptions["input_star_mics"] = rno.JobOption("Input tilt series: ", LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file.")
+        joboptions["input_star_mics"] = rno.JobOption("Input tilt series: ", rh.LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file.")
 
     else:
         joboptions["input_star_mics"] = rno.JobOption("Input micrographs STAR file:", "LABEL_MICS_CPIPE", 1, "", "STAR files (*.star)", "A STAR file with all micrographs to run CTFFIND or Gctf on")
@@ -154,9 +196,9 @@ def initialiseCtffindJob():
     # Check for environment variable RELION_CTFFIND_EXECUTABLE
     joboptions["use_given_ps"] = rno.JobOption("Use power spectra from MotionCorr job?", True, """If set to Yes, the CTF estimation will be done using power spectra calculated during motion correction. You must use this option if you used float16 in motion correction.""")
     default_location = "RELION_CTFFIND_EXECUTABLE"
-    default_ctffind = "DEFAULTCTFFINDLOCATION";
+    default_ctffind = "DEFAULTCTFFINDLOCATION"
     if (default_location == None):
-        default_location = default_ctffind;
+        default_location = default_ctffind
 
     joboptions["fn_ctffind_exe"] = rno.JobOption("CTFFIND-4.1 executable:", (default_location), "*", ".", """Location of the CTFFIND (release 4.1 or later) executable. You can control the default of this field by setting environment variable RELION_CTFFIND_EXECUTABLE, or by editing the first few lines in src/gui_jobwindow.h and recompile the code.""")
     joboptions["slow_search"] = rno.JobOption("Use exhaustive search?", False, """If set to Yes, CTFFIND4 will use slower but more exhaustive search. This option is recommended for CTFFIND version 4.1.8 and earlier, but probably not necessary for 4.1.10 and later. It is also worth trying this option when astigmatism and/or phase shifts are difficult to fit.""")
@@ -175,9 +217,11 @@ def initialiseCtffindJob():
 
     joboptions["ctf_win"] = rno.JobOption("Estimate CTF on window size (pix) ", -1, -16, 4096, 16, """If a positive value is given, a squared window of this size at the center of the micrograph will be used to estimate the CTF. This may be useful to exclude parts of the micrograph that are unsuitable for CTF estimation, e.g. the labels at the edge of phtographic film. \n \n The original micrograph will be used (i.e. this option will be ignored) if a negative value is given.""")
 
+    return hidden_name,joboptions
 
-def initialiseManualpickJob():
-    hidden_name = ".gui_manualpick";
+def initialiseManualpickJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_manualpick"
 
     joboptions["fn_in"] = rno.JobOption("Input micrographs:", "LABEL_MICS_CPIPE", 1, "", "Input micrographs (*.{star,mrc})", """Input STAR file (with or without CTF information), OR a unix-type wildcard with all micrographs in MRC format (in this case no CTFs can be used).""")
 
@@ -207,11 +251,11 @@ Particles that are not in this STAR file, but present in the picked coordinates 
     joboptions["blue_value"] = rno.JobOption("Blue value: ", 0., 0., 4., 0.1, """The value of this entry will be blue. There will be a linear scale from blue to red, according to this value and the one given below.""")
     joboptions["red_value"] = rno.JobOption("Red value: ", 2., 0., 4., 0.1, """The value of this entry will be red. There will be a linear scale from blue to red, according to this value and the one given above.""")
 
+    return hidden_name,joboptions
 
-
-
-def initialiseAutopickJob():
-    hidden_name = ".gui_autopick";
+def initialiseAutopickJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_autopick"
 
     joboptions["fn_input_autopick"] = rno.JobOption("Input micrographs for autopick:", "LABEL_MICS_CPIPE", 1, "", "Input micrographs (*.{star})", """Input STAR file (preferably with CTF information) with all micrographs to pick from.""")
     joboptions["angpix"] = rno.JobOption("Pixel size in micrographs (A)", -1, 0.3, 5, 0.1, """Pixel size in Angstroms. If a CTF-containing STAR file is input, then the value given here will be ignored, and the pixel size will be calculated from the values in the STAR file. A negative value can then be given here.""")
@@ -241,11 +285,11 @@ def initialiseAutopickJob():
     joboptions["topaz_other_args"]= rno.JobOption("Additional topaz arguments:", (""), "These additional arguments will be passed onto all topaz programs.")
 
     joboptions["do_refs"] = rno.JobOption("Use reference-based template-matching?", False, """If set to Yes, 2D or 3D references, as defined on the References tab will be used for autopicking.""")
-    joboptions["fn_refs_autopick"] = rno.JobOption("2D references:", LABEL_2DIMGS_CPIPE, 1, "", "Input references (*.{star,mrcs})", """Input STAR file or MRC stack with the 2D references to be used for picking. Note that the absolute greyscale needs to be correct, so only use images created by RELION itself, e.g. by 2D class averaging or projecting a RELION reconstruction.""")
+    joboptions["fn_refs_autopick"] = rno.JobOption("2D references:",rh.LABEL_2DIMGS_CPIPE, 1, "", "Input references (*.{star,mrcs})", """Input STAR file or MRC stack with the 2D references to be used for picking. Note that the absolute greyscale needs to be correct, so only use images created by RELION itself, e.g. by 2D class averaging or projecting a RELION reconstruction.""")
     joboptions["do_ref3d"]= rno.JobOption("OR: provide a 3D reference?", False, """Set this option to Yes if you want to provide a 3D map, which will be projected into multiple directions to generate 2D references.""")
     joboptions["fn_ref3d_autopick"] = rno.JobOption("3D reference:", "LABEL_MAP_CPIPE", 1, "", "Input reference (*.{mrc})", """Input MRC file with the 3D reference maps, from which 2D references will be made by projection. Note that the absolute greyscale needs to be correct, so only use maps created by RELION itself from this data set.""")
     joboptions["ref3d_symmetry"] = rno.JobOption("Symmetry:", ("C1"), """Symmetry point group of the 3D reference. Only projections in the asymmetric part of the sphere will be generated.""")
-    joboptions["ref3d_sampling"] = rno.JobOption("3D angular sampling:", job_sampling_options, 0, """There are only a few discrete \
+    joboptions["ref3d_sampling"] = rno.JobOption("3D angular sampling:", rh.job_sampling_options, 0, """There are only a few discrete \
 angular samplings possible because we use the HealPix library to generate the sampling of the first two Euler angles on the sphere. \
 The samplings are approximate numbers and vary slightly over the sphere.\n\n For autopicking, 30 degrees is usually fine enough, but for highly symmetrical objects one may need to go finer to adequately sample the asymmetric part of the sphere.""")
 
@@ -288,11 +332,11 @@ Kappa ~ 0.05 is recommended for long and straight tubes (e.g. TMV, VipA/VipB and
     joboptions["helical_tube_length_min"] = rno.JobOption("Minimum length (A): ", -1, 100, 1000, 10, """Minimum length (in Angstroms) of helical tubes for auto-picking. \
 Helical tubes with shorter lengths will not be picked. Note that a long helical tube seen by human eye might be treated as short broken pieces due to low FOM values or high picking threshold.""")
 
+    return hidden_name,joboptions
 
-
-
-def initialiseExtractJob():
-    hidden_name = ".gui_extract";
+def initialiseExtractJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_extract"
 
     joboptions["star_mics"]= rno.JobOption("micrograph STAR file: ", "LABEL_MICS_CPIPE", 1, "", "Input STAR file (*.{star})", "Filename of the STAR file that contains all micrographs from which to extract particles.")
     # TO DOL set helical option for this
@@ -333,14 +377,13 @@ If it is set to No, only one box at the center of each helical tube will be extr
 The optimal inter-box distance might also depend on the box size, the helical rise and the flexibility of the structure. In general, an inter-box distance of ~10% * the box size seems appropriate.""")
     joboptions["helical_rise"] = rno.JobOption("Helical rise (A):", 1, 0, 100, 0.01, """Helical rise in Angstroms. (Please click '?' next to the option above for details about how the inter-box distance is calculated.)""")
 
+    return hidden_name,joboptions
 
+def initialiseSelectJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_select"
 
-
-
-def initialiseSelectJob():
-    hidden_name = ".gui_select";
-
-    joboptions["fn_model"] = rno.JobOption("Select classes from job:", LABEL_OPTIMISER_CPIPE, 1, "", "STAR files (*_optimiser.star)", """A _optimiser.star (or for backwards compatibility also a _model.star) file from a previous 2D or 3D classification run to select classes from.""")
+    joboptions["fn_model"] = rno.JobOption("Select classes from job:",rh.LABEL_OPTIMISER_CPIPE, 1, "", "STAR files (*_optimiser.star)", """A _optimiser.star (or for backwards compatibility also a _model.star) file from a previous 2D or 3D classification run to select classes from.""")
     joboptions["fn_mic"] = rno.JobOption("OR select from micrographs.star:", "LABEL_MICS_CPIPE", 1, "", "STAR files (*.star)", "A micrographs.star file to select micrographs from.")
     joboptions["fn_data"] = rno.JobOption("OR select from particles.star:", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star)", "A particles.star file to select individual particles from.")
 
@@ -375,10 +418,11 @@ def initialiseSelectJob():
     joboptions["dendrogram_threshold"] = rno.JobOption("Dendrogram threshold: ", 0.85, 0, 1, 0.05, """Lower thresholds will produce more clusters; After the dendrogram has been calculated in the initial running of this job, subsequent continuation jobs can quickly test other threshold values. The output logfile.pdf can be visualised to follow therh.PROCess until a good threshold has been achieved.""")
     joboptions["dendrogram_minclass"] = rno.JobOption("Minimum class size: ", -1000, -1000, 50000, 1000, """If set to a positive value, then particle star files with clusters that have at least this number of particles will be written out. Keep th default negative value for faster testing of the threshold.""")
 
+    return hidden_name,joboptions
 
-
-def initialiseClass2DJob():
-    hidden_name = ".gui_class2d";
+def initialiseClass2DJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_class2d"
 
     joboptions["fn_img"] = rno.JobOption("Input images STAR file:", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star) \t Image stacks (not recommended, read help!) (*.{spi,mrcs})", """A STAR file with all images (and their metadata). \n \n Alternatively, you may give a Spider/MRC stack of 2D images, but in that case NO metadata can be included and thus NO CTF correction can be performed, \
 nor will it be possible to perform noise spectra estimation or intensity scale corrections in image groups. Therefore, running RELION with an input stack will in general provide sub-optimal results and is therefore not recommended!! Use the Preprocessingrh.PROCedure to get the input STAR file in a semi-automated manner. Read the RELION wiki for more information.""")
@@ -472,9 +516,9 @@ Otherwise, only the leader will read images and send them through the network to
     joboptions["do_preread_images"] = rno.JobOption("Pre-read all particles into RAM?", False, """If set to Yes, all particle images will be read into computer memory, which will greatly speed up calculations on systems with slow disk access. However, one should of course be careful with the amount of RAM available. \
 Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM. For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles. \
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM. \n \n If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.""")
-    default_scratch = RELION_SCRATCH_DIR
+    default_scratch = "RELION_SCRATCH_DIR"
     if (default_scratch == NULL):
-        default_scratch = DEFAULTSCRATCHDIR;
+        default_scratch = DEFAULTSCRATCHDIR
 
     joboptions["scratch_dir"] = rno.JobOption("Copy particles to scratch directory:", (default_scratch), """If a directory is provided here, then the job will create a sub-directory in it called relion_volatile. If that relion_volatile directory already exists, it will be wiped. Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory. \
 Provided this directory is on a fast local drive (e.g. an SSD drive),rh.PROCessing in all the iterations will be faster. If the job finishes correctly, the relion_volatile directory will be wiped. If the job crashes, you may want to remove it yourself.""")
@@ -485,12 +529,12 @@ This will affect the time it takes between the progress-bar in the expectation s
     joboptions["use_gpu"] = rno.JobOption("Use GPU acceleration?", False, "If set to Yes, the job will try to use GPU acceleration.")
     joboptions["gpu_ids"] = rno.JobOption("Which GPUs to use:", (""), """This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','. For example: '0,0:1,1:0,0:1,1'""")
 
-
-
+    return hidden_name,joboptions
 
 # Constructor for initial model job
-def initialiseInimodelJob():
-    hidden_name = ".gui_inimodel";
+def initialiseInimodelJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_inimodel"
 
     if (is_tomo):
         addTomoInputOptions(True, True, True, False)
@@ -543,9 +587,9 @@ This may improve performance on systems where disk access, and particularly meta
     joboptions["do_preread_images"] = rno.JobOption("Pre-read all particles into RAM?", False, """If set to Yes, all particle images will be read into computer memory, which will greatly speed up calculations on systems with slow disk access. However, one should of course be careful with the amount of RAM available. \
 Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM. For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles. \
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM. \n \n If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.""")
-    default_scratch = RELION_SCRATCH_DIR
+    default_scratch = "RELION_SCRATCH_DIR"
     if (default_scratch == NULL):
-        default_scratch = DEFAULTSCRATCHDIR;
+        default_scratch = DEFAULTSCRATCHDIR
 
     joboptions["scratch_dir"] = rno.JobOption("Copy particles to scratch directory:", (default_scratch), """If a directory is provided here, then the job will create a sub-directory in it called relion_volatile. If that relion_volatile directory already exists, it will be wiped. Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory. \
 Provided this directory is on a fast local drive (e.g. an SSD drive),rh.PROCessing in all the iterations will be faster. If the job finishes correctly, the relion_volatile directory will be wiped. If the job crashes, you may want to remove it yourself.""")
@@ -556,11 +600,11 @@ This will affect the time it takes between the progress-bar in the expectation s
     joboptions["use_gpu"] = rno.JobOption("Use GPU acceleration?", False, "If set to Yes, the job will try to use GPU acceleration.")
     joboptions["gpu_ids"] = rno.JobOption("Which GPUs to use:", (""), """This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','. For example: '0,0:1,1:0,0:1,1'""")
 
+    return hidden_name,joboptions
 
-
-
-def initialiseClass3DJob():
-    hidden_name = ".gui_class3d";
+def initialiseClass3DJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_class3d"
 
     if (is_tomo):
         addTomoInputOptions(True, True, True, False)
@@ -625,7 +669,7 @@ Therefore, this option is not generally recommended: try increasing amplitude co
 
     joboptions["nr_classes"] = rno.JobOption("Number of classes:", 1, 1, 50, 1, """The number of classes (K) for a multi-reference refinement. \
 These classes will be made in an unsupervised manner from a single reference by division of the data into random subsets during the first iteration.""")
-    default_T =  1 if (is_tomo) else 4;
+    default_T =  1 if (is_tomo) else 4
     joboptions["tau_fudge"] = rno.JobOption("Regularisation parameter T:", default_T , 0.1, 10, 0.1, """Bayes law strictly determines the relative weight between \
 the contribution of the experimental data and the prior. However, in practice one may need to adjust this weight to put slightly more weight on \
 the experimental data to allow optimal results. Values greater than 1 for this regularisation parameter (T in the JMB2011 paper) put more \
@@ -656,7 +700,7 @@ In such cases, values in the range of 7-12 Angstroms have proven useful.""")
     joboptions["dont_skip_align"] = rno.JobOption("Perform image alignment?", True, """If set to No, then rather than \
 performing both alignment and classification, only classification will be performed. This allows the use of very focused masks.\
 This requires that the optimal orientations of all particles are already stored in the input STAR file. """)
-    joboptions["sampling"] = rno.JobOption("Angular sampling interval:", job_sampling_options, 2, """There are only a few discrete \
+    joboptions["sampling"] = rno.JobOption("Angular sampling interval:", rh.job_sampling_options, 2, """There are only a few discrete \
 angular samplings possible because we use the HealPix library to generate the sampling of the first two Euler angles on the sphere. \
 The samplings are approximate numbers and vary slightly over the sphere.\n\n \
 If auto-sampling is used, this will be the value for the first iteration(s) only, and the sampling rate will be increased automatically after that.""")
@@ -755,9 +799,9 @@ This may improve performance on systems where disk access, and particularly meta
     joboptions["do_preread_images"] = rno.JobOption("Pre-read all particles into RAM?", False, """If set to Yes, all particle images will be read into computer memory, which will greatly speed up calculations on systems with slow disk access. However, one should of course be careful with the amount of RAM available. \
 Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM. For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles. \
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM. \n \n If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.""")
-    default_scratch = RELION_SCRATCH_DIR
+    default_scratch = "RELION_SCRATCH_DIR"
     if (default_scratch == NULL):
-        default_scratch = DEFAULTSCRATCHDIR;
+        default_scratch = DEFAULTSCRATCHDIR
 
     joboptions["scratch_dir"] = rno.JobOption("Copy particles to scratch directory:", (default_scratch), """If a directory is provided here, then the job will create a sub-directory in it called relion_volatile. If that relion_volatile directory already exists, it will be wiped. Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory. \
 Provided this directory is on a fast local drive (e.g. an SSD drive),rh.PROCessing in all the iterations will be faster. If the job finishes correctly, the relion_volatile directory will be wiped. If the job crashes, you may want to remove it yourself.""")
@@ -768,13 +812,13 @@ This will affect the time it takes between the progress-bar in the expectation s
     joboptions["use_gpu"] = rno.JobOption("Use GPU acceleration?", False, "If set to Yes, the job will try to use GPU acceleration.")
     joboptions["gpu_ids"] = rno.JobOption("Which GPUs to use:", (""), """This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','.  For example: '0,0:1,1:0,0:1,1'""")
 
+    return hidden_name,joboptions
 
+def initialiseAutorefineJob(is_tomo):
+    type = rh.PROC_3DAUTO
 
-
-def initialiseAutorefineJob():
-    type = rh.PROC_3DAUTO;
-
-    hidden_name = ".gui_auto3d";
+    joboptions = {}
+    hidden_name = ".gui_auto3d"
 
     if (is_tomo):
         addTomoInputOptions(True, True, True, False)
@@ -945,7 +989,7 @@ Because particles are read in float-precision, it will take ( N * box_size * box
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM. \n \n If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.""")
     default_scratch = "RELION_SCRATCH_DIR"
     if (default_scratch == None):
-        default_scratch = "DEFAULTSCRATCHDIR";
+        default_scratch = "DEFAULTSCRATCHDIR"
 
     joboptions["scratch_dir"] = rno.JobOption("Copy particles to scratch directory:", (default_scratch), """If a directory is provided here, then the job will create a sub-directory in it called relion_volatile. If that relion_volatile directory already exists, it will be wiped. Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory. \
 Provided this directory is on a fast local drive (e.g. an SSD drive),rh.PROCessing in all the iterations will be faster. If the job finishes correctly, the relion_volatile directory will be wiped. If the job crashes, you may want to remove it yourself.""")
@@ -956,12 +1000,13 @@ This will affect the time it takes between the progress-bar in the expectation s
     joboptions["gpu_ids"] = rno.JobOption("Which GPUs to use:", (""), """This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','.  For example: '0,0:1,1:0,0:1,1'""")
 
 
+    return hidden_name,joboptions
 
+def initialiseMultiBodyJob(is_tomo):
+    type =rh.PROC_MULTIBODY
 
-def initialiseMultiBodyJob():
-    type =rh.PROC_MULTIBODY;
-
-    hidden_name = ".gui_multibody";
+    joboptions = {}
+    hidden_name = ".gui_multibody"
 
     joboptions["fn_in"] = rno.JobOption("Consensus refinement optimiser.star: ", (""), "STAR Files (run_it*_optimiser.star)", "Refine3D/.", """Select the *_optimiser.star file for the iteration of the consensus refinement \
 from which you want to start multi-body refinement.""")
@@ -1027,9 +1072,9 @@ This may improve performance on systems where disk access, and particularly meta
     joboptions["do_preread_images"] = rno.JobOption("Pre-read all particles into RAM?", False, """If set to Yes, all particle images will be read into computer memory, which will greatly speed up calculations on systems with slow disk access. However, one should of course be careful with the amount of RAM available. \
 Because particles are read in float-precision, it will take ( N * box_size * box_size * 8 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM. For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles. \
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM. \n \n If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.""")
-    default_scratch = RELION_SCRATCH_DIR
+    default_scratch = "RELION_SCRATCH_DIR"
     if (default_scratch == NULL):
-        default_scratch = DEFAULTSCRATCHDIR;
+        default_scratch = DEFAULTSCRATCHDIR
 
     joboptions["scratch_dir"] = rno.JobOption("Copy particles to scratch directory:", (default_scratch), """If a directory is provided here, then the job will create a sub-directory in it called relion_volatile. If that relion_volatile directory already exists, it will be wiped. Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory. \
 Provided this directory is on a fast local drive (e.g. an SSD drive),rh.PROCessing in all the iterations will be faster. If the job finishes correctly, the relion_volatile directory will be wiped. If the job crashes, you may want to remove it yourself.""")
@@ -1042,8 +1087,11 @@ This will affect the time it takes between the progress-bar in the expectation s
 
 
 
-def initialiseMaskcreateJob():
-    hidden_name = ".gui_maskcreate";
+    return hidden_name,joboptions
+
+def initialiseMaskcreateJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_maskcreate"
 
     joboptions["fn_in"] = rno.JobOption("Input 3D map:", "LABEL_MAP_CPIPE", 1, "", "MRC map files (*.mrc)", "Provide an input MRC map from which to start binarizing the map.")
 
@@ -1062,8 +1110,11 @@ The central part of the box contains more reliable information compared to the t
 
 
 
-def initialiseJoinstarJob():
-    hidden_name = ".gui_joinstar";
+    return hidden_name,joboptions
+
+def initialiseJoinstarJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_joinstar"
 
     joboptions["do_part"] = rno.JobOption("Combine particle STAR files?", False, "")
     joboptions["fn_part1"] = rno.JobOption("Particle STAR file 1: ", "LABEL_PARTS_CPIPE", 1, "", "particle STAR file (*.star)", "The first of the particle STAR files to be combined.")
@@ -1084,10 +1135,13 @@ def initialiseJoinstarJob():
     joboptions["fn_mov4"] = rno.JobOption("Movie STAR file 4: ", "LABEL_MOVIES_CPIPE", 1, "", "movie STAR file (*.star)", """The fourth of the micrograph movie STAR files to be combined. Leave empty if there are only two or three files to be combined.""")
 
 
-def initialiseSubtractJob():
-    hidden_name = ".gui_subtract";
+    return hidden_name,joboptions
 
-    joboptions["fn_opt"] = rno.JobOption("Input optimiser.star: ", LABEL_OPTIMISER_CPIPE, 1, "", "STAR Files (*_optimiser.star)", """Select the *_optimiser.star file for the iteration of the 3D refinement/classification \
+def initialiseSubtractJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_subtract"
+
+    joboptions["fn_opt"] = rno.JobOption("Input optimiser.star: ",rh.LABEL_OPTIMISER_CPIPE, 1, "", "STAR Files (*_optimiser.star)", """Select the *_optimiser.star file for the iteration of the 3D refinement/classification \
 which you want to use for subtraction. It will use the maps from this run for the subtraction, and of no particles input STAR file is given below, it will use all of the particles from this run.""")
     joboptions["fn_mask"] = rno.JobOption("Mask of the signal to keep:", "LABEL_MASK_CPIPE", 1, "", "Image Files (*.{spi,vol,msk,mrc})", """Provide a soft mask where the protein density you wish to subtract from the experimental particles is black (0) and the density you wish to keep is white (1).""")
     joboptions["do_data"] = rno.JobOption("Use different particles?", False, """If set to Yes, subtraction will be performed on the particles in the STAR file below, instead of on all the particles of the 3D refinement/classification from the optimiser.star file.""")
@@ -1108,10 +1162,13 @@ which you want to use for subtraction. It will use the maps from this run for th
 
 
 
-def initialisePostprocessJob():
-    hidden_name = ".gui_post";
+    return hidden_name,joboptions
 
-    joboptions["fn_in"] = rno.JobOption("One of the 2 unfiltered half-maps:", LABEL_HALFMAP_CPIPE, 1, "", "MRC map files (*half1*.mrc)",  """Provide one of the two unfiltered half-reconstructions that were output upon convergence of a 3D auto-refine run.""")
+def initialisePostprocessJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_post"
+
+    joboptions["fn_in"] = rno.JobOption("One of the 2 unfiltered half-maps:",rh.LABEL_HALFMAP_CPIPE, 1, "", "MRC map files (*half1*.mrc)",  """Provide one of the two unfiltered half-reconstructions that were output upon convergence of a 3D auto-refine run.""")
     joboptions["fn_mask"] = rno.JobOption("Solvent mask:", "LABEL_MASK_CPIPE", 1, "", "Image Files (*.{spi,vol,msk,mrc})", """Provide a soft mask where the protein is white (1) and the solvent is black (0). Often, the softer the mask the higher resolution estimates you will get. A soft edge of 5-10 pixels is often a good edge width.""")
     joboptions["angpix"] = rno.JobOption("Calibrated pixel size (A)", -1, 0.3, 5, 0.1, """Provide the final, calibrated pixel size in Angstroms. This value may be different from the pixel-size used thus far, e.g. when you have recalibrated the pixel size using the fit to a PDB model. The X-axis of the output FSC plot will use this calibrated value.""")
 
@@ -1135,17 +1192,20 @@ In such cases, set this option to Yes and provide an ad-hoc filter as described 
 
 
 
-def initialiseLocalresJob():
-    hidden_name = ".gui_localres";
+    return hidden_name,joboptions
 
-    joboptions["fn_in"] = rno.JobOption("One of the 2 unfiltered half-maps:", LABEL_HALFMAP_CPIPE, 1, "", "MRC map files (*half1*.mrc)",  """Provide one of the two unfiltered half-reconstructions that were output upon convergence of a 3D auto-refine run.""")
+def initialiseLocalresJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_localres"
+
+    joboptions["fn_in"] = rno.JobOption("One of the 2 unfiltered half-maps:",rh.LABEL_HALFMAP_CPIPE, 1, "", "MRC map files (*half1*.mrc)",  """Provide one of the two unfiltered half-reconstructions that were output upon convergence of a 3D auto-refine run.""")
     joboptions["angpix"] = rno.JobOption("Calibrated pixel size (A)", 1, 0.3, 5, 0.1, """Provide the final, calibrated pixel size in Angstroms. This value may be different from the pixel-size used thus far, e.g. when you have recalibrated the pixel size using the fit to a PDB model. The X-axis of the output FSC plot will use this calibrated value.""")
 
     # Check for environment variable RELION_RESMAP_TEMPLATE
     default_location = RELION_RESMAP_EXECUTABLE
     default_resmap = DEFAULTRESMAPLOCATION
     if (default_location == NULL):
-        default_location = default_resmap;
+        default_location = default_resmap
 
 
     joboptions["do_resmap_locres"] = rno.JobOption("Use ResMap?", True, "If set to Yes, then ResMap will be used for local resolution estimation.")
@@ -1169,8 +1229,11 @@ This is a developmental feature in need of further testing, but initial results 
 
 
 
-def initialiseDynaMightJob():
-    hidden_name = ".gui_dynamight";
+    return hidden_name,joboptions
+
+def initialiseDynaMightJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_dynamight"
 
     joboptions["fn_star"] = rno.JobOption("Input images STAR file:", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star) \t Image stacks (not recommended, read help!) (*.{spi,mrcs})", "A STAR file with all images (and their metadata).")
     joboptions["fn_map"] = rno.JobOption("Consensus map:", "LABEL_MAP_CPIPE", 1, "", "Image Files (*.{spi,vol,mrc})", """A 3D map in MRC/Spider format. Make sure this map has the same dimensions and the same pixel size as your input images.""")
@@ -1199,18 +1262,21 @@ def initialiseDynaMightJob():
 
 
 
-def initialiseModelAngeloJob():
-    hidden_name = ".gui_modelangelo";
+    return hidden_name,joboptions
+
+def initialiseModelAngeloJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_modelangelo"
 
     joboptions["fn_map"] = rno.JobOption("B-factor sharpened map:", "LABEL_MAP_CPIPE", 1, "", "MRC map files (*.mrc)",  """Provide a (RELION-postprocessed) B-factor sharpened map for model building""")
-    joboptions["p_seq"] = rno.JobOption("FASTA sequence for proteins:", LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})",  """Provide a FASTA file with sequences for all protein chains to be built in the map. You can leave this empty if you don't know the proteins that are there, and then run a HMMer search to identify the unknown proteins. ModelAngelo will build much better models when provided with a FASTA sequence file!""")
-    joboptions["d_seq"] = rno.JobOption("FASTA sequence for DNA:", LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})",  "Provide a FASTA file with sequences for all DNA chains to be built in the map.")
-    joboptions["r_seq"] = rno.JobOption("FASTA sequence for RNA:", LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})",  "Provide a FASTA file with sequences for all RNA chains to be built in the map.")
+    joboptions["p_seq"] = rno.JobOption("FASTA sequence for proteins:",rh.LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})",  """Provide a FASTA file with sequences for all protein chains to be built in the map. You can leave this empty if you don't know the proteins that are there, and then run a HMMer search to identify the unknown proteins. ModelAngelo will build much better models when provided with a FASTA sequence file!""")
+    joboptions["d_seq"] = rno.JobOption("FASTA sequence for DNA:",rh.LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})",  "Provide a FASTA file with sequences for all DNA chains to be built in the map.")
+    joboptions["r_seq"] = rno.JobOption("FASTA sequence for RNA:",rh.LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})",  "Provide a FASTA file with sequences for all RNA chains to be built in the map.")
     joboptions["fn_modelangelo_exe"] = rno.JobOption("ModelAngelo executable:", ("relion_python_modelangelo"), """The modelangelo executable. By default, the relion_python_modelangelo will be used, which was installed inside conda with a typical relion install. Only change this if that version is giving you problems.""")
     joboptions["gpu_id"] = rno.JobOption("Which GPUs to use:", ("0"), """Provide a number for the GPU to be used (e.g. 0, 1 etc). Use comma-separated values to use multiple GPUs, e.g. 0,1,2""")
 
     joboptions["do_hhmer"] = rno.JobOption("Perform HMMer search?", False ,"""If set to Yes, model-angelo will perform a HMM search using HHMer in the output directory of the model-angelo run (without sequence). You can continue an old run with this option switched on, and the model building step will be skipped if the output .cif exists. This way, you can try multiple HHMer runs.""")
-    joboptions["fn_lib"] = rno.JobOption("Library with sequences for HMMer search:", LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})", """FASTA file with library with all sequences for HMMer search. This is often an entire proteome.""")
+    joboptions["fn_lib"] = rno.JobOption("Library with sequences for HMMer search:",rh.LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})", """FASTA file with library with all sequences for HMMer search. This is often an entire proteome.""")
     joboptions["alphabet"] = rno.JobOption("Alphabet for the HMMer search:", job_modelangelo_alphabet_options, 0, "Type of Alphabet for HMM searches.")
     joboptions["F1"] = rno.JobOption("HMMSearch F1: ", 0.02, 1., 10., 0.1, """F1 parameter for HMMSearch, see their documentation at http:#eddylab.org/software/hmmer/Userguide.pdf""")
     joboptions["F2"] = rno.JobOption("HMMSearch F2: ", 0.001, 1., 10., 0.1, """F2 parameter for HMMSearch, see their documentation at http:#eddylab.org/software/hmmer/Userguide.pdf""")
@@ -1219,8 +1285,11 @@ def initialiseModelAngeloJob():
 
 
 
-def initialiseMotionrefineJob():
-    hidden_name = ".gui_bayespolish";
+    return hidden_name,joboptions
+
+def initialiseMotionrefineJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_bayespolish"
 
     # I/O
     joboptions["fn_mic"] = rno.JobOption("Micrographs (from MotionCorr):", "LABEL_MICS_CPIPE", 1, "", "STAR files (*.star)", """The input STAR file with the micrograph (and their movie metadata) from a MotionCorr job.""")
@@ -1254,8 +1323,11 @@ The mask used for this postprocessing will be applied to the unfiltered half-map
     joboptions["maxres"] = rno.JobOption("Maximum resolution for B-factor fit (A): ", -1, -1, 15, 1, """The maximum spatial frequency (in Angstrom) used in the B-factor fit. If a negative value is given, the maximum is determined from the input FSC curve.""")
 
 
-def initialiseCtfrefineJob():
-    hidden_name = ".gui_ctfrefine";
+    return hidden_name,joboptions
+
+def initialiseCtfrefineJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_ctfrefine"
 
     # I/O
     joboptions["fn_data"] = rno.JobOption("Particles (from Refine3D):", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star)", "The input STAR file with the metadata of all particles.")
@@ -1267,10 +1339,10 @@ This gives higher resolution estimates, as it disregards ill-defined regions nea
 
     # Defocus fit
     joboptions["do_ctf"] = rno.JobOption("Perform CTF parameter fitting?", True, """If set to Yes, then relion_ctf_refine will be used to estimate the selected parameters below.""")
-    joboptions["do_defocus"] = rno.JobOption("Fit defocus?", job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate defocus values.""")
-    joboptions["do_astig"] = rno.JobOption("Fit astigmatism?", job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate astigmatism.""")
-    joboptions["do_bfactor"] = rno.JobOption("Fit B-factor?", job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate B-factors that describe the signal falloff.""")
-    joboptions["do_phase"] = rno.JobOption("Fit phase-shift?", job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate (VPP?) phase shift values.""")
+    joboptions["do_defocus"] = rno.JobOption("Fit defocus?", rh.job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate defocus values.""")
+    joboptions["do_astig"] = rno.JobOption("Fit astigmatism?", rh.job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate astigmatism.""")
+    joboptions["do_bfactor"] = rno.JobOption("Fit B-factor?", rh.job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate B-factors that describe the signal falloff.""")
+    joboptions["do_phase"] = rno.JobOption("Fit phase-shift?", rh.job_ctffit_options, 0, """If set to per-particle or per-micrograph, then relion_ctf_refine will estimate (VPP?) phase shift values.""")
 
     # aberrations
     joboptions["do_aniso_mag"] = rno.JobOption("Estimate (anisotropic) magnification?", False, """If set to Yes, then relion_ctf_refine will also estimate the (anisotropic) magnification per optics group. \
@@ -1282,8 +1354,11 @@ This option cannot be done simultaneously with higher-order aberration estimatio
     joboptions["do_4thorder"] = rno.JobOption("Estimate 4th order aberrations?", False, """If set to Yes, then relion_ctf_refine will also estimate the Cs and the tetrafoil (4-fold astigmatism) per optics group. This option is only recommended for data sets that extend beyond 3 Angstrom resolution.""")
 
 
-def initialiseExternalJob():
-    hidden_name = ".gui_external";
+    return hidden_name,joboptions
+
+def initialiseExternalJob(is_tomo):
+    joboptions = {}
+    hidden_name = ".gui_external"
 
     # I/O
     joboptions["fn_exe"] = rno.JobOption("External executable:", "", "", ".", """Location of the script that will launch the external program. This script should write all its output in the directory specified with --o. Also, it should write in that same directory a file called RELION_JOB_EXIT_SUCCESS upon successful exit, and RELION_JOB_EXIT_FAILURE upon failure.""")
@@ -1318,10 +1393,12 @@ def initialiseExternalJob():
     joboptions["param10_label"] = rno.JobOption("Param10 - label:", (""), """Define label and value for optional parameters to the script. These will be passed as an argument --label value""")
     joboptions["param10_value"] = rno.JobOption("Param10 - value:" , (""), """Define label and value for optional parameters to the script. These will be passed as an argument --label value""")
 
-def getCommandsImportJob():
+def getCommandsImportJob(is_tomo):
     pass
 
 # Initialise
+    return hidden_name,joboptions
+
 def initialise(_job_type):
     type = _job_type
 
@@ -1471,11 +1548,12 @@ def initialise(_job_type):
 
     else:
         print("ERROR: unrecognised job-type")
-        
+
 def init_table(name):
     return f'#\nloop_\n{name}.id\n{name}.label\n{name}.widget\n{name}.default\n{name}.arg0\n{name}.arg1\n{name}.arg2\n{name}.help\n'
 
 joboptions = {}
+
 
 def init_joboptions():
     global joboptions

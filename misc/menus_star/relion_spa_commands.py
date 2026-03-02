@@ -107,12 +107,12 @@ def getCommandsImportJobRaw(outputname, label, job_counter=-1):
 #        error_message = "ERROR: please specify an optics group name."
 #        return "", "", error_message
     
-    new_arg = rc.Param("--optics_group_name", "optics_group_name", assertion="is_field_not_empty")
+    new_arg = rc.Param("--optics_group_name", "optics_group_name", assertion="required")
     cli.args.append(new_arg)
         
     fn_mtf = get_str("fn_mtf")
     # if len(fn_mtf) > 0:
-    new_arg = rc.Param("--optics_group_mtf","fn_mtf", assertion="is_field_not_empty")
+    new_arg = rc.Flag("--optics_group_mtf","","ne,{fn_mtf},null",True)
     cli.args.append(new_arg) 
 
     new_arg = rc.Param("--angpix","angpix")
@@ -128,8 +128,90 @@ def getCommandsImportJobRaw(outputname, label, job_counter=-1):
     new_arg = rc.Param("--beamtilt_y","beamtilt_y")
     cli.args.append(new_arg) 
 
+    # Now finish the command call to relion_import program, which does the actual copying
+    new_arg = rc.Param(" --i","fn_in")
+    cli.args.append(new_arg) 
+    new_arg = rc.Param(f" --odir {outputname}{{counter}}", "")
+    cli.args.append(new_arg) 
+    new_arg = rc.Param(" --ofile ","fn_out")
+    cli.args.append(new_arg) 
+    new_arg = rc.Param(f" --pipeline-control {outputname}", "")
+    cli.args.append(new_arg) 
+
+
+    # if (is_continue)
+	# 	command += " --continue ";
     return script
 
+    
+def getCommandsImportJobParticles(outputname, label, job_counter=-1):
+    
+    script, cli = clear(label)
+    cli.add_prog(rc.Prog("relion_import"))
+    fn_out = ""
+    fn_in = ""
+
+    do_raw = get_bool("do_raw")
+    do_other = get_bool("do_other")
+
+    # USELESS ERROR
+    # if do_raw and do_other:
+    #     error_message = "ERROR: you cannot import BOTH raw movies/micrographs AND other node types at the same time..."
+    #     return "", "", error_message
+    #
+    # if not do_raw and not do_other:
+    #     error_message = "ERROR: nothing to do... "
+    #     return "", "", error_message
+
+
+    # if do_other:
+    fn_in = get_str("fn_in_other")
+    node_type = get_str("node_type")
+    
+    # if node_type == "Particle coordinates (*.box, *_pick.star)":
+    suffix = fn_in.split('*')[-1] if '*' in fn_in else fn_in
+    fn_out = "coords_suffix" + suffix
+    cli.add_outnode(rc.Node(outputname + fn_out, rh.LABEL_IMPORT_COORDS))
+    new_arg = rc.Param("--do_coordinates ","")
+
+    # else:
+    #     fn_out = os.path.basename(fn_in)
+        
+    #     mynodetype = ""
+    #     if node_type == "Particles STAR file (.star)":
+    #         mynodetype = rh.LABEL_IMPORT_PARTS
+    #     elif node_type == "Multiple (2D or 3D) references (.star or .mrcs)":
+    #         mynodetype = rh.LABEL_IMPORT_2DIMG
+    #     elif node_type == "3D reference (.mrc)":
+    #         mynodetype = rh.LABEL_IMPORT_MAP
+    #     elif node_type == "3D mask (.mrc)":
+    #         mynodetype = rh.LABEL_IMPORT_MASK
+    #     elif node_type == "Micrographs STAR file (.star)":
+    #         mynodetype = rh.LABEL_IMPORT_MICS
+    #     elif node_type == "Unfiltered half-map (unfil.mrc)":
+    #         mynodetype = rh.LABEL_IMPORT_HALFMAP
+    #     else:
+    #         error_message = "Unrecognized menu option for node_type = " + node_type
+    #         return "", "", error_message
+        
+    #     cli.add_outnode(rc.Node(outputname + fn_out, mynodetype))
+        
+    # if mynodetype == rh.LABEL_HALFMAP_CPIPE or mynodetype == rh.LABEL_IMPORT_HALFMAP:
+    #     fn_inb = os.path.basename(fn_in)
+    #     if "half1" in fn_inb:
+    #         fn_inb = fn_inb.replace("half1", "half2")
+    #     elif "half2" in fn_inb:
+    #         fn_inb = fn_inb.replace("half2", "half1")
+        
+    #     cli.add_outnode(rc.Node(outputname + fn_inb, mynodetype))
+    #     new_arg = rc.Param("--do_halfmaps","")
+    
+    # elif mynodetype == rh.LABEL_PARTS_CPIPE or mynodetype == rh.LABEL_IMPORT_PARTS:
+    new_arg = rc.Param("--do_particles","")
+    optics_group = get_str("optics_group_particles")
+    new_arg = rc.Param("--optics_group_name ","optics_group_particles")
+                
+    return script
 
 def getCommandsImportJobOther(outputname, label, job_counter=-1):
     
@@ -182,25 +264,26 @@ def getCommandsImportJobOther(outputname, label, job_counter=-1):
         
         cli.add_outnode(rc.Node(outputname + fn_out, mynodetype))
         
-        if mynodetype == rh.LABEL_HALFMAP_CPIPE or mynodetype == rh.LABEL_IMPORT_HALFMAP:
-            fn_inb = os.path.basename(fn_in)
-            if "half1" in fn_inb:
-                fn_inb = fn_inb.replace("half1", "half2")
-            elif "half2" in fn_inb:
-                fn_inb = fn_inb.replace("half2", "half1")
-            
-            cli.add_outnode(rc.Node(outputname + fn_inb, mynodetype))
-            new_arg = rc.Param("--do_halfmaps","")
+    if mynodetype == rh.LABEL_HALFMAP_CPIPE or mynodetype == rh.LABEL_IMPORT_HALFMAP:
+        fn_inb = os.path.basename(fn_in)
+        if "half1" in fn_inb:
+            fn_inb = fn_inb.replace("half1", "half2")
+        elif "half2" in fn_inb:
+            fn_inb = fn_inb.replace("half2", "half1")
         
-        elif mynodetype == rh.LABEL_PARTS_CPIPE or mynodetype == rh.LABEL_IMPORT_PARTS:
-                new_arg = rc.Param("--do_particles","")
-                optics_group = get_str("optics_group_particles")
-                new_arg = rc.Param("--optics_group_name ","optics_group_particles")
-
-    return script
+        cli.add_outnode(rc.Node(outputname + fn_inb, mynodetype))
+        new_arg = rc.Param("--do_halfmaps","")
     
+    elif mynodetype == rh.LABEL_PARTS_CPIPE or mynodetype == rh.LABEL_IMPORT_PARTS:
+            new_arg = rc.Param("--do_particles","")
+            optics_group = get_str("optics_group_particles")
+            new_arg = rc.Param("--optics_group_name ","optics_group_particles")
+                
+    
+    return script
 
-def getCommandsMotioncorrJob_Own(outputname,label,job_counter=-1):
+
+def getCommandsMotioncorrJob(outputname,label,job_counter=-1):
 
     script, cli = clear(label)
     initialisePipeline(outputname, job_counter)
@@ -212,7 +295,7 @@ def getCommandsMotioncorrJob_Own(outputname,label,job_counter=-1):
 #    if joboptions["input_star_mics"] == ""):
 #        error_message = "ERROR: empty field for input STAR file..."
 #        return False
-    new_arg = rc.Param("--i ", "input_star_mics",assertion="is_field_not_empty")
+    new_arg = rc.Param("--i ", "input_star_mics",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["input_star_mics"].getString(), joboptions["input_star_mics"].node_type)
     cli.add_innode(node)
@@ -244,7 +327,7 @@ def getCommandsMotioncorrJob_Own(outputname,label,job_counter=-1):
     cli.args.append(new_arg)
     
 #   if (joboptions["fn_defect"].length() > 0)
-    new_arg = rc.Param("--defect_file ", "fn_defect",assertion="is_field_not_empty")
+    new_arg = rc.Param("--defect_file ", "fn_defect",assertion="required")
     cli.args.append(new_arg)
 
     new_arg = rc.Param("--bin_factor ", "bin_factor")
@@ -344,7 +427,7 @@ def getCommandsMotioncorrJob_MC2(outputname,label,job_counter=-1):
 #    if joboptions["input_star_mics"] == ""):
 #        error_message = "ERROR: empty field for input STAR file..."
 #        return False
-    new_arg = rc.Param("--i ", "input_star_mics",assertion="is_field_not_empty")
+    new_arg = rc.Param("--i ", "input_star_mics",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["input_star_mics"].getString(), joboptions["input_star_mics"].node_type)
     cli.add_innode(node)
@@ -376,7 +459,7 @@ def getCommandsMotioncorrJob_MC2(outputname,label,job_counter=-1):
 #       return False
         
 #    if (joboptions["other_motioncor2_args").length() > 0)
-    new_arg = rc.Param("--other_motioncor2_args ", "other_motioncor2_args",assertion="is_field_not_empty")
+    new_arg = rc.Param("--other_motioncor2_args ", "other_motioncor2_args",assertion="required")
     cli.args.append(new_arg)
 
     #  Which GPUs to use?
@@ -445,19 +528,19 @@ def getCommandsMotioncorrJob_MC2(outputname,label,job_counter=-1):
 #             return False
 
 #         float dose_rate = 1.0
-#         if (!is_tomo)
+#         if not is_tomo:
 #                 dose_rate = joboptions["dose_per_frame"].getNumber(error_message)
 #                 if error_message != "":
 #                     return False
-#         if (dose_rate <= 0)
+#         if dose_rate <= 0:
 #                     error_message = "Please specify the dose rate to calculate the grouping for power spectra."
 #             return False
-#                 if dose_for_ps <= 0)
+#                 if dose_for_ps <= 0:
 #                     error_message = "Invalid dose for the grouping for power spectra."
 #             return False
         
 #         int grouping_for_ps = ROUND(dose_for_ps / dose_rate)
-#         if grouping_for_ps == 0)
+#         if grouping_for_ps == 0:
 #             grouping_for_ps = 1
 
 #         new_arg = rc.Param("--grouping_for_ps ","grouping_for_ps")
@@ -497,7 +580,7 @@ def getCommandsCtffindJob(outputname,label,job_counter=-1):
 #    if joboptions["input_star_mics"] == "")
 #            error_message = "ERROR: empty field for input STAR file..."
 #        return False
-    new_arg = rc.Param("--i ", "input_star_mics",assertion="is_field_not_empty")
+    new_arg = rc.Param("--i ", "input_star_mics",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["input_star_mics"].getString(), joboptions["input_star_mics"].node_type)
     cli.add_innode(node)
@@ -561,7 +644,7 @@ def getCommandsManualpickJob(outputname,label,job_counter=-1):
 #            error_message = "ERROR: empty field for input STAR file..."
 #        return False
     
-    new_arg = rc.Param("--i ", "fn_in",assertion="is_field_not_empty")
+    new_arg = rc.Param("--i ", "fn_in",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["fn_in"].getString(), joboptions["fn_in"].node_type)
     cli.add_innode(node)
@@ -831,7 +914,7 @@ def getCommandsAutopickTopazPickJob(outputname,label,job_counter=-1):
 
     new_arg = rc.Param("--topaz_extract","")
     # if joboptions["topaz_model"] != "":
-    new_arg = rc.Param("--topaz_model ", "topaz_model",assertion="is_field_not_empty")
+    new_arg = rc.Param("--topaz_model ", "topaz_model",assertion="required")
     cli.args.append(new_arg)
 
     if joboptions["do_topaz_filaments"].getBoolean():
@@ -845,7 +928,7 @@ def getCommandsAutopickTopazPickJob(outputname,label,job_counter=-1):
     
     
     # if joboptions["topaz_other_args"].length() > 0:
-    new_arg = rc.Param("--topaz_args ", "topaz_other_args",assertion="is_field_not_empty")
+    new_arg = rc.Param("--topaz_args ", "topaz_other_args",assertion="required")
     cli.args.append(new_arg)
 
     #  GPU-stuff
@@ -1039,7 +1122,7 @@ def getCommandsExtractJob(outputname,label,job_counter=-1):
 #    if joboptions["star_mics") == "")
 #            error_message = "ERROR: empty field for input STAR file..."
 #        return False
-    new_arg = rc.Param("--i ", "star_mics",assertion="is_field_not_empty")
+    new_arg = rc.Param("--i ", "star_mics",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["star_mics"].getString(), joboptions["star_mics"].node_type)
     cli.add_innode(node)
@@ -1507,7 +1590,7 @@ def getCommandsSelectInteractiveJob(outputname,label,job_counter=-1):
 
     #  I/O
     # if joboptions["fn_model"] != "":
-    new_arg = rc.Param("--gui --i ", "fn_model",assertion="is_field_not_empty")
+    new_arg = rc.Param("--gui --i ", "fn_model",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["fn_model"].getString(), joboptions["fn_model"].node_type)
     cli.add_innode(node)
@@ -1528,24 +1611,24 @@ def getCommandsSelectInteractiveJob(outputname,label,job_counter=-1):
         # if joboptions["do_recenter"].getBoolean())
         new_arg = rc.Flag("--recenter ","","do_recenter",True)
     # elif joboptions["fn_mic"] != "":
-    new_arg = rc.Param("--gui --i ", "fn_mic",assertion="is_field_not_empty")
+    new_arg = rc.Param("--gui --i ", "fn_mic",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["fn_mic"].getString(), joboptions["fn_mic"].node_type)
     cli.add_innode(node)
 
     fn_mics = outputname+"micrographs.star"
-    new_arg = rc.Param("--allow_save --fn_imgs ",fn_mics,"fn_mic","is_field_not_empty")
+    new_arg = rc.Param("--allow_save --fn_imgs ",fn_mics,"fn_mic","required")
     node2 = rc.Node(fn_mics, rh.LABEL_SELECT_MICS)
     cli.add_outnode(node2)
         
     # elif joboptions["fn_data"] != "":
-    new_arg = rc.Param("--gui --i ", "fn_data",assertion="is_field_not_empty")
+    new_arg = rc.Param("--gui --i ", "fn_data",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["fn_data"].getString(), joboptions["fn_data"].node_type)
     cli.add_innode(node)
 
     fn_parts = outputname+"particles.star"
-    new_arg = rc.Flag("--allow_save --fn_imgs ", fn_parts,"fn_data","is_field_not_empty")
+    new_arg = rc.Flag("--allow_save --fn_imgs ", fn_parts,"fn_data","required")
     node2 = rc.Node(fn_parts, rh.LABEL_SELECT_PARTS)
     cli.add_outnode(node2)
                     
@@ -1628,7 +1711,7 @@ def getCommandsClass2DJob(outputname,label,job_counter=-1):
         # if joboptions["fn_img"] == "":
         #         error_message = "ERROR: empty field for input STAR file..."
         #         return False
-        new_arg = rc.Param("--i ", "fn_img",assertion="is_field_not_empty")
+        new_arg = rc.Param("--i ", "fn_img",assertion="required")
         cli.args.append(new_arg)
         node = rc.Node(joboptions["fn_img"].getString(), joboptions["fn_img"].node_type)
         cli.add_innode(node)
@@ -2063,7 +2146,7 @@ def getCommandsClass3DJob(outputname,label,job_counter=-1):
     new_arg = rc.Param("--blush ","","do_blush",True)
 
     # if joboptions["fn_mask"].length() > 0:
-    new_arg = rc.Param("--solvent_mask ", "fn_mask",assertion="is_field_not_empty")
+    new_arg = rc.Param("--solvent_mask ", "fn_mask",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["fn_mask"].getString(), joboptions["fn_mask"].node_type)
     cli.add_innode(node)
@@ -2085,7 +2168,7 @@ def getCommandsClass3DJob(outputname,label,job_counter=-1):
         if joboptions["do_local_ang_searches"].getBoolean():
             new_arg = rc.Param("--sigma_ang " + floatToString(joboptions["sigma_angles"].getNumber(error_message) / 3.))
             # if joboptions["relax_sym"].length() > 0:
-            new_arg = rc.Param("--relax_sym ", "relax_sym",assertion="is_field_not_empty")
+            new_arg = rc.Param("--relax_sym ", "relax_sym",assertion="required")
             cli.args.append(new_arg)
 
         if error_message != "":
@@ -2344,7 +2427,7 @@ def getCommandsAutorefineJob(outputname,label,job_counter=-1):
 #   if joboptions["do_zero_mask"].getBoolean())
     new_arg = rc.Flag("--zero_mask","do_zero_mask",True)
 #   if joboptions["fn_mask"].length() > 0)
-    new_arg = rc.Param("--solvent_mask ", "fn_mask",assertion="is_field_not_empty")
+    new_arg = rc.Param("--solvent_mask ", "fn_mask",assertion="required")
     cli.args.append(new_arg)
 
 #   if joboptions["do_solvent_fsc"].getBoolean())
@@ -2707,7 +2790,7 @@ def getCommandsMaskcreateJob(outputname,label,job_counter=-1):
     # if joboptions["fn_in"] == "":
     #     error_message = "ERROR: empty field for input STAR file..."
     #     return False
-    new_arg = rc.Param("--i ", "fn_in",assertion="is_field_not_empty")
+    new_arg = rc.Param("--i ", "fn_in",assertion="required")
     cli.args.append(new_arg)
     node = rc.Node(joboptions["fn_in"].getString(), joboptions["fn_in"].node_type)
     cli.add_innode(node)
@@ -2923,7 +3006,7 @@ def getCommandsSubtractJob(outputname,label,job_counter=-1):
                 if joboptions["fn_data"] == "":
                     error_message = "ERROR: empty field for the input particle STAR file..."
                     return False
-            new_arg = rc.Flag("--data ", "fn_data","do_data",True,assertion="is_field_not_empty")
+            new_arg = rc.Flag("--data ", "fn_data","do_data",True,assertion="required")
             cli.args.append(new_arg)
             node3 = rc.Node (joboptions["fn_data"].getString(), joboptions["fn_data"].node_type)
             cli.add_innode(node3)
@@ -3129,7 +3212,7 @@ def getCommandsLocalresJob(outputname,label,job_counter=-1):
         new_arg = rc.Param("--adhoc_bfac ", "adhoc_bfac")
         cli.args.append(new_arg)
         # if joboptions["fn_mtf"] != "":
-        new_arg = rc.Param("--mtf ", "fn_mtf",assertion="is_field_not_empty")
+        new_arg = rc.Param("--mtf ", "fn_mtf",assertion="required")
         cli.args.append(new_arg)
 
         if joboptions["fn_mask"] != "":
@@ -3195,7 +3278,7 @@ def getCommandsDynaMightJob(outputname, label, job_counter):
         new_arg = rc.Param("--n-gaussians ", "nr_gaussians")
         cli.args.append(new_arg)
         #if joboptions["initial_threshold"] != "":
-        new_arg = rc.Param("--initial-threshold ", "initial_threshold",assertion="is_field_not_empty")
+        new_arg = rc.Param("--initial-threshold ", "initial_threshold",assertion="required")
         cli.args.append(new_arg)
         new_arg = rc.Param("--regularization-factor " , "reg_factor")
         cli.args.append(new_arg)
@@ -3216,7 +3299,7 @@ def getCommandsDynaMightJob(outputname, label, job_counter):
     cli.args.append(new_arg)
 
     #   if joboptions["fn_checkpoint"] != "")
-    new_arg = rc.Param("--checkpoint-file ", "fn_checkpoint","do_visualize",True,assertion="is_field_not_empty")
+    new_arg = rc.Param("--checkpoint-file ", "fn_checkpoint","do_visualize",True,assertion="required")
     cli.args.append(new_arg)
 
         # if joboptions["fn_mask"]!= "")
@@ -3229,7 +3312,7 @@ def getCommandsDynaMightJob(outputname, label, job_counter):
     cli.args.append(new_arg)
 
     #    if joboptions["fn_checkpoint"] != "":
-    new_arg = rc.Param("--checkpoint-file ", "fn_checkpoint",assertion="is_field_not_empty")
+    new_arg = rc.Param("--checkpoint-file ", "fn_checkpoint",assertion="required")
     cli.args.append(new_arg)
 
     #   if joboptions["do_store_deform"].getBoolean())
@@ -3245,7 +3328,7 @@ def getCommandsDynaMightJob(outputname, label, job_counter):
     cli.args.append(new_arg)
 
     #    if joboptions["fn_checkpoint"] != "":
-    new_arg = rc.Param("--checkpoint-file ", "fn_checkpoint",assertion="is_field_not_empty")
+    new_arg = rc.Param("--checkpoint-file ", "fn_checkpoint",assertion="required")
     cli.args.append(new_arg)
 
     #    if joboptions["do_preload"].getBoolean())
@@ -3263,7 +3346,7 @@ def getCommandsDynaMightJob(outputname, label, job_counter):
 
     
     # if joboptions["gpu_id"] != "")
-    new_arg = rc.Param("--gpu-id ", "gpu_id",assertion="is_field_not_empty")
+    new_arg = rc.Param("--gpu-id ", "gpu_id",assertion="required")
     cli.args.append(new_arg)
 
     #  Other arguments for model_angelo
@@ -3307,7 +3390,7 @@ def getCommandsModelAngeloJob(outputname, label, job_counter=-1):
             node2 = rc.Node(joboptions["d_seq"].getString(), joboptions["d_seq"].node_type)
             cli.add_innode(node2)
 
-            new_arg = rc.Param(" -df ", "d_seq",assertion="is_field_not_empty")
+            new_arg = rc.Param(" -df ", "d_seq",assertion="required")
             cli.args.append(new_arg)
         
         if joboptions["r_seq"] != "":
@@ -3315,7 +3398,7 @@ def getCommandsModelAngeloJob(outputname, label, job_counter=-1):
             node2 = rc.Node (joboptions["r_seq"].getString(), joboptions["r_seq"].node_type)
             cli.add_innode(node2)
 
-            new_arg = rc.Param(" -rf ", "r_seq",assertion="is_field_not_empty")
+            new_arg = rc.Param(" -rf ", "r_seq",assertion="required")
             cli.args.append(new_arg)
     
     else:
@@ -3454,7 +3537,7 @@ def getCommandsMotionrefineJob(outputname,label,job_counter=-1):
         if joboptions["opt_params"] == "":
             error_message = "ERROR: Please specify an optimised parameter file OR choose 'use own paramaeters' and set three sigma values."
             return False
-        new_arg = rc.Param("--params_file ", "opt_params",assertion="is_field_not_empty")
+        new_arg = rc.Param("--params_file ", "opt_params",assertion="required")
         cli.args.append(new_arg)
         
         new_arg = rc.Param("--combine_frames","")
@@ -3746,7 +3829,7 @@ def getCommands(cmdtype,subtype):
     do_makedir = None
     job_counter = None
     error_message = None
-    outputname =  rh.proc_type2dirname(rh.PROC_IMPORT) + '/job{counter}/'
+    outputname =  rh.proc_type2dirname(rh.PROC_IMPORT) + '/RELION_NEW_JOB'
     if cmdtype == rh.PROC_IMPORT:
         if subtype == rh.PROC_IMPORT_RAW_GRR:
             result = getCommandsImportJobRaw(outputname,subtype)
