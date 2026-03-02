@@ -143,7 +143,7 @@ class JobOption:
         self.arg2  = _step_value
 
 
-    def to_star(self,id):
+    def to_star(self):
         def simple_widget():
             _i = self.id
             _l = self.label
@@ -157,9 +157,9 @@ class JobOption:
                 _h = f'\n;\n{self.help}\n;'
             return f'{_i}   "{_l}"    {_w}    {_v}    {_a}    {_b}    {_c}' + _h
 
-        self.id = id
+        # self.id = id
         if self.widget == 'option':
-          self.id = f"{id}_opt_{self.value:02d}"
+          self.id = f"{self.id}_opt_{self.value:02d}"
           
         _i = self.id
 
@@ -248,39 +248,69 @@ class Row:
         
         return  ''.join([f'{quoted(v):<20} '  for v in self.values])
     
+# class Table:
+#     def __init__(self, id,columns):
+#         self.id = id
+#         self.columns = columns
+#         self.rows: List[Row] = []
+
+#     def append(self, option: Row):
+#         row = {}
+#         for k in self.columns:
+#             if k in option.columns:
+#                 row[k] = option.get(k)
+#             else:
+#                 row[k] = '?'
+
+#         self.rows.append(Row(**row))
+
+#     def to_definition_line(self, parent_name: str) -> str:
+#         """Génère la ligne qui définit cette table dans l'en-tête de l'onglet"""
+#         # Format: id label icon widget default help
+#         return f"{self.id:<15} {format_star_string(self.label):<25} {self.icon:<20} {self.widget:<15} ?      {format_star_string(self.help_text)}"
+
+#     def __repr__(self) -> str:
+#         """Génère le bloc loop_ complet avec les données"""
+#         if not self.rows: 
+#             return ""
+        
+#         prefix = f"_{self.id}"
+#         header = f"#\nloop_\n"
+#         for col in self.columns:
+#             header += f'{prefix}.{col:<20}\n'
+        
+#         rows = [str(opt) for opt in self.rows]
+#         return header + "\n".join(rows) + "\n"
+    
 class Table:
-    def __init__(self, id,columns):
-        self.id = id
-        self.columns = columns
-        self.rows: List[Row] = []
+    def __init__(self, id: str, label: str = "", icon: str = "", widget: str = "fieldset", help_text: str = "?"):
+        self.id = id  # ex: indata
+        self.label = label
+        self.icon = icon
+        self.widget = widget # fieldset, range, etc.
+        self.help_text = help_text
+        self.options: Dict[str,JobOption] = {}
 
-    def append(self, option: Row):
-        row = {}
-        for k in self.columns:
-            if k in option.columns:
-                row[k] = option.get(k)
-            else:
-                row[k] = '?'
-
-        self.rows.append(Row(**row))
+    def append(self, key: str, option: JobOption):
+        option.id = key
+        self.options[key] = option
+        # self.options.append(option)
 
     def to_definition_line(self, parent_name: str) -> str:
         """Génère la ligne qui définit cette table dans l'en-tête de l'onglet"""
         # Format: id label icon widget default help
-        return f"{self.name:<15} {format_star_string(self.label):<25} {self.icon:<20} {self.widget:<15} ?      {format_star_string(self.help_text)}"
+        return f"{self.id:<15} {format_star_string(self.label):<25} {self.icon:<20} {self.widget:<15} ?      {format_star_string(self.help_text)}"
 
-    def __repr__(self) -> str:
+    def to_content_block(self) -> str:
         """Génère le bloc loop_ complet avec les données"""
-        if not self.rows: 
-            return ""
+        if not self.options: return ""
         
         prefix = f"_{self.id}"
-        header = f"#\nloop_\n"
-        for col in self.columns:
-            header += f'{prefix}.{col:<20}\n'
+        header = f"#\nloop_\n{prefix}.id\n{prefix}.label\n{prefix}.widget\n{prefix}.default\n{prefix}.arg0\n{prefix}.arg1\n{prefix}.arg2\n{prefix}.help"
         
-        rows = [str(opt) for opt in self.rows]
-        return header + "\n".join(rows) + "\n"
+        lines = [opt.to_star() for opt in self.options.values()]
+        
+        return header + "\n" + "\n".join(lines)
     
 
 class Tab:
@@ -291,7 +321,7 @@ class Tab:
         self.tables: Dict[str, Table] = {} # Dictionnaire de tables
 
     def add_table(self, table: Table):
-        self.tables[table.name] = table
+        self.tables[table.id] = table
 
     def to_definition_line(self) -> str:
         """Génère la ligne pour le loop principal du Tool"""
@@ -306,7 +336,7 @@ class Tab:
         header = f"#\nloop_\n{prefix}.id\n{prefix}.label\n{prefix}.icon\n{prefix}.widget\n{prefix}.default\n{prefix}.help"
         
         lines = [t.to_definition_line(self.name) for t in self.tables.values()]
-        return header + "\n" + "\n".join(lines) + "\n"
+        return header + "\n" + "".join(lines)
     
 class Tool:
     def __init__(self):
