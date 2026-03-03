@@ -519,7 +519,10 @@ def initialiseSelectWindow(is_tomo=False):
     grp = place(grp,"fn_model", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mic", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_data", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_class_ranker", TOGGLE_DEACTIVATE, group6)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_class_ranker", "Automatically select 2D classes?", type="switch")
+    # grp = place(grp,"do_class_ranker", TOGGLE_DEACTIVATE, group6)
     grp = place(grp,"rank_threshold", TOGGLE_DEACTIVATE)
     grp = place(grp,"select_nr_parts", TOGGLE_DEACTIVATE)
     grp = place(grp,"select_nr_classes", TOGGLE_DEACTIVATE)
@@ -527,29 +530,41 @@ def initialiseSelectWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"do_recenter", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_regroup", TOGGLE_DEACTIVATE, group1)
+    grp.end()
+    
+    grp =Fieldset(groups,"do_regroup", "Regroup the particles?", type="switch")
+    # grp = place(grp,"do_regroup", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"nr_groups", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_select_values", TOGGLE_DEACTIVATE, group3)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_select_values", "Select based on metadata values?", type="switch")
+    # grp = place(grp,"do_select_values", TOGGLE_DEACTIVATE, group3)
     grp = place(grp,"select_label", TOGGLE_DEACTIVATE)
     grp = place(grp,"select_minval", TOGGLE_DEACTIVATE)
     grp = place(grp,"select_maxval", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups)
-    grp = place(grp,"do_discard", TOGGLE_DEACTIVATE, group4)
+    grp =Fieldset(groups, "do_discard", "OR: select on image statistics?", type="switch")
+    # grp = place(grp,"do_discard", TOGGLE_DEACTIVATE, group4)
     grp = place(grp,"discard_label", TOGGLE_DEACTIVATE)
     grp = place(grp,"discard_sigma", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups)
-    grp = place(grp,"do_split", TOGGLE_DEACTIVATE, group5)
+    grp =Fieldset(groups, "do_split", "OR: split into subsets?", type="switch")
+    # grp = place(grp,"do_split", TOGGLE_DEACTIVATE, group5)
     grp = place(grp,"do_random", TOGGLE_DEACTIVATE)
     grp = place(grp,"split_size", TOGGLE_DEACTIVATE)
     grp = place(grp,"nr_split", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_remove_duplicates", TOGGLE_DEACTIVATE, group2)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_remove_duplicates", "OR: remove duplicates?", type="switch")
+    # grp = place(grp,"do_remove_duplicates", TOGGLE_DEACTIVATE, group2)
     grp = place(grp,"duplicate_threshold", TOGGLE_DEACTIVATE)
     grp = place(grp,"image_angpix", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_filaments", TOGGLE_DEACTIVATE, group3)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_filaments", "OR: select filaments by dendrogram?", type="switch")
+    # grp = place(grp,"do_filaments", TOGGLE_DEACTIVATE, group3)
     grp = place(grp,"dendrogram_threshold", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"dendrogram_minclass", TOGGLE_LEAVE_ACTIVE)
 
@@ -862,7 +877,7 @@ def initialiseAutorefineWindow(is_tomo=False):
     grp = place(grp,"sigma_tilt", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups, "do_helix", "Do helical reconstruction?", type="switchS")
+    grp =Fieldset(groups, "do_helix", "Do helical reconstruction?", type="switch")
     # grp = place(grp,"do_helix", TOGGLE_DEACTIVATE, group2)
     grp = place2(grp,"helical_tube_inner_diameter", "helical_tube_outer_diameter", "Tube diameter - inner, outer (A):",TOGGLE_DEACTIVATE)
     grp = place3(grp, "range_rot", "range_tilt", "range_psi", "Angular search range - rot, tilt, psi (deg):", TOGGLE_DEACTIVATE)
@@ -918,8 +933,14 @@ def initialiseMultiBodyWindow(is_tomo=False):
     grp = place(grp,"sampling", TOGGLE_DEACTIVATE)
     grp = place(grp,"offset_range", TOGGLE_DEACTIVATE)
     grp = place(grp,"offset_step", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_analyse", TOGGLE_LEAVE_ACTIVE, group5)
+    grp.end()
+    
+    grp =Fieldset(groups,"do_analyse", "Run flexibility analysis?", type="switch")
+    # grp = place(grp,"do_analyse", TOGGLE_LEAVE_ACTIVE, group5)
     grp = place(grp,"nr_movies")
+    grp.end()
+    
+    grp =Fieldset(groups, "do_select", "Select particles based on eigenvalues?", type="switch")
     grp = place(grp,"do_select", TOGGLE_LEAVE_ACTIVE, group6)
     grp = place(grp,"select_eigenval")
     grp = place(grp,"eigenval_min")
@@ -956,7 +977,10 @@ def initialiseMaskcreateWindow(is_tomo=False):
     grp = place(grp,"inimask_threshold")
     grp = place(grp,"extend_inimask")
     grp = place(grp,"width_mask_edge")
-    grp = place(grp,"do_helix", TOGGLE_LEAVE_ACTIVE, group1)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_helix", "Mask a 3D helix?", type="switch")
+    # grp = place(grp,"do_helix", TOGGLE_LEAVE_ACTIVE, group1)
     grp = place(grp,"helical_z_percentage")
 
     grp.end()
@@ -1074,6 +1098,7 @@ def initialiseLocresWindow(is_tomo=False):
     return groups
 
 def initialiseMotionrefineWindow(is_tomo=False):
+    """ Bayesian polishing """
     groups = FsGroup()
     grp = Fieldset(groups)
     grp = place(grp,"fn_mic", TOGGLE_DEACTIVATE)
@@ -1091,25 +1116,29 @@ def initialiseMotionrefineWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"do_float16", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_param_optim", TOGGLE_LEAVE_ACTIVE, group2)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_param_optim", "Train optimal parameters?", type="switch")
+    # grp = place(grp,"do_param_optim", TOGGLE_LEAVE_ACTIVE, group2)
+    grp = place(grp,"opt_params", TOGGLE_DEACTIVATE)
+    
     grp = place(grp,"eval_frac")
     grp = place(grp,"optim_min_part")
-    grp = place(grp,"do_polish", TOGGLE_DEACTIVATE, group1)
     grp.end()
- 
-    grp = place(grp,"opt_params", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_own_params", TOGGLE_DEACTIVATE, group4)
+    
+    grp =Fieldset(groups, "do_polish", "Perform particle polishing?", type="switch")
+    # grp = place(grp,"do_polish", TOGGLE_DEACTIVATE, group1)
+    grp = place(grp,"minres", TOGGLE_DEACTIVATE)
+    grp = place(grp,"maxres", TOGGLE_DEACTIVATE)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_own_params", "OR use your own parameters?", type="switch")
+    # grp = place(grp,"do_own_params", TOGGLE_DEACTIVATE, group4)
     grp = place(grp,"sigma_vel", TOGGLE_DEACTIVATE)
     grp = place(grp,"sigma_div", TOGGLE_DEACTIVATE)
     grp = place(grp,"sigma_acc", TOGGLE_DEACTIVATE)
     grp.end()
- 
-    grp = place(grp,"minres", TOGGLE_DEACTIVATE)
-    grp = place(grp,"maxres", TOGGLE_DEACTIVATE)
-
-    grp.end()
     
-
     return groups
 
 def initialiseCtfrefineWindow(is_tomo=False):
@@ -1117,23 +1146,30 @@ def initialiseCtfrefineWindow(is_tomo=False):
     grp = Fieldset(groups)
     grp = place(grp,"fn_data", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_post", TOGGLE_DEACTIVATE)
+    grp.end()
+
+    grp = Fieldset(groups)
     grp = place(grp,"do_aniso_mag", TOGGLE_LEAVE_ACTIVE, group3, True) # True means: activating aniso_mag will deactive higher-order aberrations
     grp.end()
- 
-    grp = place(grp,"do_ctf", TOGGLE_LEAVE_ACTIVE, group1)
+
+    grp = Fieldset(groups, "do_ctf", "Perform CTF parameter fitting?", type="switch")
+    # grp = place(grp,"do_ctf", TOGGLE_LEAVE_ACTIVE, group1)
     grp = place(grp,"do_defocus", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"do_astig", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"do_bfactor", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"do_phase", TOGGLE_LEAVE_ACTIVE)
     grp.end()
- 
-    grp = place(grp,"do_tilt", TOGGLE_LEAVE_ACTIVE, group4)
+
+    grp = Fieldset(groups, "do_tilt", "Estimate beamtilt?", type="switch")
+    # grp = place(grp,"do_tilt", TOGGLE_LEAVE_ACTIVE, group4)
     grp = place(grp,"do_trefoil", TOGGLE_LEAVE_ACTIVE)
     grp.end()
- 
+    
+    grp = Fieldset(groups)
     grp = place(grp,"do_4thorder", TOGGLE_LEAVE_ACTIVE)
     grp.end()
- 
+    
+    grp = Fieldset(groups)
     grp = place(grp,"minres", TOGGLE_DEACTIVATE)
 
     grp.end()
@@ -1148,27 +1184,32 @@ def initialiseDynaMightWindow(is_tomo=False):
     grp = place(grp,"fn_map", TOGGLE_DEACTIVATE)
     # grp = place(grp,"fn_mask", TOGGLE_DEACTIVATE)
     grp.end()
- 
+    
+    grp = Fieldset(groups)
     grp = place(grp,"nr_gaussians", TOGGLE_DEACTIVATE)
     grp = place(grp,"initial_threshold", TOGGLE_DEACTIVATE)
     grp = place(grp,"reg_factor", TOGGLE_DEACTIVATE)
     grp.end()
  
+    grp = Fieldset(groups)
     grp = place(grp,"fn_dynamight_exe", TOGGLE_DEACTIVATE)
     grp = place(grp,"gpu_id")
     grp = place(grp,"do_preload")
     grp = place(grp,"fn_checkpoint", TOGGLE_REACTIVATE)
     grp.end()
- 
+    
+    grp = Fieldset(groups)
     grp = place(grp,"do_visualize", TOGGLE_REACTIVATE, group1, False)
     grp = place(grp,"halfset")
     grp.end()
  
+    grp = Fieldset(groups)
     grp = place(grp,"do_inverse", TOGGLE_REACTIVATE, group2, False)
     grp = place(grp,"nr_epochs")
     grp = place(grp,"do_store_deform")
     grp.end()
  
+    grp = Fieldset(groups)
     grp = place(grp,"do_reconstruct",TOGGLE_REACTIVATE, group3, False)
     grp = place(grp,"backproject_batchsize")
 
