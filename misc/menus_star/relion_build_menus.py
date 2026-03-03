@@ -29,11 +29,11 @@ def update_fieldset(tool,fs,jo,params):
             # Create the widget with joboptions
             wdgt.set_options(jo[wdgt.id])
             if jo[wdgt.id].widget == 'select':
-                fs_opt = rwi.Fieldset(fs.parent, wdgt.id,"Options")
+                fs_opt = rwi.Fieldset(fs, wdgt.id,"Options")
                 fs_opt.group = rwi.group8
                 fs_opt.current_group = rwi.group8
                 for i,opt in enumerate(jo[wdgt.id].radio_options):
-                    wopt = rwi.Widget(fs,f'{wdgt.id}_opt{i:02}',fs.parent)
+                    wopt = rwi.Widget(fs,f'{wdgt.id}_opt_{i:02}',fs.parent)
                     wopt.set_options(opt)
                     fs_opt.append(wopt)
                 fs_options.append(fs_opt)
@@ -56,6 +56,16 @@ def update_fieldset(tool,fs,jo,params):
     return tool
         
 def update_system_fieldset(tool,fs,jo,params):
+    # Create fieldset `outdata`
+    fout = rwi.Fieldset(fs.parent,"outdata","Output Data",icon="bi-box-arrow-down")
+    fout.group = rwi.group6
+    fout.current_group = rwi.group6
+    tool.append_fieldset(fout,'io')
+   # Create fieldset `nodes`
+    fnod = rwi.Fieldset(fs.parent,"nodes","Nodes",icon="bi-controller")
+    fnod.group = rwi.group7
+    fnod.current_group = rwi.group7
+    tool.append_fieldset(fnod,'io')
     # Create fieldset `system`
     fsys = rwi.Fieldset(fs.parent,"system","System",icon="bi-incognito")
     fsys.group = rwi.group8
@@ -70,7 +80,11 @@ def update_system_fieldset(tool,fs,jo,params):
         wdgt.group = fsys
         fsys.append(wdgt,force=True)
     tool.append_fieldset(fsys,'io')
-    print(fsys)
+    # Create fieldset `cli`
+    fcli = rwi.Fieldset(fs.parent,f'{tool.toolid}_cmd',"Check command",type="cli")
+    fcli.group = rwi.group9
+    fcli.current_group = rwi.group9
+    tool.append_fieldset(fcli,'io')
     return tool
 
 ################## RELION SPA FUNCTIONS ##################

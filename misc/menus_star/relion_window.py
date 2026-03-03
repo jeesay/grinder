@@ -3,7 +3,7 @@ TOGGLE_DEACTIVATE = 1
 TOGGLE_LEAVE_ACTIVE = 2
 TOGGLE_REACTIVATE = 3
 
-group_unk,group0, group1, group2, group3, group4, group5, group6, group7, group8 = [-1,0,1,2,3,4,5,6,7,8]
+group_unk,group0, group1, group2, group3, group4, group5, group6, group7, group8, group9 = [-1,0,1,2,3,4,5,6,7,8,9]
 
 class Widget:
     def __init__(self,parent,id,group,toggle=TOGGLE_UNKNOWN,flag=False):
