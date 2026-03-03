@@ -111,7 +111,7 @@ def initialiseMotioncorrJob(is_tomo):
     is_tomo =  False
 
     if (is_tomo):
-        joboptions["input_star_mics"] = rno.JobOption("Input tilt series: ", rh.LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file")
+        joboptions["input_star_mics"] = rno.JobOptionIO("Input tilt series: ", rh.LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file")
 
     else:
         joboptions["input_star_mics"] = rno.JobOptionIO("Input movies STAR file:", "LABEL_MOVIES_CPIPE", 1, "", "STAR files (*.star)", "A STAR file with all micrographs to run MOTIONCORR on")
@@ -175,10 +175,10 @@ def initialiseCtffindJob(is_tomo):
     default_location = ""
 
     if (is_tomo):
-        joboptions["input_star_mics"] = rno.JobOption("Input tilt series: ", rh.LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file.")
+        joboptions["input_star_mics"] = rno.JobOptionIO("Input tilt series: ", rh.LABEL_TOMOGRAMS_CPIPE, 1, "", "Tilt series STAR file (*.star)", "Input global tilt series star file.")
 
     else:
-        joboptions["input_star_mics"] = rno.JobOption("Input micrographs STAR file:", "LABEL_MICS_CPIPE", 1, "", "STAR files (*.star)", "A STAR file with all micrographs to run CTFFIND or Gctf on")
+        joboptions["input_star_mics"] = rno.JobOptionIO("Input micrographs STAR file:", "LABEL_MICS_CPIPE", 1, "", "STAR files (*.star)", "A STAR file with all micrographs to run CTFFIND or Gctf on")
 
 
     if (not is_tomo) :
@@ -223,7 +223,7 @@ def initialiseManualpickJob(is_tomo):
     joboptions = {}
     hidden_name = ".gui_manualpick"
 
-    joboptions["fn_in"] = rno.JobOption("Input micrographs:", "LABEL_MICS_CPIPE", 1, "", "Input micrographs (*.{star,mrc})", """Input STAR file (with or without CTF information), OR a unix-type wildcard with all micrographs in MRC format (in this case no CTFs can be used).""")
+    joboptions["fn_in"] = rno.JobOptionIO("Input micrographs:", "LABEL_MICS_CPIPE", 1, "", "Input micrographs (*.{star,mrc})", """Input STAR file (with or without CTF information), OR a unix-type wildcard with all micrographs in MRC format (in this case no CTFs can be used).""")
 
     joboptions["diameter"] = rno.JobOption("Particle diameter (A):", 100, 0, 500, 50, """The diameter of the circle used around picked particles (in Angstroms). Only used for display.""" )
     joboptions["micscale"] = rno.JobOption("Scale for micrographs:", 0.2, 0.1, 1, 0.05, """The micrographs will be displayed at this relative scale, i.e. a value of 0.5 means that only every second pixel will be displayed.""" )
@@ -257,7 +257,7 @@ def initialiseAutopickJob(is_tomo):
     joboptions = {}
     hidden_name = ".gui_autopick"
 
-    joboptions["fn_input_autopick"] = rno.JobOption("Input micrographs for autopick:", "LABEL_MICS_CPIPE", 1, "", "Input micrographs (*.{star})", """Input STAR file (preferably with CTF information) with all micrographs to pick from.""")
+    joboptions["fn_input_autopick"] = rno.JobOptionIO("Input micrographs for autopick:", "LABEL_MICS_CPIPE", 1, "", "Input micrographs (*.{star})", """Input STAR file (preferably with CTF information) with all micrographs to pick from.""")
     joboptions["angpix"] = rno.JobOption("Pixel size in micrographs (A)", -1, 0.3, 5, 0.1, """Pixel size in Angstroms. If a CTF-containing STAR file is input, then the value given here will be ignored, and the pixel size will be calculated from the values in the STAR file. A negative value can then be given here.""")
     joboptions["continue_manual"] = rno.JobOption("OR: continue manually?", False, """If set to Yes, an Autopick job can be continued as a manualpick job, so that incorrect picks can be corrected interactively.""")
 
@@ -338,7 +338,7 @@ def initialiseExtractJob(is_tomo):
     joboptions = {}
     hidden_name = ".gui_extract"
 
-    joboptions["star_mics"]= rno.JobOption("micrograph STAR file: ", "LABEL_MICS_CPIPE", 1, "", "Input STAR file (*.{star})", "Filename of the STAR file that contains all micrographs from which to extract particles.")
+    joboptions["star_mics"]= rno.JobOptionIO("micrograph STAR file: ", "LABEL_MICS_CPIPE", 1, "", "Input STAR file (*.{star})", "Filename of the STAR file that contains all micrographs from which to extract particles.")
     # TO DOL set helical option for this
     joboptions["coords_suffix"] = rno.JobOption("Input coordinates: ", "LABEL_COORDS_CPIPE", 1, "", "Input coordinates list file (*.star)", """Starfile with a 2-column list of micrograph names and corresponding coordinate filenames (in .star, .box or as 2 or 3-column free text format)""")
     joboptions["do_reextract"] = rno.JobOption("OR re-extract refined particles? ", False, """If set to Yes, the input Coordinates above will be ignored. Instead, one uses a _data.star file from a previous 2D or 3D refinement to re-extract the particles in that refinement, possibly re-centered with their refined origin offsets. This is particularly useful when going from binned to unbinned particles.""")
@@ -383,9 +383,9 @@ def initialiseSelectJob(is_tomo):
     joboptions = {}
     hidden_name = ".gui_select"
 
-    joboptions["fn_model"] = rno.JobOption("Select classes from job:",rh.LABEL_OPTIMISER_CPIPE, 1, "", "STAR files (*_optimiser.star)", """A _optimiser.star (or for backwards compatibility also a _model.star) file from a previous 2D or 3D classification run to select classes from.""")
-    joboptions["fn_mic"] = rno.JobOption("OR select from micrographs.star:", "LABEL_MICS_CPIPE", 1, "", "STAR files (*.star)", "A micrographs.star file to select micrographs from.")
-    joboptions["fn_data"] = rno.JobOption("OR select from particles.star:", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star)", "A particles.star file to select individual particles from.")
+    joboptions["fn_model"] = rno.JobOptionIO("Select classes from job:",rh.LABEL_OPTIMISER_CPIPE, 1, "", "STAR files (*_optimiser.star)", """A _optimiser.star (or for backwards compatibility also a _model.star) file from a previous 2D or 3D classification run to select classes from.""")
+    joboptions["fn_mic"] = rno.JobOptionIO("OR select from micrographs.star:", "LABEL_MICS_CPIPE", 1, "", "STAR files (*.star)", "A micrographs.star file to select micrographs from.")
+    joboptions["fn_data"] = rno.JobOptionIO("OR select from particles.star:", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star)", "A particles.star file to select individual particles from.")
 
     joboptions["do_class_ranker"] = rno.JobOption("Automatically select 2D classes?", False, """If set to True, the class_ranker program will be used to make an automated class selection, based on the parameters below. This option only works when selecting classes from a relion_refine job (input optimiser.star on the I.O tab)""")
     joboptions["rank_threshold"] = rno.JobOption("Minimum threshold for auto-selection: ", 0.5, 0, 1, 0.05, "Only classes with a pre dicted threshold above this value will be selected.")
@@ -424,9 +424,9 @@ def initialiseClass2DJob(is_tomo):
     joboptions = {}
     hidden_name = ".gui_class2d"
 
-    joboptions["fn_img"] = rno.JobOption("Input images STAR file:", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star) \t Image stacks (not recommended, read help!) (*.{spi,mrcs})", """A STAR file with all images (and their metadata). \n \n Alternatively, you may give a Spider/MRC stack of 2D images, but in that case NO metadata can be included and thus NO CTF correction can be performed, \
+    joboptions["fn_img"] = rno.JobOptionIO("Input images STAR file:", "LABEL_PARTS_CPIPE", 1, "", "STAR files (*.star) \t Image stacks (not recommended, read help!) (*.{spi,mrcs})", """A STAR file with all images (and their metadata). \n \n Alternatively, you may give a Spider/MRC stack of 2D images, but in that case NO metadata can be included and thus NO CTF correction can be performed, \
 nor will it be possible to perform noise spectra estimation or intensity scale corrections in image groups. Therefore, running RELION with an input stack will in general provide sub-optimal results and is therefore not recommended!! Use the Preprocessingrh.PROCedure to get the input STAR file in a semi-automated manner. Read the RELION wiki for more information.""")
-    joboptions["fn_cont"] = rno.JobOption("Continue from here: ", (""), "STAR Files (*_optimiser.star)", "CURRENT_ODIR",  """Select the *_optimiser.star file for the iteration \
+    joboptions["fn_cont"] = rno.JobOptionIO("Continue from here: ", (""), "STAR Files (*_optimiser.star)", "CURRENT_ODIR",  """Select the *_optimiser.star file for the iteration \
 from which you want to continue a previous run. \
 Note that the Output rootname of the continued run and the rootname of the previous run cannot be the same. \
 If they are the same, the program will automatically add a '_ctX' to the output rootname, \
