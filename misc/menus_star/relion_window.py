@@ -450,11 +450,12 @@ def initialiseExtractWindow(is_tomo=False):
     # grp = place(grp,"do_reextract", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"fndata_reextract", TOGGLE_DEACTIVATE)
     grp = place(grp,"do_reset_offsets", TOGGLE_DEACTIVATE)
+    grp.end()
 
-    grp2 = Fieldset(groups, "do_recenter", "Re-center refined coordinates", type="switch")
+    grp = Fieldset(groups, "do_recenter", "Re-center refined coordinates", type="switch")
     # grp = place(grp,"do_recenter", TOGGLE_DEACTIVATE, group7)
-    grp2 = place3(grp2, "recenter_x","recenter_y", "recenter_z", "Recenter on - X, Y, Z (pix):", TOGGLE_DEACTIVATE)
-    grp2.end()
+    grp = place3(grp, "recenter_x","recenter_y", "recenter_z", "Recenter on - X, Y, Z (pix):", TOGGLE_DEACTIVATE)
+    
     grp.end()
     
     grp = Fieldset(groups)
@@ -497,15 +498,13 @@ def initialiseExtractWindow(is_tomo=False):
     
     # grp = Fieldset(groups)
     grp = place(grp,"helical_bimodal_angular_priors", TOGGLE_DEACTIVATE)
-    # grp.end()
+    grp.end()
     
-    grp2 = Fieldset(groups, "do_extract_helical_tubes", "Coordinates are start-end only?", type="switch")
+    grp = Fieldset(groups, "do_extract_helical_tubes", "Coordinates are start-end only?", type="switch")
     # grp = place(grp,"do_extract_helical_tubes", TOGGLE_DEACTIVATE, group6)
-    grp2 = place(grp2,"do_cut_into_segments", TOGGLE_DEACTIVATE)
-    grp2 = place(grp2,"helical_nr_asu", TOGGLE_DEACTIVATE)
-    grp2 = place(grp2,"helical_rise", TOGGLE_DEACTIVATE)
-
-    grp2.end()
+    grp = place(grp,"do_cut_into_segments", TOGGLE_DEACTIVATE)
+    grp = place(grp,"helical_nr_asu", TOGGLE_DEACTIVATE)
+    grp = place(grp,"helical_rise", TOGGLE_DEACTIVATE)
     grp.end()
     
 
@@ -612,11 +611,11 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"helical_tube_outer_diameter")
     grp = place(grp,"do_bimodal_psi")
     grp = place(grp,"range_psi")
+    grp.end()
 
-    grp2 =Fieldset(groups, "do_restrict_xoff", "Restrict helical offsets to rise", type="switch")
+    grp =Fieldset(groups, "do_restrict_xoff", "Restrict helical offsets to rise", type="switch")
     # grp = place(grp,"do_restrict_xoff", TOGGLE_LEAVE_ACTIVE, group7)
-    grp2 = place(grp2,"helical_rise", TOGGLE_LEAVE_ACTIVE)
-    grp2.end()
+    grp = place(grp,"helical_rise", TOGGLE_LEAVE_ACTIVE)
     grp.end()
 
     grp = Fieldset(groups,"diskio","Disk Management")
@@ -747,15 +746,17 @@ def initialiseClass3DWindow(is_tomo=False):
     grp = place(grp,"offset_range")
     grp = place(grp,"offset_step")
 
-    grp2 = Fieldset(groups, "do_local_ang_searches", "Perform local angular searches?", type="switch")
-    # grp = place(grp,"do_local_ang_searches", TOGGLE_LEAVE_ACTIVE, group4)
-    grp2 = place(grp2,"sigma_angles")
-    grp2 = place(grp2,"relax_sym")
-    grp2.end()
-    
     # grp =Fieldset(groups)
     grp = place(grp,"allow_coarser")
     grp.end()
+
+    grp = Fieldset(groups, "do_local_ang_searches", "Perform local angular searches?", type="switch")
+    # grp = place(grp,"do_local_ang_searches", TOGGLE_LEAVE_ACTIVE, group4)
+    grp = place(grp,"sigma_angles")
+    grp = place(grp,"relax_sym")
+    grp.end()
+    
+
     
     grp =Fieldset(groups)
     grp = place(grp,"sigma_tilt", TOGGLE_DEACTIVATE)
@@ -768,21 +769,19 @@ def initialiseClass3DWindow(is_tomo=False):
     grp = place3(grp, "range_rot", "range_tilt", "range_psi", "Angular search range - rot, tilt, psi (deg):", TOGGLE_DEACTIVATE)
     grp = place(grp,"helical_range_distance", TOGGLE_DEACTIVATE)
     grp = place(grp,"keep_tilt_prior_fixed", TOGGLE_DEACTIVATE)
-    # grp.end()
+    grp.end()
     
-    grp2 =Fieldset(groups, "do_apply_helical_symmetry", "Apply helical symmetry?", type="switch")
+    grp =Fieldset(groups, "do_apply_helical_symmetry", "Apply helical symmetry?", type="switch")
     # grp = place(grp,"do_apply_helical_symmetry", TOGGLE_DEACTIVATE, group8)
-    grp2 = place(grp2,"helical_nr_asu", TOGGLE_DEACTIVATE)
-    grp2 = place2(grp2,"helical_twist_initial", "helical_rise_initial", "Initial twist (deg), rise (A):", TOGGLE_DEACTIVATE)
-    grp2 = place(grp2,"helical_z_percentage", TOGGLE_DEACTIVATE)
-    grp2.end()
+    grp = place(grp,"helical_nr_asu", TOGGLE_DEACTIVATE)
+    grp = place2(grp,"helical_twist_initial", "helical_rise_initial", "Initial twist (deg), rise (A):", TOGGLE_DEACTIVATE)
+    grp = place(grp,"helical_z_percentage", TOGGLE_DEACTIVATE)
+    grp.end()
     
-    grp2 =Fieldset(groups, "do_local_search_helical_symmetry", "Do local searches of symmetry?", type="switch")
+    grp =Fieldset(groups, "do_local_search_helical_symmetry", "Do local searches of symmetry?", type="switch")
     # grp = place(grp,"do_local_search_helical_symmetry", TOGGLE_DEACTIVATE, group6)
-    grp2 = place3(grp2, "helical_twist_min","helical_twist_max", "helical_twist_inistep", "Twist search - Min, Max, Step (deg):", TOGGLE_DEACTIVATE)
-    grp2 = place3(grp2, "helical_rise_min", "helical_rise_max", "helical_rise_inistep", "Rise search - Min, Max, Step (A):", TOGGLE_DEACTIVATE)
-    grp2.end()
-
+    grp = place3(grp, "helical_twist_min","helical_twist_max", "helical_twist_inistep", "Twist search - Min, Max, Step (deg):", TOGGLE_DEACTIVATE)
+    grp = place3(grp, "helical_rise_min", "helical_rise_max", "helical_rise_inistep", "Rise search - Min, Max, Step (A):", TOGGLE_DEACTIVATE)
     grp.end()
 
     grp = Fieldset(groups,"diskio","Disk Management")
@@ -824,8 +823,14 @@ def initialiseAutorefineWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"sym_name", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_ctf_correction", TOGGLE_DEACTIVATE, group1)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_ctf_correction", "Do CTF-correction?", type="switch")
+    # grp = place(grp,"do_ctf_correction", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"ctf_intact_first_peak", TOGGLE_DEACTIVATE)
+    grp.end()
+    
+    grp =Fieldset(groups)
     grp = place(grp,"particle_diameter")
     grp = place(grp,"do_zero_mask", TOGGLE_DEACTIVATE)
     grp.end()
@@ -852,22 +857,25 @@ def initialiseAutorefineWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"sigma_tilt", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_helix", TOGGLE_DEACTIVATE, group2)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_helix", "Do helical reconstruction?", type="switchS")
+    # grp = place(grp,"do_helix", TOGGLE_DEACTIVATE, group2)
     grp = place2(grp,"helical_tube_inner_diameter", "helical_tube_outer_diameter", "Tube diameter - inner, outer (A):",TOGGLE_DEACTIVATE)
     grp = place3(grp, "range_rot", "range_tilt", "range_psi", "Angular search range - rot, tilt, psi (deg):", TOGGLE_DEACTIVATE)
     grp = place(grp,"helical_range_distance", TOGGLE_DEACTIVATE)
     grp = place(grp,"keep_tilt_prior_fixed", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups)
-    grp = place(grp,"do_apply_helical_symmetry", TOGGLE_DEACTIVATE, group5)
+    grp =Fieldset(groups, "do_apply_helical_symmetry", "Apply helical symmetry?", type="switch" )
+    # grp = place(grp,"do_apply_helical_symmetry", TOGGLE_DEACTIVATE, group5)
     grp = place(grp,"helical_nr_asu", TOGGLE_DEACTIVATE)
     grp = place2(grp,"helical_twist_initial", "helical_rise_initial", "Initial twist (deg), rise (A):",TOGGLE_DEACTIVATE)
     grp = place(grp,"helical_z_percentage", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups)
-    grp = place(grp,"do_local_search_helical_symmetry", TOGGLE_DEACTIVATE, group3)
+    grp =Fieldset(groups, "do_local_search_helical_symmetry", "Do local searches of symmetry?", type="switch")
+    # grp = place(grp,"do_local_search_helical_symmetry", TOGGLE_DEACTIVATE, group3)
     grp = place3(grp, "helical_twist_min", "helical_twist_max", "helical_twist_inistep", "Twist search - Min, Max, Step (deg):", TOGGLE_DEACTIVATE)
     grp = place3(grp, "helical_rise_min", "helical_rise_max","helical_rise_inistep","Rise search - Min, Max, Step (A):", TOGGLE_DEACTIVATE)
     grp.end()
