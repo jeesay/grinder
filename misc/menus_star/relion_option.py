@@ -109,13 +109,13 @@ class JobOption:
         clear()
         defaultval = ''
         options = []
-        for i,opt in enumerate(_radio_options):
+        for opt,opt_value in _radio_options:
             options.append(
-                JobOption('None', opt, 'option', i, '?', '?', '?', '?')
+                JobOption('None', opt, 'option', opt_value, '?', '?', '?', '?')
             )
         self.radio_options = options
         defaultval = ioption
-        self.arg0 = _radio_options[ioption]
+        self.arg0 = _radio_options[ioption][1]
         self.widget = 'select'
         self.initialise(_label, defaultval, _helptext)
         joboption_type = rh.JOBOPTION_RADIO
@@ -174,6 +174,9 @@ class JobOption:
 
     def getBoolean(self):
         return self.valuevalue
+    
+    def __repr__(self):
+        return str(self.__dict__)
 
 class JobOptionIO(JobOption):
     def __init__(self, *args):
@@ -281,7 +284,7 @@ class Row:
         
 #         rows = [str(opt) for opt in self.rows]
 #         return header + "\n".join(rows) + "\n"
-    
+
 class Table:
     def __init__(self, id: str, label: str = "", icon: str = "", widget: str = "fieldset", help_text: str = "?"):
         self.id = id  # ex: indata
@@ -313,16 +316,34 @@ class Table:
         return header + "\n" + "\n".join(lines)
     
 
+
 class Tab:
     def __init__(self, name: str, label: str, icon: str):
-        self.name = name # ex: io
-        self.label = label
+        self.tid = name # ex: io
+        self.label = f'"{label}"'
+        self.widget = 'tab'
+        self.default = '?'
         self.icon = icon
+        self.help = '?'
         self.tables: Dict[str, Table] = {} # Dictionnaire de tables
+        self.fieldsets = []
 
     def add_table(self, table: Table):
         self.tables[table.id] = table
 
+    def append(self, fs):
+        self.fieldsets.append(fs)
+
+    def to_star(self):
+        def fs_star(fs):
+            return f'{fs.fsid:<20} {fs.fsname:<40} {fs.icon:<20} {fs.widget:<10} {fs.default:<10} {fs.help}\n'
+        
+        header0 = f'loop_\n_{self.tid}.id\n_{self.tid}.label\n_{self.tid}.icon\n_{self.tid}.widget\n_{self.tid}.value\n_{self.tid}.help\n'
+        content0 =  ''.join([fs_star(fs) for fs in self.fieldsets])
+        #
+        content = ''.join([w.to_star() for w in self.fieldsets])
+        return header0 + content0 + '#\n' + content
+    
     def to_definition_line(self) -> str:
         """Génère la ligne pour le loop principal du Tool"""
         # Format: id label icon widget default parent help
@@ -339,12 +360,38 @@ class Tab:
         return header + "\n" + "".join(lines)
     
 class Tool:
-    def __init__(self):
+    def __init__(self,toolid):
+        self.toolid = toolid
         self.prefix = "tabs"
         self.tabs: Dict[str, Tab] = {}
 
     def add_tab(self, tab: Tab):
         self.tabs[tab.name] = tab
+
+    def add_builtin_tab(self, tabid: int):
+        predefined = {
+            'io': ('io', 'I/O', ' bi-arrow-down-up'),
+            'settings': ('settings', 'Settings', 'bi-tools'),
+            'log': ('log', 'Log', 'bi-binoculars-fill'),
+            'dataviz': ('dataviz', 'DataViz', 'bi-eye')
+        }
+        self.tabs[tabid] = Tab(*predefined[tabid])
+
+    def append_fieldset(self,fs):
+        if fs.fsid == 'indata':
+            self.tabs['io'].append(fs)
+        else:
+            self.tabs['settings'].append(fs)
+
+    def to_star(self):
+        def tab_star(tab):
+            return f'{tab.tid:<20} {tab.label:<25} {tab.icon:<20} {tab.widget:<15}  {tab.default:<8} {tab.help}\n'
+        
+        header0 = f'data_\n#\n'
+        header0 += f'loop_\n_{self.toolid}.id\n_{self.toolid}.label\n_{self.toolid}.icon\n_{self.toolid}.widget\n_{self.toolid}.value\n_{self.toolid}.help\n'
+        content0 =  ''.join([tab_star(self.tabs[t]) for t in self.tabs.keys()])
+        content = ''.join([self.tabs[key].to_star() for key in self.tabs.keys()])
+        return header0 + content0 + '#\n' + content
 
     def __str__(self):
         output = ["data_"]
@@ -384,14 +431,15 @@ class Tool:
         return tab.tables[table_name]
     
 
+    
 if __name__ == '__main__' :
     table = Table('test',['a','b','c'])
     row0 = Row(a=1,b='range',c=100)
     row1 = Row(a=10,b='Movie or Image (*.{mrc,mrcs,tif,tiff,eer,mrc.bz2,mrcs.bz2,mrc.zst,mrcs.zst,mrc.xz,mrcs.xz})',c=100)
     row2 = Row(a=1,b='range',c=100)
-    print(row0)
-    print(str(row0))
+    # print(row0)
+    # print(str(row0))
     table.append(row0)
     table.append(row1)
     table.append(row2)
-    print(table)
+    # print(table)

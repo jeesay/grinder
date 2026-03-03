@@ -381,16 +381,16 @@ job_nodetype_options_tomo = [
 ]
 
 job_gain_rotation_options = [
-    "No rotation (0)",
-    "90 degrees (1)",
-    "180 degrees (2)",
-    "270 degrees (3)"
+    ("No rotation",0), 
+    ("90 degrees",1), 
+    ("180 degrees",2), 
+    ("270 degrees",3)
 ]
 
 job_gain_flip_options = [
-    "No flipping (0)",
-    "Flip upside down (1)",
-    "Flip left to right (2)"
+    ("No flipping",0), 
+    ("Flip upside down",1), 
+    ("Flip left to right",2)
 ]
 
 job_ctffit_options = [

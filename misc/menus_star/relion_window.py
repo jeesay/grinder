@@ -12,7 +12,30 @@ class Widget:
         self.toggle = toggle
         self.group = group
         self.flag = flag
+        self.label = '"No label"'
+        self.widget = '?'
+        self.value = '?'
+        self.arg0 = '?'
+        self.arg1 = '?'
+        self.arg2 = '?'
+        self.help = '"No Help"'
 
+    # Copy from joboption
+    def set_options(self,jo):
+        self.label = f'"{jo.label}"'
+        self.widget = jo.widget
+        self.value = jo.value
+        self.arg0 = jo.arg0 if isinstance(jo.arg0, int) or isinstance(jo.arg0, float) else f'"{jo.arg0}"'
+        self.arg1 = jo.arg1
+        self.arg2 = jo.arg2
+        self.help = jo.help
+
+    def to_star(self):
+        if self.help[0] == ';':
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15}\n{self.help}\n'
+        else:
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} "{self.help}"\n'
+    
     def __repr__(self):
         return self.__dict__
     
@@ -20,14 +43,15 @@ class Widget:
         return str(self.__dict__)
 
 class Fieldset:
-    def __init__(self,parent,id="general",name='General',type="fieldset",icon=""):
+    def __init__(self,parent,id="general",name='General',type="fieldset",icon="?"):
         self.fsid = id
         self.parent = parent # group of fieldset
-        self.fsname = name
+        self.fsname = f'"{name}"'   # aka label
         self.group = parent.current_group
-        self.type = type
-        self.icon = icon
-
+        self.default = '?'
+        self.help = '?'
+        self.widget = type
+        self.icon = 'bi-chat-right-text' if icon == '?' else icon
 
         self.widgets = []
 
@@ -39,21 +63,38 @@ class Fieldset:
     def current_group(self,grp):
         self.parent.current_group = grp
     
-    def append(self,w):
-        if len(self.widgets) == 0 and w.id[0:3] == 'do_':
+    def append(self,w,force=False):
+        if not force and len(self.widgets) == 0 and w.id[0:3] == 'do_':
             self.fsid = w.id[3:]
             self.fsname = ' '.join([word.capitalize() for word in w.id[3:].replace('_',' ').split(' ')])
+            self.fsname = f'"{self.fsname}"'
         self.widgets.append(w)
 
+    def delete(self,widget_id):
+        index = [ x.id for x in self.widgets ].index(widget_id)
+        del self.widgets[index]
+        
     def end(self):
         # Finalize something
         self.parent.append(self)
 
+    def is_empty(self):
+        return len(self.widgets) == 0
+
+    def __iter__(self):
+            for fs in self.widgets:
+                yield fs
+
     def __len__(self):
         return len(self.widgets)
     
+    def to_star(self):
+        header = f'loop_\n_{self.fsid}.id\n_{self.fsid}.label\n_{self.fsid}.widget\n_{self.fsid}.value\n_{self.fsid}.arg0\n_{self.fsid}.arg1\n_{self.fsid}.arg2\n_{self.fsid}.help\n'
+        content = ''.join([w.to_star() for w in self.widgets])
+        return header + content + '#\n'
+
     def __repr__(self):
-        return f'**{self.type.capitalize()}**{self.fsid}:{self.fsname}[{len(self.widgets)}]\n' + '\n'.join([str(w) for w in self.widgets]) + '\n'
+        return f'**{self.widget.capitalize()}**{self.fsid}:{self.fsname}[{len(self.widgets)}]\n' + '\n'.join([str(w) for w in self.widgets]) + '\n'
 
 class FsGroup:
     def __init__(self):
@@ -61,12 +102,19 @@ class FsGroup:
         self.current_group = group1
         self.param_count = 1
 
+    def get(self,index):
+        return self.groups[index]
+    
     def append(self,fs):
         if any(f.fsid == 'general' for f in self.groups) and fs.fsid == 'general':
             fs.fsid = f'params_{self.param_count:02}'
-            fs.fsname = 'Parameters'
+            fs.fsname = '"Parameters"'
             self.param_count += 1
         self.groups.append(fs)
+
+    def __iter__(self):
+            for fs in self.groups:
+                yield fs
 
     def __len__(self):
         return len(self.groups)
@@ -74,10 +122,11 @@ class FsGroup:
     def __repr__(self):
         return '\n'.join([str(fs) for fs in self.groups])
 
-def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True):
+def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True,force=False):
     if 'fn_in' in id or 'input_' in id or "fn_img" in id or "fn_cont" in id or id == "fn_ref" or id == "fn_mask":
         parent.fsid = 'indata'
-        parent.fsname = 'Input Data'
+        parent.fsname = '"Input Data"'
+        parent.icon = 'bi-box-arrow-in-down'
     fs = parent
     if grp == group_unk:
         grp = fs.current_group  
@@ -91,7 +140,7 @@ def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True):
         fs.current_group = grp
         # parent.parent.current_group = grp
 
-    fs.append(Widget(parent,id,grp, toggle, flag))
+    fs.append(Widget(parent,id,grp, toggle, flag),force)
     return fs
 
 def place2(parent,id1,id2,label,toggle):
@@ -182,7 +231,7 @@ def initialiseMotioncorrWindow(is_tomo=False):
     
     grp = Fieldset(groups,"do_dose_weighting","Dose Weighting",type="switch")
     #grp = place(grp,"do_dose_weighting", TOGGLE_DEACTIVATE, group1)
-    grp = place(grp,"do_save_noDW", TOGGLE_DEACTIVATE)
+    grp = place(grp,"do_save_noDW", TOGGLE_DEACTIVATE,force=True)
     grp.end()
     
     grp = Fieldset(groups,"do_save_ps","Save Power Spectrum",type="switch")
@@ -201,8 +250,8 @@ def initialiseMotioncorrWindow(is_tomo=False):
     grp = place(grp,"fn_defect", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp = Fieldset(groups)
-    grp = place(grp,"do_own_motioncor", TOGGLE_DEACTIVATE, group4, True)
+    grp = Fieldset(groups,"do_own_motioncor","RELIONS's implementation")
+    # grp = place(grp,"do_own_motioncor", TOGGLE_DEACTIVATE, group4, True)
     grp = place(grp,"fn_motioncor2_exe", TOGGLE_DEACTIVATE)
     grp = place(grp,"gpu_ids")
     grp = place(grp,"other_motioncor2_args", TOGGLE_DEACTIVATE)
@@ -1484,3 +1533,4 @@ if __name__ == '__main__' :
     fs_all = initialiseClass3DWindow()
     print(fs_all)
 
+    # print(fs_all.get(1).to_star())

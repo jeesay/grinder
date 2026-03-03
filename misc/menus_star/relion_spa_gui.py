@@ -1397,8 +1397,6 @@ def getCommandsImportJob(is_tomo):
     pass
 
 # Initialise
-    return hidden_name,joboptions
-
 def initialise(_job_type):
     type = _job_type
 
