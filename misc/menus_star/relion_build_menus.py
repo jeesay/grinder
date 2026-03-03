@@ -30,6 +30,8 @@ def update_fieldset(tool,fs,jo,params):
             wdgt.set_options(jo[wdgt.id])
             if jo[wdgt.id].widget == 'select':
                 fs_opt = rwi.Fieldset(fs.parent, wdgt.id,"Options")
+                fs_opt.group = rwi.group8
+                fs_opt.current_group = rwi.group8
                 for i,opt in enumerate(jo[wdgt.id].radio_options):
                     wopt = rwi.Widget(fs,f'{wdgt.id}_opt{i:02}',fs.parent)
                     wopt.set_options(opt)
@@ -45,13 +47,31 @@ def update_fieldset(tool,fs,jo,params):
         fs.delete(rm)
     
     # If fieldset not empty, append to tab
+    tab = 'io' if fs.fsid == 'indata' else 'settings'
     if not fs.is_empty():
-        tool.append_fieldset(fs)
+        tool.append_fieldset(fs,tab)
     if len(fs_options) > 0:
         for fo in fs_options:
-            tool.append_fieldset(fo)
+            tool.append_fieldset(fo,tab)
     return tool
         
+def update_system_fieldset(tool,fs,jo,params):
+    # Create fieldset `system`
+    fsys = rwi.Fieldset(fs.parent,"system","System",icon="bi-incognito")
+    fsys.group = rwi.group8
+    fsys.current_group = rwi.group8
+    print('FSYS')
+    # Append widgets
+    for wid,wv in params:
+        wdgt = rwi.Widget(fsys,wid,fsys)
+        wdgt.set_options(jo[wid])
+        wdgt.widget = 'bool'
+        wdgt.value = str(wv).lower()
+        wdgt.group = fsys
+        fsys.append(wdgt,force=True)
+    tool.append_fieldset(fsys,'io')
+    print(fsys)
+    return tool
 
 ################## RELION SPA FUNCTIONS ##################
 
@@ -64,9 +84,9 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
               "node_type", "optics_group_particles"]
 
     # Remove duplicates
-    params_raw =  ["do_raw", "fn_in_raw", "is_multiframe", 
+    keys =  ["do_raw", "fn_in_raw", "is_multiframe", 
               "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y"]
-    unused_raw = ["do_other", "fn_in_other", "node_type", "optics_group_particles", 
+    unused = ["do_other", "fn_in_other", "node_type", "optics_group_particles", 
               "node_type", "optics_group_particles"]
     
     fs = rwi.initialiseImportWindow()
@@ -88,13 +108,18 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
               "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip", "do_dose_weighting", 
               "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
     unused = ["do_own_motioncor", "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args"]
+    system = [("do_own_motioncor",True)]
+
     # 1. Create tool and tabs
     tool = create_tool('relion_mc',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseMotioncorrJob(False)
     # 3. Build
-    for fs_params in rwi.initialiseMotioncorrWindow():
+    groups = rwi.initialiseMotioncorrWindow()
+    for fs_params in groups:
         tool = update_fieldset(tool,fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -104,6 +129,7 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/02_preprocess/99.star',has_mpi, has_thread)
 
+    # UCSF implementation
 
 def initialiseCtffindJob(has_mpi = True, has_thread = False):
     # has_gpu = False

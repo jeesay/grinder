@@ -33,6 +33,9 @@ class Widget:
     def to_star(self):
         if self.help[0] == ';':
             return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15}\n{self.help}\n'
+        elif len(self.help) > 60:
+            helptxt = '\n; ' + '.\n'.join(self.help.split('. ')) + '\n;'
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {helptxt}\n'
         else:
             return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} "{self.help}"\n'
     
@@ -73,7 +76,7 @@ class Fieldset:
     def delete(self,widget_id):
         index = [ x.id for x in self.widgets ].index(widget_id)
         del self.widgets[index]
-        
+
     def end(self):
         # Finalize something
         self.parent.append(self)
@@ -89,7 +92,7 @@ class Fieldset:
         return len(self.widgets)
     
     def to_star(self):
-        header = f'loop_\n_{self.fsid}.id\n_{self.fsid}.label\n_{self.fsid}.widget\n_{self.fsid}.value\n_{self.fsid}.arg0\n_{self.fsid}.arg1\n_{self.fsid}.arg2\n_{self.fsid}.help\n'
+        header = f'loop_\n_{self.fsid}.id\n_{self.fsid}.label\n_{self.fsid}.widget\n_{self.fsid}.default\n_{self.fsid}.arg0\n_{self.fsid}.arg1\n_{self.fsid}.arg2\n_{self.fsid}.help\n'
         content = ''.join([w.to_star() for w in self.widgets])
         return header + content + '#\n'
 
