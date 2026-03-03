@@ -377,11 +377,8 @@ class Tool:
         }
         self.tabs[tabid] = Tab(*predefined[tabid])
 
-    def append_fieldset(self,fs):
-        if fs.fsid == 'indata':
-            self.tabs['io'].append(fs)
-        else:
-            self.tabs['settings'].append(fs)
+    def append_fieldset(self,fs,tab='settings'):
+        self.tabs[tab].append(fs)
 
     def to_star(self):
         def tab_star(tab):
