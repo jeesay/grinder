@@ -30,6 +30,8 @@ def update_fieldset(tool,fs,jo,params):
             wdgt.set_options(jo[wdgt.id])
             if jo[wdgt.id].widget == 'select':
                 fs_opt = rwi.Fieldset(fs.parent, wdgt.id,"Options")
+                fs_opt.group = rwi.group8
+                fs_opt.current_group = rwi.group8
                 for i,opt in enumerate(jo[wdgt.id].radio_options):
                     wopt = rwi.Widget(fs,f'{wdgt.id}_opt{i:02}',fs.parent)
                     wopt.set_options(opt)
@@ -64,7 +66,7 @@ def update_system_fieldset(tool,fs,jo,params):
         wdgt = rwi.Widget(fsys,wid,fsys)
         wdgt.set_options(jo[wid])
         wdgt.widget = 'bool'
-        wdgt.value = wv
+        wdgt.value = str(wv).lower()
         wdgt.group = fsys
         fsys.append(wdgt,force=True)
     tool.append_fieldset(fsys,'io')

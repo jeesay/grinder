@@ -92,7 +92,7 @@ class Fieldset:
         return len(self.widgets)
     
     def to_star(self):
-        header = f'loop_\n_{self.fsid}.id\n_{self.fsid}.label\n_{self.fsid}.widget\n_{self.fsid}.value\n_{self.fsid}.arg0\n_{self.fsid}.arg1\n_{self.fsid}.arg2\n_{self.fsid}.help\n'
+        header = f'loop_\n_{self.fsid}.id\n_{self.fsid}.label\n_{self.fsid}.widget\n_{self.fsid}.default\n_{self.fsid}.arg0\n_{self.fsid}.arg1\n_{self.fsid}.arg2\n_{self.fsid}.help\n'
         content = ''.join([w.to_star() for w in self.widgets])
         return header + content + '#\n'
 
