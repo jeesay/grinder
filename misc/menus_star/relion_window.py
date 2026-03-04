@@ -67,10 +67,10 @@ class Fieldset:
         self.parent.current_group = grp
     
     def append(self,w,force=False):
-        if not force and len(self.widgets) == 0 and w.id[0:3] == 'do_':
-            self.fsid = w.id[3:]
-            self.fsname = ' '.join([word.capitalize() for word in w.id[3:].replace('_',' ').split(' ')])
-            self.fsname = f'"{self.fsname}"'
+        # if not force and len(self.widgets) == 0 and w.id[0:3] == 'do_':
+        #     self.fsid = w.id[3:]
+        #     self.fsname = ' '.join([word.capitalize() for word in w.id[3:].replace('_',' ').split(' ')])
+        #     self.fsname = f'"{self.fsname}"'
         self.widgets.append(w)
 
     def delete(self,widget_id):
@@ -593,9 +593,12 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"tau_fudge")
     grp.end()
     
-    grp =Fieldset(groups)
-    grp = place(grp,"do_em", TOGGLE_DEACTIVATE, group2)
+    grp =Fieldset(groups,"do_em_fs","Expectation-Maximization Algorithm")
+    # grp = place(grp,"do_em", TOGGLE_DEACTIVATE, group2)
     grp = place(grp,"nr_iter_em")
+    grp.end()
+    
+    grp =Fieldset(groups,"do_grad","VDAM Algorithm")
     grp = place(grp,"do_grad", TOGGLE_DEACTIVATE, group5)
     grp = place(grp,"nr_iter_grad")
     grp.end()
@@ -636,7 +639,7 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"helical_rise", TOGGLE_LEAVE_ACTIVE)
     grp.end()
 
-    grp = Fieldset(groups,"diskio","Disk Management")
+    grp = Fieldset(groups,"diskio","Disk Access",icon="bi-database-fill")
     grp = place(grp,"do_parallel_discio")
     grp = place(grp,"nr_pool")
     grp = place(grp,"do_preread_images", TOGGLE_LEAVE_ACTIVE, group5, True)
@@ -644,8 +647,8 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
+    grp =Fieldset(groups,"use_gpu","GPU",type="switch",icon="bi-gpu-card")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
     grp = place(grp,"gpu_ids", TOGGLE_LEAVE_ACTIVE)
 
     grp.end()
