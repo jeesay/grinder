@@ -210,7 +210,30 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
               "dont_skip_align", "psi_sampling", "offset_range", "offset_step", "allow_coarser", "do_helix", 
               "helical_tube_outer_diameter", "do_bimodal_psi", "range_psi", "do_restrict_xoff", "helical_rise", 
               "nr_pool", "do_parallel_discio", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    keys_em = ["fn_img", "fn_cont", "do_ctf_correction", "ctf_intact_first_peak", "nr_classes", "tau_fudge",  
+              "nr_iter_em", "particle_diameter", "do_zero_mask", "highres_limit", "do_center", 
+              "dont_skip_align", "psi_sampling", "offset_range", "offset_step", "allow_coarser",
+              "nr_pool", "do_parallel_discio", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    system = [("do_em",True)]
 
+    # 1. Create tool and tabs
+    tool = create_tool('class2d_em',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseClass2DJob(False)
+    # 3. Build
+    groups = rwi.initialiseClass2DWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_em)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/99.star',has_mpi, has_thread)
 
 def initialiseInimodelJob(has_mpi = True, has_thread = True):
 
@@ -391,7 +414,7 @@ if __name__ == '__main__' :
     # initialiseAutopickJob()
     # initialiseExtractJob()
     # initialiseSelectJob()
-    # initialiseClass2DJob()
+    initialiseClass2DJob()
     # initialiseInimodelJob()
     # initialiseClass3DJob()
     # initialiseAutorefineJob()
