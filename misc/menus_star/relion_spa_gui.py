@@ -517,8 +517,8 @@ Otherwise, only the leader will read images and send them through the network to
 Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM. For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles. \
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM. \n \n If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.""")
     default_scratch = "RELION_SCRATCH_DIR"
-    if (default_scratch == NULL):
-        default_scratch = DEFAULTSCRATCHDIR
+    # if (default_scratch == NULL):
+    #     default_scratch = DEFAULTSCRATCHDIR
 
     joboptions["scratch_dir"] = rno.JobOption("Copy particles to scratch directory:", (default_scratch), """If a directory is provided here, then the job will create a sub-directory in it called relion_volatile. If that relion_volatile directory already exists, it will be wiped. Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory. \
 Provided this directory is on a fast local drive (e.g. an SSD drive),rh.PROCessing in all the iterations will be faster. If the job finishes correctly, the relion_volatile directory will be wiped. If the job crashes, you may want to remove it yourself.""")

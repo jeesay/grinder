@@ -29,4 +29,14 @@ auto       'Auto Picking'             bi-check2-square       fieldset ? particle
 auto_topaz 'Auto Picking by Topaz'    bi-robot               fieldset ? particles_tools ?
 extract    'Particle extraction'      bi-crop                fieldset ? particles_tools ?
 class2d    '2D classification'        bi-sort-numeric-down   fieldset ? particles_tools ?
-
+#
+loop_
+_class2d.id
+_class2d.label        
+_class2d.widget    
+_class2d.proc_id 
+_class2d.labelnew
+_class2d.help   
+_class2d.filename
+class2d_em          "Expectation Maximisation Algorithm (EM)"    radio_tool   0       ?                '?'   99.star
+class2d_vdam        "VDAM Algorithm"                             radio_tool   0       ?                '?'   98.star
