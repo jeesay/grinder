@@ -415,8 +415,8 @@ def initialiseAutopickWindow(is_tomo=False):
     grp = place(grp,"shrink", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group3)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group3)
     grp = place(grp,"gpu_ids")
     grp.end()
     
@@ -594,7 +594,7 @@ def initialiseClass2DWindow(is_tomo=False):
     grp.end()
     
     grp =Fieldset(groups)
-    grp = place(grp,"do_em_fs", TOGGLE_DEACTIVATE, group2)
+    grp = place(grp,"do_em", TOGGLE_DEACTIVATE, group2)
     grp = place(grp,"nr_iter_em")
     grp = place(grp,"do_grad", TOGGLE_DEACTIVATE, group5)
     grp = place(grp,"nr_iter_grad")
@@ -644,8 +644,8 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
     grp = place(grp,"gpu_ids", TOGGLE_LEAVE_ACTIVE)
 
     grp.end()
@@ -694,8 +694,8 @@ def initialiseInimodelWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
     grp = place(grp,"gpu_ids", TOGGLE_LEAVE_ACTIVE)
 
     grp.end()
@@ -811,8 +811,8 @@ def initialiseClass3DWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group8)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group8)
     grp = place(grp,"gpu_ids")
 
     grp.end()
@@ -907,8 +907,8 @@ def initialiseAutorefineWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group5)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group5)
     grp = place(grp,"gpu_ids")
 
     grp.end()
@@ -956,8 +956,8 @@ def initialiseMultiBodyWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group4)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group4)
     grp = place(grp,"gpu_ids")
 
     grp.end()
