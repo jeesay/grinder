@@ -113,13 +113,13 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     origin = ["input_star_mics", "input_star_mics", "first_frame_sum", "last_frame_sum", 
               "eer_grouping", "do_float16", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
               "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip", "do_own_motioncor", 
-              "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args", "do_dose_weighting", 
+              "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args", "do_dose_weighting", "do_save_noDW",
               "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
 
     # RELION implementation
     keys = ["input_star_mics", "input_star_mics", "first_frame_sum", "last_frame_sum", 
               "eer_grouping", "do_float16", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
-              "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip", "do_dose_weighting", 
+              "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip", "do_dose_weighting", "do_save_noDW",
               "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
     unused = ["do_own_motioncor", "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args"]
     system = [("do_own_motioncor",True)]
