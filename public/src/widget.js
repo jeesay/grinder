@@ -658,7 +658,7 @@ const w_toolbar = (desc) => {
   return h('div.toolbar',
     desc.children.map( wdg => {
       if (wdg.arg1 != "?") {
-        return h('a.button',[h(`i.bi.${wdg.arg1}`), h('span',wdg.label)]);
+        return h('a.button',{attrs: {title: wdg.label}},[h(`i.bi.${wdg.arg1}`), h('span','')]);
       }
       else {
         return h('a.button',wdg.label);
@@ -686,6 +686,18 @@ const w_tool = (desc) => {
 }
 
 const w_toolset = (desc) => {
+  const toolbar = {
+    label: desc.label,
+    children: [
+      {id: 'h3.title',label: desc.label,arg1: '?'},
+      {id: 'run',label: 'Run job',arg1: 'bi-send'},
+      {id: 'continue',label: 'Continue job',arg1: 'bi-arrow-repeat'},
+      {id: 'schedule',label: 'Schedule job',arg1: 'bi-calendar2-week'},
+      {id: 'overwrite',label: 'Overwrite job',arg1: 'bi-pencil-square'},
+      {id: 'delete',label: 'Remove job',arg1: 'bi-trash'},
+      
+    ]
+  }
   console.log('toolmenu',desc);
   const args = desc.children;
   console.log('>>>>>>>>>>>>>>>>>< AARRRRGGGGSSSS: ',args);
@@ -699,7 +711,7 @@ const w_toolset = (desc) => {
     w_group(desc)
   );
   console.log('Done!',el);
-  el.querySelectorAll('.tab-content').forEach(w => w.prepend(h('h3.title',desc.label)));
+  el.querySelectorAll('.tab-content').forEach(w => w.prepend(w_toolbar(toolbar)));
   // document.querySelector('section').appendChild(el);
   return el;
 }
