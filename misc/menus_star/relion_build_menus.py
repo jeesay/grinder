@@ -214,7 +214,7 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
               "nr_iter_em", "particle_diameter", "do_zero_mask", "highres_limit", "do_center", 
               "dont_skip_align", "psi_sampling", "offset_range", "offset_step", "allow_coarser",
               "nr_pool", "do_parallel_discio", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
-    system = [("do_em",True)]
+    system = [("do_em",True),("do_grad",False)]
 
     # 1. Create tool and tabs
     tool = create_tool('class2d_em',['io','settings','log','dataviz'])
