@@ -7,16 +7,36 @@ _index    3
 _parent   ptcls
 #
 loop_
-_id
-_label 
-_icon
-_widget 
-_default
-_parent_id
-_help
+_particles_tools.id
+_particles_tools.label 
+_particles_tools.icon
+_particles_tools.widget 
+_particles_tools.default
+_particles_tools.parent_id
+_particles_tools.help
+tool_menu      'Tools'   bi-tools toolmenu  ? ?
+#
+loop_
+_tool_menu.id
+_tool_menu.label 
+_tool_menu.icon
+_tool_menu.widget 
+_tool_menu.default
+_tool_menu.parent
+_tool_menu.help
 manual     'Manual Picking'           bi-hand-index-thumb    fieldset ? particles_tools ?
 auto       'Auto Picking'             bi-check2-square       fieldset ? particles_tools ?
 auto_topaz 'Auto Picking by Topaz'    bi-robot               fieldset ? particles_tools ?
 extract    'Particle extraction'      bi-crop                fieldset ? particles_tools ?
 class2d    '2D classification'        bi-sort-numeric-down   fieldset ? particles_tools ?
-
+#
+loop_
+_class2d.id
+_class2d.label        
+_class2d.widget    
+_class2d.proc_id 
+_class2d.labelnew
+_class2d.help   
+_class2d.filename
+class2d_em          "Expectation Maximisation Algorithm (EM)"    radio_tool   0       ?                '?'   99.star
+class2d_vdam        "VDAM Algorithm"                             radio_tool   0       ?                '?'   98.star

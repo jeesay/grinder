@@ -593,8 +593,13 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"tau_fudge")
     grp.end()
     
+<<<<<<< HEAD
     grp =Fieldset(groups,"do_em_fs","Expectation-Maximization Algorithm")
     # grp = place(grp,"do_em", TOGGLE_DEACTIVATE, group2)
+=======
+    grp =Fieldset(groups)
+    grp = place(grp,"do_em_fs", TOGGLE_DEACTIVATE, group2)
+>>>>>>> f3887cb25b99a4f1263d6f64ae5bba0e19ab0745
     grp = place(grp,"nr_iter_em")
     grp.end()
     
@@ -993,18 +998,24 @@ def initialiseMaskcreateWindow(is_tomo=False):
 
 def initialiseJoinstarWindow(is_tomo=False):
     groups = FsGroup()
-    grp = Fieldset(groups)
-    grp = place(grp,"do_part", TOGGLE_DEACTIVATE, group1)
+    grp = Fieldset(groups, "do_part", "Combine particle STAR files?", type="switch")
+    # grp = place(grp,"do_part", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"fn_part1", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_part2", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_part3", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_part4", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_mic", TOGGLE_DEACTIVATE, group2)
+    grp.end()
+    
+    grp = Fieldset(groups, "do_mic", "Combine micrograph STAR files?", type="switch")
+    # grp = place(grp,"do_mic", TOGGLE_DEACTIVATE, group2)
     grp = place(grp,"fn_mic1", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mic2", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mic3", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mic4", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_mov", TOGGLE_DEACTIVATE, group3) # (current_y, "Combine movie STAR files?", False, "", mov_group)
+    grp.end()
+    
+    grp = Fieldset(groups, "do_mov", "Combine movie STAR files?", type="switch")
+    # grp = place(grp,"do_mov", TOGGLE_DEACTIVATE, group3) # (current_y, "Combine movie STAR files?", False, "", mov_group)
     grp = place(grp,"fn_mov1", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mov2", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mov3", TOGGLE_DEACTIVATE)
@@ -1020,16 +1031,28 @@ def initialiseSubtractWindow(is_tomo=False):
     grp = Fieldset(groups)
     grp = place(grp,"fn_opt", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mask", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_data", TOGGLE_DEACTIVATE, group1)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_data", "Use different particles?", type="switch")
+    # grp = place(grp,"do_data", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"fn_data", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_float16", TOGGLE_DEACTIVATE)
     grp.end()
     
     grp =Fieldset(groups)
-    grp = place(grp,"do_fliplabel", TOGGLE_DEACTIVATE, group2)
+    grp = place(grp,"do_float16", TOGGLE_DEACTIVATE)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_fliplabel", "OR revert to original particles?", type="switch")
+    # grp = place(grp,"do_fliplabel", TOGGLE_DEACTIVATE, group2)
     grp = place(grp,"fn_fliplabel", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_center_mask", TOGGLE_DEACTIVATE, group3, True)
-    grp = place(grp,"do_center_xyz", TOGGLE_DEACTIVATE, group4)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_center_mask", "Do center substracted images on mask?", type="switch")
+    # grp = place(grp,"do_center_mask", TOGGLE_DEACTIVATE, group3, True)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_center_xyz", "Do center on my coordinates?", type="switch")
+    # grp = place(grp,"do_center_xyz", TOGGLE_DEACTIVATE, group4)
     grp = place3(grp, "center_x", "center_y", "center_z", "Center coordinate - X, Y, Z (pix):", TOGGLE_DEACTIVATE)
     grp.end()
     
@@ -1050,13 +1073,19 @@ def initialisePostprocessWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"angpix")
-    grp = place(grp,"do_auto_bfac", TOGGLE_LEAVE_ACTIVE, group1)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_auto_bfac", "Estimate B-factor automatically?", type="switch")
+    # grp = place(grp,"do_auto_bfac", TOGGLE_LEAVE_ACTIVE, group1)
     grp = place(grp,"autob_lowres")
-    grp = place(grp,"do_adhoc_bfac", TOGGLE_LEAVE_ACTIVE, group2)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_adhoc_bfac", "Use your own B-factor?", type="switch")
+    # grp = place(grp,"do_adhoc_bfac", TOGGLE_LEAVE_ACTIVE, group2)
     grp = place(grp,"adhoc_bfac")
     grp.end()
     
-    grp =Fieldset(groups)
+    grp =Fieldset(groups, "do_skip_fsc_weighting", "Skip FSC-weighting?", type="switch")
     grp = place(grp,"do_skip_fsc_weighting", TOGGLE_LEAVE_ACTIVE, group3)
     grp = place(grp,"low_pass")
     grp.end()
@@ -1079,14 +1108,20 @@ def initialiseLocresWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"angpix", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_resmap_locres", TOGGLE_DEACTIVATE, group1)
-    grp = place(grp,"fn_resmap", TOGGLE_DEACTIVATE)
     grp.end()
+    
+    grp =Fieldset(groups, "do_resmap_locres", "Use ResMap?", type="switch")
+    # grp = place(grp,"do_resmap_locres", TOGGLE_DEACTIVATE, group1)
+    grp = place(grp,"fn_resmap", TOGGLE_DEACTIVATE)
+    # grp.end()
  
     grp = place(grp,"pval", TOGGLE_DEACTIVATE)
     grp = place(grp,"minres", TOGGLE_DEACTIVATE)
     grp = place(grp,"maxres", TOGGLE_DEACTIVATE)
     grp = place(grp,"stepres", TOGGLE_DEACTIVATE)
+    grp.end()
+    
+    grp =Fieldset(groups, "do_relion_locres", "Use Relion?", type="switch")
     grp = place(grp,"do_relion_locres", TOGGLE_DEACTIVATE, group2)
     # grp = place(grp,"locres_sampling", TOGGLE_DEACTIVATE)
     # grp = place(grp,"randomize_at", TOGGLE_DEACTIVATE)
@@ -1229,11 +1264,15 @@ def initialiseModelAngeloWindow(is_tomo=False):
     grp = place(grp,"d_seq", TOGGLE_DEACTIVATE)
     grp = place(grp,"r_seq", TOGGLE_DEACTIVATE)
     grp.end()
- 
+    
+    grp = Fieldset(groups)
     grp = place(grp,"fn_modelangelo_exe", TOGGLE_DEACTIVATE)
     grp = place(grp,"gpu_id", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_hhmer", TOGGLE_LEAVE_ACTIVE, group1, False)
     grp.end()
+
+    grp = Fieldset(groups, "do_hhmer", "Perform HMMer search?", type="switch")
+    # grp = place(grp,"do_hhmer", TOGGLE_LEAVE_ACTIVE, group1, False)
+    # grp.end()
  
     grp = place(grp,"fn_lib", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"alphabet", TOGGLE_LEAVE_ACTIVE)
@@ -1243,7 +1282,6 @@ def initialiseModelAngeloWindow(is_tomo=False):
     grp = place(grp,"F2", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"F3", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"E", TOGGLE_LEAVE_ACTIVE)
-
     grp.end()
     
 
