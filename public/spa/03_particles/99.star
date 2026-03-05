@@ -103,11 +103,11 @@ _settings.value
 _settings.help
 do_ctf_correction    " Do CTF-correction?"                    bi-chat-right-text   switch     ?          ?
 general              "General"                                bi-chat-right-text   fieldset   ?          ?
-do_em_fs             "EM Parameters"                          bi-chat-right-text   fieldset   ?          ?
-params_02            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
+do_em_fs             "Expectation-Maximization Parameters"    bi-chat-right-text   fieldset   ?          ?
+params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
 dont_skip_align      "Perform image alignment?"               bi-chat-right-text   switch     ?          ?
-diskio               "Disk Management"                        bi-chat-right-text   fieldset   ?          ?
-use_gpu              "Use GPU acceleration?"                  bi-chat-right-text   switch     ?          ?
+diskio               "Disk Access"                            bi-database-fill     fieldset   ?          ?
+use_gpu              "GPU"                                    bi-gpu-card          switch     ?          ?
 #
 loop_
 _do_ctf_correction.id
@@ -168,14 +168,14 @@ For example, if 10 iterations have been performed previously and one restarts to
 ;
 #
 loop_
-_params_02.id
-_params_02.label
-_params_02.widget
-_params_02.default
-_params_02.arg0
-_params_02.arg1
-_params_02.arg2
-_params_02.help
+_params_01.id
+_params_01.label
+_params_01.widget
+_params_01.default
+_params_01.arg0
+_params_01.arg1
+_params_01.arg2
+_params_01.help
 particle_diameter    "Mask diameter (A):"                range      200             0               1000            10              
 ; The experimental images will be masked with a soft circular mask with this diameter.
 Make sure this radius is not set too small because that may mask away part of the signal! If set to a value larger than the image size no masking will be performed.
