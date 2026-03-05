@@ -1,12 +1,12 @@
 data_
 #
 loop_
-_class2d_em.id
-_class2d_em.label
-_class2d_em.icon
-_class2d_em.widget
-_class2d_em.value
-_class2d_em.help
+_class2d_vdam.id
+_class2d_vdam.label
+_class2d_vdam.icon
+_class2d_vdam.widget
+_class2d_vdam.value
+_class2d_vdam.help
 io                   "I/O"                      bi-arrow-down-up    tab              ?        ?
 settings             "Settings"                bi-tools             tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
@@ -23,7 +23,7 @@ indata               "Input Data"                             bi-box-arrow-in-do
 outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          ?
 nodes                "Nodes"                                  bi-controller        fieldset   ?          ?
 system               "System"                                 bi-incognito         fieldset   ?          ?
-class2d_em_cmd       "Check command"                          bi-chat-right-text   cli        ?          ?
+class2d_vdam_cmd     "Check command"                          bi-chat-right-text   cli        ?          ?
 #
 loop_
 _indata.id
@@ -72,27 +72,27 @@ _system.arg0
 _system.arg1
 _system.arg2
 _system.help
-do_em                "Use EM algorithm?"                 bool       true            "?"             ?               ?               
+do_em                "Use EM algorithm?"                 bool       false           "?"             ?               ?               
 ; If set to Yes, the slower expectation-maximization algorithm will be used.
 This was the default option in releases prior to 4.0-beta.
 If set to No, then one needs to use the (faster) VDAM (variable metric gradient descent with adaptive moments) algorithm below.
 will be used.
 ;
-do_grad              "Use VDAM algorithm?"               bool       false           "?"             ?               ?               
+do_grad              "Use VDAM algorithm?"               bool       true            "?"             ?               ?               
 ; If set to Yes, the faster VDAM algorithm will be used.
 This algorithm was introduced with relion-4.0.
 If set to No, then the slower EM algorithm needs to be used.
 ;
 #
 loop_
-_class2d_em_cmd.id
-_class2d_em_cmd.label
-_class2d_em_cmd.widget
-_class2d_em_cmd.default
-_class2d_em_cmd.arg0
-_class2d_em_cmd.arg1
-_class2d_em_cmd.arg2
-_class2d_em_cmd.help
+_class2d_vdam_cmd.id
+_class2d_vdam_cmd.label
+_class2d_vdam_cmd.widget
+_class2d_vdam_cmd.default
+_class2d_vdam_cmd.arg0
+_class2d_vdam_cmd.arg1
+_class2d_vdam_cmd.arg2
+_class2d_vdam_cmd.help
 #
 loop_
 _settings.id
@@ -103,7 +103,7 @@ _settings.value
 _settings.help
 do_ctf_correction    " Do CTF-correction?"                    bi-chat-right-text   switch     ?          ?
 general              "General"                                bi-chat-right-text   fieldset   ?          ?
-do_em_fs             "EM Parameters"                          bi-chat-right-text   fieldset   ?          ?
+params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
 params_02            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
 dont_skip_align      "Perform image alignment?"               bi-chat-right-text   switch     ?          ?
 diskio               "Disk Management"                        bi-chat-right-text   fieldset   ?          ?
@@ -148,23 +148,18 @@ Too small values yield too-low resolution structures; too high values result in 
 ;
 #
 loop_
-_do_em_fs.id
-_do_em_fs.label
-_do_em_fs.widget
-_do_em_fs.default
-_do_em_fs.arg0
-_do_em_fs.arg1
-_do_em_fs.arg2
-_do_em_fs.help
-nr_iter_em           "Number of EM iterations:"          range      25              1               50              1               
-; Number of EM iterations to be performed.
-Note that the current implementation of 2D class averaging and 3D classification does NOT comprise a convergence criterium.
-Therefore, the calculations will need to be stopped by the user if further iterations do not yield improvements in resolution or classes.
-
-
- Also note that upon restarting, the iteration number continues to be increased, starting from the final iteration in the previous run.
-The number given here is the TOTAL number of iterations.
-For example, if 10 iterations have been performed previously and one restarts to perform an additional 5 iterations (for example with a finer angular sampling), then the number given here should be 10+5=15.
+_params_01.id
+_params_01.label
+_params_01.widget
+_params_01.default
+_params_01.arg0
+_params_01.arg1
+_params_01.arg2
+_params_01.help
+nr_iter_grad         "Number of VDAM mini-batches:"      range      200             50              500             10              
+; Number of mini-batches to berh.PROCessed using the VDAM algorithm.
+Using 200 has given good results for many data sets.
+Using 100 will run faster, at the expense of some quality in the results.
 ;
 #
 loop_
