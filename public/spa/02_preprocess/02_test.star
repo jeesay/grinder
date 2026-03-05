@@ -8,10 +8,11 @@ _tabs.widget
 _tabs.default
 _tabs.parent
 _tabs.help
-io       'I/O'                    bi-arrow-down-up       tab ? ? ?
-settings 'Settings'               bi-tools               tab ? ? ?
-log      'Logs'                   bi-binoculars-fill     tab ? ? ?
-result   'DataViz'                bi-eye                 tab ? ? ?
+io         I/O                       bi-arrow-down-up          tab ? ? ?
+settings   Settings                  bi-tools                  tab ? ? ?
+log        Logs                      bi-binoculars-fill        tab ? ? ?
+result     DataViz                   bi-eye                    tab ? ? ?
+
 #
 loop_
 _io.id
@@ -20,8 +21,7 @@ _io.icon
 _io.widget
 _io.default
 _io.help
-indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help'
-rln_cli  'Check Command'   ?                    cli      ? 'No Help'
+indata          Input                     bi-arrow-bar-down    No Help         ?      ?
 #
 loop_
 _settings.id
@@ -30,10 +30,10 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help'
-use_gpu     'GPU'       ?                       fieldset    ?       ''
-process   'Parallel computing'  ?                   fieldset ?      ''
-##
+general         General                   bi-chat-right-text   No Help         ?      ?use_gpu         GPU                       bi-gpu-card          fieldset        ?      "'No Help'"process         "Parallel computing"      bi-chat-right-text   fieldset        ?      "'No Help'"
+
+
+#
 loop_
 _indata.id
 _indata.label
@@ -43,7 +43,7 @@ _indata.arg0
 _indata.arg1
 _indata.arg2
 _indata.help
-input_star_mics   "Input movies STAR file:"    file    LABEL_MOVIES_CPIPE    "STAR files (*.star)"    1    inode    "A STAR file with all micrographs to run MOTIONCORR on"
+input_star_mics   "Input movies STAR file:"    node    LABEL_MOVIES_CPIPE    "STAR files (*.star)"    1    ?    "A STAR file with all micrographs to run MOTIONCORR on"
 #
 loop_
 _general.id
@@ -104,11 +104,6 @@ Note that the format of the defect text is DIFFERENT from the defect text produc
 
 Leave empty if you don't have any defects, or don't want to correct for defects on your detector.
 ;
-gpu_ids   "Which GPUs to use:"    string    0    ?    ?    ?
-;
-Provide a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':'. For example, to place one rank on device 0 and one rank on device 1, provide '0:1'.
-Note that multiple MotionCor2rh.PROCesses should not share a GPU; otherwise, it can lead to crash or broken outputs (e.g. black images) .
-;
 other_motioncor2_args   "Other MOTIONCOR2 arguments"    string    ""    ?    ?    ?    "Additional arguments that need to be passed to MOTIONCOR2."
 do_dose_weighting   "Do dose-weighting?"    bool    true    ?    ?    ?    "If set to Yes, the averaged micrographs will be dose-weighted."
 do_save_noDW   "Save non-dose weighted as well?"    bool    false    ?    ?    ?
@@ -127,33 +122,6 @@ McMullan et al (Ultramicroscopy, 2015) suggest summing power spectra every 4.0 e
 ;
 #
 loop_
-_gain_rot.id
-_gain_rot.label
-_gain_rot.widget
-_gain_rot.default
-_gain_rot.arg0
-_gain_rot.arg1
-_gain_rot.arg2
-_gain_rot.help
-gain_rot_opt_00   "No rotation (0)"    option    0    ?    ?    ?    "?"
-gain_rot_opt_01   "90 degrees (1)"    option    1    ?    ?    ?    "?"
-gain_rot_opt_02   "180 degrees (2)"    option    2    ?    ?    ?    "?"
-gain_rot_opt_03   "270 degrees (3)"    option    3    ?    ?    ?    "?"
-#
-loop_
-_gain_flip.id
-_gain_flip.label
-_gain_flip.widget
-_gain_flip.default
-_gain_flip.arg0
-_gain_flip.arg1
-_gain_flip.arg2
-_gain_flip.help
-gain_flip_opt_00   "No flipping (0)"    option    0    ?    ?    ?    "?"
-gain_flip_opt_01   "Flip upside down (1)"    option    1    ?    ?    ?    "?"
-gain_flip_opt_02   "Flip left to right (2)"    option    2    ?    ?    ?    "?"
-
-loop_
 _use_gpu.id
 _use_gpu.label
 _use_gpu.widget
@@ -162,8 +130,10 @@ _use_gpu.arg0
 _use_gpu.arg1
 _use_gpu.arg2
 _use_gpu.help
-gpu_ids 'Which GPUs to use:' string '' ? ? ?
-;This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','. For example: '0,0:1,1:0,0:1,1'
+gpu_ids   "Which GPUs to use:"    string    0    ?    ?    ?
+;
+Provide a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':'. For example, to place one rank on device 0 and one rank on device 1, provide '0:1'.
+Note that multiple MotionCor2rh.PROCesses should not share a GPU; otherwise, it can lead to crash or broken outputs (e.g. black images) .
 ;
 #
 loop_
@@ -175,6 +145,11 @@ _process.arg0
 _process.arg1
 _process.arg2
 _process.help
-nr_mpi "Number of MPI procs:" range '{QSUB_NRMPI_VAL}' 1 '{RELION_MPI_MAX}' 1 "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX."
-nr_threads "Number of threads:" range '{QSUB_NRTHREADS_VAL}' 1 "{RELION_THREAD_MAX}" 1 "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX."
-#
+nr_mpi   "Number of MPI procs:"    range    {QSUB_NRMPI_VAL}    1    {RELION_MPI_MAX}    1
+;
+Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX.
+;
+nr_thread   "Number of threads:"    range    {QSUB_NRTHREADS_VAL}    1    {RELION_THREAD_MAX}    1
+;
+Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX.
+;

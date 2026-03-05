@@ -111,14 +111,14 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     unused_other = ["do_raw", "fn_in_raw", "is_multiframe", 
               "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y"]
 
-    system_raw = [("do_raw", True)]
-    system_other = [("do_other", True)]
+    system_raw = [("do_raw", True), ("do_other", False)]
+    system_other = [("do_raw", False), ("do_other", True)]
 
-    ##### ================================== IMPORT RAW =================================
+    ##### IMPORT RAW 
     # 1. Create tool and tabs
     tool = create_tool('import_mov',['io','settings','log','dataviz'])
     # 2. Read the joboptions
-    hidden_name,jo = rjo.initialiseImportJob(False, "mov")
+    hidden_name,jo = rjo.initialiseImportJob(False)
     # 3. Build
     groups = rwi.initialiseImportWindow()
     for fs_params in groups:
@@ -134,12 +134,12 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/01_import/99.star',has_mpi, has_thread)
 
-    ##### ================================== Import PARTICLES =================================
+    #####  Import PARTICLES 
 
     # 1. Create tool and tabs
     tool = create_tool('import_ptcls',['io','settings','log','dataviz'])
     # 2. Read the joboptions
-    hidden_name,jo = rjo.initialiseImportJob(False, "particles")
+    hidden_name,jo = rjo.initialiseImportJob(False, "ptcls")
     # 3. Build
     groups = rwi.initialiseImportWindow()
     for fs_params in groups:
@@ -155,7 +155,7 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/01_import/98.star',has_mpi, has_thread)
 
-    ##### ================================== Import OTHER =================================
+    #####  Import OTHER 
 
     # 1. Create tool and tabs
     tool = create_tool('import_other',['io','settings','log','dataviz'])
@@ -186,20 +186,81 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
               "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args", "do_dose_weighting", "do_save_noDW",
               "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
 
-    # RELION implementation
-    keys = ["input_star_mics", "input_star_mics", "first_frame_sum", "last_frame_sum", 
+    keys_rln = ["input_star_mics", "first_frame_sum", "last_frame_sum", 
               "eer_grouping", "do_float16", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
               "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip", "do_dose_weighting", "do_save_noDW",
               "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
-    unused = ["do_own_motioncor", "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args"]
-    system = [("do_own_motioncor",True)]
+    keys_ucsf = ["input_star_mics","first_frame_sum", "last_frame_sum", 
+              "eer_grouping", "do_float16", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
+              "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip",
+              "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args", "do_dose_weighting", "do_save_noDW",
+              "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
+    
+    unused_rln = ["do_own_motioncor", "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args"]
+    unused_ucsf = ["do_own_motioncor"]
 
+    system_rln = [("do_own_motioncor",True)]
+    system_ucsf = [("do_own_motioncor",False)]
+
+    #####   RELION implementation
     # 1. Create tool and tabs
     tool = create_tool('relion_mc',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseMotioncorrJob(False)
     # 3. Build
     groups = rwi.initialiseMotioncorrWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_rln)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_rln)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/02_preprocess/99.star',has_mpi, has_thread)
+
+    #####   UCSF implementation
+    # 1. Create tool and tabs+
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseMotioncorrJob(False)
+    # 3. Build
+    groups = rwi.initialiseMotioncorrWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_ucsf)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_ucsf)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/02_preprocess/98.star',has_mpi, has_thread)
+
+def initialiseCtffindJob(has_mpi = True, has_thread = False):
+    # has_gpu = False
+    # has_diskio = False
+    origin = ["input_star_mics", "input_star_mics", "do_phaseshift", "phase_min", "phase_max", "phase_step",
+              "dast", "use_given_ps", "fn_ctffind_exe", "slow_search", "box", "resmin", "resmax", "dfmin",
+              "dfmax", "dfstep", "localsearch_nominal_defocus", "exp_factor_dose", "ctf_win"]
+    
+    keys = ["input_star_mics", "input_star_mics", "do_phaseshift", "phase_min", "phase_max", "phase_step",
+              "dast", "use_given_ps", "fn_ctffind_exe", "slow_search", "box", "resmin", "resmax", "dfmin",
+              "dfmax", "dfstep", "localsearch_nominal_defocus", "exp_factor_dose", "ctf_win"]
+    
+    unused = []
+    system = []
+
+    # 1. Create tool and tabs
+    tool = create_tool('ctf',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseCtffindJob(False)
+    # 3. Build
+    groups = rwi.initialiseCtffindWindow()
     for fs_params in groups:
         tool = update_fieldset(tool,fs_params,jo,keys)
 
@@ -211,16 +272,7 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/02_preprocess/99.star',has_mpi, has_thread)
-
-    # UCSF implementation
-
-def initialiseCtffindJob(has_mpi = True, has_thread = False):
-    # has_gpu = False
-    # has_diskio = False
-    origin = ["input_star_mics", "input_star_mics", "do_phaseshift", "phase_min", "phase_max", "phase_step",
-              "dast", "use_given_ps", "fn_ctffind_exe", "slow_search", "box", "resmin", "resmax", "dfmin",
-              "dfmax", "dfstep", "localsearch_nominal_defocus", "exp_factor_dose", "ctf_win"]
+    write_starfile(tool,'./public/spa/02_preprocess/97.star',has_mpi, has_thread)
 
 
 def initialiseManualpickJob(has_mpi = False, has_thread = False):
@@ -246,6 +298,167 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
               "minavgnoise_autopick", "do_write_fom_maps", "do_read_fom_maps", "shrink", "use_gpu", "gpu_ids", "do_pick_helical_segments", 
               "do_amyloid", "helical_tube_outer_diameter", "helical_nr_asu", "helical_rise", "helical_tube_kappa_max", 
               "helical_tube_length_min"]
+    
+    keys_log = ["fn_input_autopick", "angpix", "log_diam_min", "log_diam_max", 
+              "log_invert", "log_maxres", "log_adjust_thr", "log_upper_thr", "threshold_autopick", "mindist_autopick", "maxstddevnoise_autopick", 
+              "minavgnoise_autopick", "do_write_fom_maps", "do_read_fom_maps", "shrink"]
+    
+    keys_ref2d = ["fn_input_autopick", "angpix", "fn_refs_autopick", "lowpass", "highpass", "angpix_ref", "psi_sampling_autopick", "do_invert_refs", 
+              "do_ctf_autopick", "do_ignore_first_ctfpeak_autopick", "threshold_autopick", "mindist_autopick", "maxstddevnoise_autopick", 
+              "minavgnoise_autopick", "do_write_fom_maps", "do_read_fom_maps", "shrink", "use_gpu", "gpu_ids", ]
+    keys_ref3d = ["fn_input_autopick", "angpix", "fn_ref3d_autopick", 
+              "ref3d_symmetry", "ref3d_sampling", "lowpass", "highpass", "angpix_ref", "psi_sampling_autopick", "do_invert_refs", 
+              "do_ctf_autopick", "do_ignore_first_ctfpeak_autopick", "threshold_autopick", "mindist_autopick", "maxstddevnoise_autopick", 
+              "minavgnoise_autopick", "do_write_fom_maps", "do_read_fom_maps", "shrink", "use_gpu", "gpu_ids", ]
+    
+    keys_topaz_train = ["fn_input_autopick", "angpix", 
+              "topaz_train_picks", "do_topaz_train_parts", "topaz_train_parts", "topaz_particle_diameter", 
+              "topaz_nr_particles", "fn_topaz_exe", "topaz_other_args", "threshold_autopick", "mindist_autopick", "maxstddevnoise_autopick", 
+              "minavgnoise_autopick", "do_write_fom_maps", "do_read_fom_maps", "shrink", "use_gpu", "gpu_ids"]
+    keys_topaz_pick = ["fn_input_autopick", "angpix", "do_topaz_pick", "topaz_particle_diameter", 
+              "topaz_model", "fn_topaz_exe", "do_topaz_filaments", "topaz_filament_threshold", 
+              "topaz_hough_length", "topaz_other_args", "threshold_autopick", "mindist_autopick", "maxstddevnoise_autopick", 
+              "minavgnoise_autopick", "do_write_fom_maps", "do_read_fom_maps", "shrink", "use_gpu", "gpu_ids"]
+    
+    unused_log = ["continue_manual", "do_topaz", "do_topaz_train", 
+              "topaz_train_picks", "do_topaz_train_parts", "topaz_train_parts", "do_topaz_pick", "topaz_particle_diameter", 
+              "topaz_nr_particles", "topaz_model", "fn_topaz_exe", "do_topaz_filaments", "topaz_filament_threshold", 
+              "topaz_hough_length", "topaz_other_args", "do_refs", "fn_refs_autopick", "do_ref3d", "fn_ref3d_autopick", 
+              "ref3d_symmetry", "ref3d_sampling", "lowpass", "highpass", "angpix_ref", "psi_sampling_autopick", "do_invert_refs", 
+              "do_ctf_autopick", "do_ignore_first_ctfpeak_autopick", "use_gpu", "gpu_ids", "do_pick_helical_segments", 
+              "do_amyloid", "helical_tube_outer_diameter", "helical_nr_asu", "helical_rise", "helical_tube_kappa_max", 
+              "helical_tube_length_min"]
+    unused_ref2d = ["continue_manual", "do_log", "log_diam_min", "log_diam_max", 
+              "log_invert", "log_maxres", "log_adjust_thr", "log_upper_thr", "do_topaz", "do_topaz_train", 
+              "topaz_train_picks", "do_topaz_train_parts", "topaz_train_parts", "do_topaz_pick", "topaz_particle_diameter", 
+              "topaz_nr_particles", "topaz_model", "fn_topaz_exe", "do_topaz_filaments", "topaz_filament_threshold", 
+              "topaz_hough_length", "topaz_other_args", "do_ref3d", "fn_ref3d_autopick", 
+              "ref3d_symmetry", "ref3d_sampling", "do_pick_helical_segments", 
+              "do_amyloid", "helical_tube_outer_diameter", "helical_nr_asu", "helical_rise", "helical_tube_kappa_max", 
+              "helical_tube_length_min"]
+    unused_ref3d = ["continue_manual", "do_log", "log_diam_min", "log_diam_max", 
+              "log_invert", "log_maxres", "log_adjust_thr", "log_upper_thr", "do_topaz", "do_topaz_train", 
+              "topaz_train_picks", "do_topaz_train_parts", "topaz_train_parts", "do_topaz_pick", "topaz_particle_diameter", 
+              "topaz_nr_particles", "topaz_model", "fn_topaz_exe", "do_topaz_filaments", "topaz_filament_threshold", 
+              "topaz_hough_length", "topaz_other_args", "fn_refs_autopick", "do_pick_helical_segments", 
+              "do_amyloid", "helical_tube_outer_diameter", "helical_nr_asu", "helical_rise", "helical_tube_kappa_max", 
+              "helical_tube_length_min"]
+    unused_topaz_train = ["continue_manual", "do_log", "log_diam_min", "log_diam_max", 
+              "log_invert", "log_maxres", "log_adjust_thr", "log_upper_thr", "do_topaz_pick", "topaz_model", "do_topaz_filaments", "topaz_filament_threshold", 
+              "topaz_hough_length", "do_refs", "fn_refs_autopick", "do_ref3d", "fn_ref3d_autopick", 
+              "ref3d_symmetry", "ref3d_sampling", "lowpass", "highpass", "angpix_ref", "psi_sampling_autopick", "do_invert_refs", 
+              "do_ctf_autopick", "do_ignore_first_ctfpeak_autopick", "do_pick_helical_segments", 
+              "do_amyloid", "helical_tube_outer_diameter", "helical_nr_asu", "helical_rise", "helical_tube_kappa_max", 
+              "helical_tube_length_min"]
+    unused_topaz_pick = ["continue_manual", "do_log", "log_diam_min", "log_diam_max", 
+              "log_invert", "log_maxres", "log_adjust_thr", "log_upper_thr", "do_topaz_train", 
+              "topaz_train_picks", "do_topaz_train_parts", "topaz_train_parts", "topaz_nr_particles", "do_refs", "fn_refs_autopick", "do_ref3d", "fn_ref3d_autopick", 
+              "ref3d_symmetry", "ref3d_sampling", "lowpass", "highpass", "angpix_ref", "psi_sampling_autopick", "do_invert_refs", 
+              "do_ctf_autopick", "do_ignore_first_ctfpeak_autopick", "do_pick_helical_segments", 
+              "do_amyloid", "helical_tube_outer_diameter", "helical_nr_asu", "helical_rise", "helical_tube_kappa_max", 
+              "helical_tube_length_min"]
+
+    system_log = [("do_log", True), ("do_refs", False), ("do_ref3d", False), ("do_topaz_train", False), ("do_topaz_pick", False)]
+    system_ref2d = [("do_log", False), ("do_refs", True), ("do_ref3d", False), ("do_topaz_train", False), ("do_topaz_pick", False)]
+    system_ref3d = [("do_log", False), ("do_refs", False), ("do_ref3d", True), ("do_topaz_train", False), ("do_topaz_pick", False)]
+    system_topaz_train = [("do_log", False), ("do_refs", False), ("do_ref3d", False), ("do_topaz_train", True), ("do_topaz_pick", False)]
+    system_topaz_pick = [("do_log", False), ("do_refs", False), ("do_ref3d", False), ("do_topaz_train", False), ("do_topaz_pick", True)]
+
+    #####  Laplacian of Gaussian
+    # 1. Create tool and tabs
+    tool = create_tool('log_filter',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseAutopickJob(False)
+    # 3. Build
+    groups = rwi.initialiseAutopickWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_log)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_log)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/97.star',has_mpi, has_thread)
+
+    #####  2D References
+    tool = create_tool('ref2d',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseAutopickJob(False)
+    # 3. Build
+    groups = rwi.initialiseAutopickWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_ref2d)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_ref2d)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/96.star',has_mpi, has_thread)
+
+    #####  3D References
+    tool = create_tool('ref3d',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseAutopickJob(False)
+    # 3. Build
+    groups = rwi.initialiseAutopickWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_ref3d)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_ref3d)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/95.star',has_mpi, has_thread)
+
+    #####  Topaz Training
+    tool = create_tool('topaz_train',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseAutopickJob(False)
+    # 3. Build
+    groups = rwi.initialiseAutopickWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_topaz_train)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_topaz_train)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/94.star',has_mpi, has_thread)
+
+    #####  Topaz Picker
+    tool = create_tool('topaz_pick',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseAutopickJob(False)
+    # 3. Build
+    groups = rwi.initialiseAutopickWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_topaz_pick)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_topaz_pick)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/93.star',has_mpi, has_thread)
 
 
 def initialiseExtractJob(has_mpi = True, has_thread = False):
@@ -298,7 +511,7 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
     system_em = [("do_em",True),("do_grad",False)]
     system_vdam = [("do_em",False),("do_grad",True)]
 
-    ##### ================================== EM Algorithm =================================
+    #####  EM Algorithm 
     # 1. Create tool and tabs
     tool = create_tool('class2d_em',['io','settings','log','dataviz'])
     # 2. Read the joboptions
@@ -318,7 +531,7 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/03_particles/99.star',has_mpi, has_thread)
 
-    ##### ================================== VDAM Algorithm =================================
+    #####  VDAM Algorithm 
 
     # 1. Create tool and tabs
     tool = create_tool('class2d_vdam',['io','settings','log','dataviz'])
@@ -512,10 +725,10 @@ def initialiseTomoReconPartJob(has_mpi = True, has_thread = True):
 
 if __name__ == '__main__' :
     initialiseImportJob()
-    # initialiseMotioncorrJob()
-    # initialiseCtffindJob()
+    initialiseMotioncorrJob()
+    initialiseCtffindJob()
     # initialiseManualpickJob()
-    # initialiseAutopickJob()
+    initialiseAutopickJob()
     # initialiseExtractJob()
     # initialiseSelectJob()
     initialiseClass2DJob()

@@ -8,10 +8,11 @@ _tabs.widget
 _tabs.default
 _tabs.parent
 _tabs.help
-io       'I/O'                    bi-arrow-down-up       tab ? ? ?
-settings 'Settings'               bi-tools               tab ? ? ?
-log      'Logs'                   bi-binoculars-fill     tab ? ? ?
-result   'DataViz'                bi-eye                 tab ? ? ?
+io         I/O                       bi-arrow-down-up          tab ? ? ?
+settings   Settings                  bi-tools                  tab ? ? ?
+log        Logs                      bi-binoculars-fill        tab ? ? ?
+result     DataViz                   bi-eye                    tab ? ? ?
+
 #
 loop_
 _io.id
@@ -20,7 +21,7 @@ _io.icon
 _io.widget
 _io.default
 _io.help
-indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help' 
+indata          Input                     bi-arrow-bar-down    No Help         ?      ?
 #
 loop_
 _settings.id
@@ -29,8 +30,10 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help'
-##
+general         General                   bi-chat-right-text   No Help         ?      ?
+
+
+#
 loop_
 _indata.id
 _indata.label

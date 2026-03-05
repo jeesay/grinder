@@ -1,18 +1,17 @@
 data_
 #
 loop_
-_import_ptcls.id
-_import_ptcls.label
-_import_ptcls.icon
-_import_ptcls.widget
-_import_ptcls.default
-_import_ptcls.parent
-_import_ptcls.help
+_tabs.id
+_tabs.label
+_tabs.icon
+_tabs.widget
+_tabs.default
+_tabs.parent
+_tabs.help
 io       'I/O'                    bi-arrow-down-up       tab ? ? ?
 settings 'Settings'               bi-tools               tab ? ? ?
 log      'Logs'                   bi-binoculars-fill     tab ? ? ?
 result   'DataViz'                bi-eye                 tab ? ? ?
-
 #
 loop_
 _io.id
@@ -30,8 +29,8 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help' 
-#
+general  'General'      bi-chat-right-text     fieldset ?      'No Help'
+##
 loop_
 _indata.id
 _indata.label

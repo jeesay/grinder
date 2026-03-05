@@ -8,10 +8,11 @@ _tabs.widget
 _tabs.default
 _tabs.parent
 _tabs.help
-io       'I/O'                    bi-arrow-down-up       tab ? ? ?
-settings 'Settings'               bi-tools               tab ? ? ?
-log      'Logs'                   bi-binoculars-fill     tab ? ? ?
-result   'DataViz'                bi-eye                 tab ? ? ?
+io         I/O                       bi-arrow-down-up          tab ? ? ?
+settings   Settings                  bi-tools                  tab ? ? ?
+log        Logs                      bi-binoculars-fill        tab ? ? ?
+result     DataViz                   bi-eye                    tab ? ? ?
+
 #
 loop_
 _io.id
@@ -20,7 +21,7 @@ _io.icon
 _io.widget
 _io.default
 _io.help
-indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help' 
+indata          Input                     bi-arrow-bar-down    No Help         ?      ?
 #
 loop_
 _settings.id
@@ -29,8 +30,10 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help'
-##
+general         General                   bi-chat-right-text   No Help         ?      ?
+
+
+#
 loop_
 _indata.id
 _indata.label
@@ -70,18 +73,3 @@ optics_group_particles   "Rename optics group for particles:"    string    ""   
 ;
 Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.
 ;
-#
-loop_
-_node_type.id
-_node_type.label
-_node_type.widget
-_node_type.default
-_node_type.arg0
-_node_type.arg1
-_node_type.arg2
-_node_type.help
-node_type_opt_00   "('Multiple (2D or 3D) references (.star or .mrcs)', 'LABEL_IMPORT_2DIMG')"    option    0    ?    ?    ?    "?"
-node_type_opt_01   "('Micrographs STAR file (.star)', 'LABEL_IMPORT_MICS')"    option    1    ?    ?    ?    "?"
-node_type_opt_02   "('3D reference (.mrc)', 'LABEL_IMPORT_MAP')"    option    2    ?    ?    ?    "?"
-node_type_opt_03   "('3D mask (.mrc)', 'LABEL_IMPORT_MASK')"    option    3    ?    ?    ?    "?"
-node_type_opt_04   "('Unfiltered half-map (unfil.mrc)', 'LABEL_IMPORT_HALFMAP')"    option    4    ?    ?    ?    "?"

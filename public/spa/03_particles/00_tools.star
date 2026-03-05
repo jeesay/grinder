@@ -40,3 +40,26 @@ _class2d.help
 _class2d.filename
 class2d_em          "Expectation Maximisation Algorithm (EM)"    radio_tool   0       ?                '?'   99.star
 class2d_vdam        "VDAM Algorithm"                             radio_tool   0       ?                '?'   98.star
+#
+loop_
+_auto.id
+_auto.label        
+_auto.widget    
+_auto.proc_id 
+_auto.labelnew
+_auto.help   
+_auto.filename
+log_filter             "Laplacian of Gaussian filter"                  radio_tool              0           ?           "?"             97.star
+ref2d           "Picking by 2D References"                  radio_tool              0           ?           "?"             96.star
+ref3d           "Picking by 3D References"                  radio_tool              0           ?           "?"             95.star
+#
+loop_
+_auto_topaz.id
+_auto_topaz.label        
+_auto_topaz.widget    
+_auto_topaz.proc_id 
+_auto_topaz.labelnew
+_auto_topaz.help   
+_auto_topaz.filename
+topaz_train     "Topaz Training"                  radio_tool              0           ?           "?"             94.star
+topaz_pick      "Topaz picking"                  radio_tool              0           ?           "?"             93.star
