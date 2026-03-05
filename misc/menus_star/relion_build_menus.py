@@ -98,10 +98,22 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
               "node_type", "optics_group_particles"]
 
     # Remove duplicates
-    keys =  ["do_raw", "fn_in_raw", "is_multiframe", 
+    keys_raw =  ["do_raw", "fn_in_raw", "is_multiframe", 
               "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y"]
-    unused = ["do_other", "fn_in_other", "node_type", "optics_group_particles", 
+    
+    keys_ptcls = ["do_raw", "fn_in_raw", "is_multiframe", 
+              "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y", 
+              "do_other", "fn_in_other", "node_type", "optics_group_particles", 
               "node_type", "optics_group_particles"]
+    keys_other = ["do_raw", "fn_in_raw", "is_multiframe", 
+              "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y", 
+              "do_other", "fn_in_other", "node_type", "optics_group_particles", 
+              "node_type", "optics_group_particles"]
+    
+
+    unused_raw = ["do_other", "fn_in_other", "node_type", "optics_group_particles", 
+              "node_type", "optics_group_particles"]
+    unused_ptcls =[]
     
     fs = rwi.initialiseImportWindow()
     jo = rjo.initialiseImportJob()
@@ -202,7 +214,6 @@ def initialiseSelectJob(has_mpi = False, has_thread = False):
 
 
 def initialiseClass2DJob(has_mpi = True, has_thread = True):
-
     # has_gpu = False
     # has_diskio = False
     origin = ["fn_img", "fn_cont", "do_ctf_correction", "ctf_intact_first_peak", "nr_classes", "tau_fudge", "do_em", 

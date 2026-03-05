@@ -577,11 +577,11 @@ def initialiseClass2DWindow(is_tomo=False):
     groups = FsGroup()
     grp = Fieldset(groups)
     grp = place(grp,"fn_img", TOGGLE_DEACTIVATE)
-    grp.end()
+    grp.end("io")
     
     grp =Fieldset(groups)
     grp = place(grp,"fn_cont", TOGGLE_REACTIVATE)
-    grp.end()
+    grp.end("cont")
     
     grp =Fieldset(groups, "do_ctf_correction", " Do CTF-correction?", type="switch")
     # grp = place(grp,"do_ctf_correction", TOGGLE_DEACTIVATE, group1)
@@ -662,7 +662,7 @@ def initialiseInimodelWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"fn_cont", TOGGLE_REACTIVATE)
-    grp.end()
+    grp.end("cont")
     
     grp =Fieldset(groups, "do_ctf_correction", "Do CTF-correction?", type="switch")
     # grp = place(grp,"do_ctf_correction", TOGGLE_DEACTIVATE, group1)
@@ -718,7 +718,7 @@ def initialiseClass3DWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"fn_cont", TOGGLE_REACTIVATE)
-    grp.end()
+    grp.end("cont")
     
     grp = Fieldset(groups)
     grp = place(grp,"ref_correct_greyscale", TOGGLE_DEACTIVATE)
@@ -834,6 +834,9 @@ def initialiseAutorefineWindow(is_tomo=False):
     
     grp =Fieldset(groups)
     grp = place(grp,"fn_cont", TOGGLE_REACTIVATE)
+    grp.end("cont")
+    
+    grp =Fieldset(groups)
     grp = place(grp,"ref_correct_greyscale", TOGGLE_DEACTIVATE)
     grp = place(grp,"trust_ref_size", TOGGLE_DEACTIVATE)
     grp = place(grp,"ini_high", TOGGLE_DEACTIVATE)
@@ -920,7 +923,13 @@ def initialiseMultiBodyWindow(is_tomo=False):
     groups = FsGroup()
     grp = Fieldset(groups)
     grp = place(grp,"fn_in", TOGGLE_DEACTIVATE)
+    grp.end()
+    
+    grp =Fieldset(groups)
     grp = place(grp,"fn_cont", TOGGLE_REACTIVATE)
+    grp.end("cont")
+    
+    grp =Fieldset(groups)
     grp = place(grp,"fn_bodies", TOGGLE_DEACTIVATE)
     grp.end()
     
