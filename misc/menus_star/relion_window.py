@@ -126,7 +126,7 @@ class FsGroup:
         return '\n'.join([str(fs) for fs in self.groups])
 
 def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True,force=False):
-    if 'fn_in' in id or 'input_' in id or "fn_img" in id or "fn_cont" in id or id == "fn_ref" or id == "fn_mask":
+    if 'fn_in' in id or 'input_' in id or "fn_img" in id or "fn_cont" in id or id == "fn_ref" or id == "fn_mask" or id == "star_mics" or id == "coords_suffix":
         parent.fsid = 'indata'
         parent.fsname = '"Input Data"'
         parent.icon = 'bi-box-arrow-in-down'
@@ -196,15 +196,15 @@ def initialiseImportWindow(is_tomo=False):
     grp = place(grp,"Q0")
     grp = place(grp,"beamtilt_x")
     grp = place(grp,"beamtilt_y")
-    # grp = place(grp,"do_other", TOGGLE_DEACTIVATE, group2, False)
     grp.end()
     
-    grp = Fieldset(groups, "do_other", "Import other node types", type="switch")
+    grp = Fieldset(groups)
+    grp = place(grp,"do_other", TOGGLE_DEACTIVATE, group2, False)
     grp = place(grp,"fn_in_other")
-    grp = place(grp,"node_type")
-    # grp.end()
+    grp.end()
     
-    # grp = Fieldset(groups)
+    grp = Fieldset(groups)
+    grp = place(grp,"node_type")
     grp = place(grp,"optics_group_particles")
     grp.end()
     
@@ -253,8 +253,8 @@ def initialiseMotioncorrWindow(is_tomo=False):
     grp = place(grp,"fn_defect", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp = Fieldset(groups,"do_own_motioncor","RELIONS's implementation")
-    # grp = place(grp,"do_own_motioncor", TOGGLE_DEACTIVATE, group4, True)
+    grp = Fieldset(groups,"do_own_motioncor_fs","UCSF implementation")
+    grp = place(grp,"do_own_motioncor", TOGGLE_DEACTIVATE, group4, True)
     grp = place(grp,"fn_motioncor2_exe", TOGGLE_DEACTIVATE)
     grp = place(grp,"gpu_ids")
     grp = place(grp,"other_motioncor2_args", TOGGLE_DEACTIVATE)
@@ -292,12 +292,12 @@ def initialiseCtffindWindow(is_tomo=False):
     grp = place(grp,"dfmax", TOGGLE_DEACTIVATE)
     grp = place(grp,"dfstep", TOGGLE_DEACTIVATE)
     grp.end()
-    
-    grp = Fieldset(groups)
-    grp = place(grp,"localsearch_nominal_defocus", TOGGLE_DEACTIVATE)
-    grp = place(grp,"exp_factor_dose", TOGGLE_DEACTIVATE)
 
-    grp.end()
+    if (is_tomo) :
+        grp = Fieldset(groups)
+        grp = place(grp,"localsearch_nominal_defocus", TOGGLE_DEACTIVATE)
+        grp = place(grp,"exp_factor_dose", TOGGLE_DEACTIVATE)
+        grp.end()
     
     return groups
 
@@ -351,9 +351,13 @@ def initialiseAutopickWindow(is_tomo=False):
     
     grp = Fieldset(groups)
     grp = place(grp,"do_refs", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_log", TOGGLE_DEACTIVATE)
+    # grp = place(grp,"do_log", TOGGLE_DEACTIVATE)
     grp = place(grp,"do_topaz", TOGGLE_DEACTIVATE)
     grp = place(grp,"continue_manual", TOGGLE_REACTIVATE)
+    grp.end()
+    
+    grp = Fieldset(groups, "do_log_fs", "Laplacian of Gaussian Parameters")
+    grp = place(grp,"do_log", TOGGLE_DEACTIVATE)
     grp = place(grp,"log_diam_min", TOGGLE_DEACTIVATE)
     grp = place(grp,"log_diam_max", TOGGLE_DEACTIVATE)
     grp = place(grp,"log_invert", TOGGLE_DEACTIVATE)
@@ -367,18 +371,24 @@ def initialiseAutopickWindow(is_tomo=False):
     grp = place(grp,"topaz_particle_diameter", TOGGLE_DEACTIVATE)
     grp.end()
 
-    grp = Fieldset(groups)
+    grp = Fieldset(groups, "do_topaz_train_fs", "Topaz Training")
     grp = place(grp,"do_topaz_train", TOGGLE_DEACTIVATE, group5)
     grp = place(grp,"topaz_nr_particles", TOGGLE_DEACTIVATE)
     grp = place(grp,"topaz_train_picks", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_topaz_train_parts", TOGGLE_DEACTIVATE, group6)
+    grp.end()
+
+    grp = Fieldset(groups, "do_topaz_train_parts", "OR train on a set of particles?", type="switch")
+    # grp = place(grp,"do_topaz_train_parts", TOGGLE_DEACTIVATE, group6)
     grp = place(grp,"topaz_train_parts", TOGGLE_DEACTIVATE)
     grp.end()
 
-    grp = Fieldset(groups)
+    grp = Fieldset(groups, "do_topaz_pick_fs", "Topaz Picking")
     grp = place(grp,"do_topaz_pick", TOGGLE_DEACTIVATE, group7)
     grp = place(grp,"topaz_model", TOGGLE_DEACTIVATE)
-    grp = place(grp,"do_topaz_filaments", TOGGLE_DEACTIVATE, group8)
+    grp.end()
+
+    grp = Fieldset(groups, "do_topaz_filaments", "Pick filaments?", type="switch")
+    # grp = place(grp,"do_topaz_filaments", TOGGLE_DEACTIVATE, group8)
     grp = place2(grp,"topaz_filament_threshold", "topaz_hough_length", "Threshold, Hough length (A)", TOGGLE_DEACTIVATE)
     grp.end()
 
@@ -443,14 +453,11 @@ def initialiseExtractWindow(is_tomo=False):
     groups = FsGroup()
     grp = Fieldset(groups)
     grp = place(grp,"star_mics", TOGGLE_DEACTIVATE)
-    grp.end()
-    
-    grp = Fieldset(groups)
     grp = place(grp,"coords_suffix", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp = Fieldset(groups, "do_reextract", "OR re-extract refined particles", type="switch")
-    # grp = place(grp,"do_reextract", TOGGLE_DEACTIVATE, group1)
+    grp = Fieldset(groups)
+    grp = place(grp,"do_reextract", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"fndata_reextract", TOGGLE_DEACTIVATE)
     grp = place(grp,"do_reset_offsets", TOGGLE_DEACTIVATE)
     grp.end()

@@ -385,6 +385,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     write_starfile(tool,'./public/spa/03_particles/97.star',has_mpi, has_thread)
 
     #####  2D References
+    # 1. Create tool and tabs
     tool = create_tool('ref2d',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseAutopickJob(False)
@@ -404,6 +405,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     write_starfile(tool,'./public/spa/03_particles/96.star',has_mpi, has_thread)
 
     #####  3D References
+    # 1. Create tool and tabs
     tool = create_tool('ref3d',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseAutopickJob(False)
@@ -423,6 +425,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     write_starfile(tool,'./public/spa/03_particles/95.star',has_mpi, has_thread)
 
     #####  Topaz Training
+    # 1. Create tool and tabs
     tool = create_tool('topaz_train',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseAutopickJob(False)
@@ -442,6 +445,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     write_starfile(tool,'./public/spa/03_particles/94.star',has_mpi, has_thread)
 
     #####  Topaz Picker
+    # 1. Create tool and tabs
     tool = create_tool('topaz_pick',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseAutopickJob(False)
@@ -471,6 +475,66 @@ def initialiseExtractJob(has_mpi = True, has_thread = False):
                 "do_fom_threshold", "minimum_pick_fom", "do_extract_helix", "helical_tube_outer_diameter",
                 "helical_bimodal_angular_priors", "do_extract_helical_tubes", "do_cut_into_segments", 
                 "helical_nr_asu", "helical_rise"]
+    
+    keys = ["star_mics", "coords_suffix", "extract_size", "do_invert",
+                "do_float16", "do_norm", "bg_diameter", "white_dust", "black_dust", "do_rescale", "rescale", 
+                "do_fom_threshold", "minimum_pick_fom"]
+
+    keys_re = ["star_mics", "coords_suffix", "fndata_reextract", "do_reset_offsets",
+                "do_recenter", "recenter_x", "recenter_y", "recenter_z", "extract_size", "do_invert",
+                "do_float16", "do_norm", "bg_diameter", "white_dust", "black_dust", "do_rescale", "rescale", 
+                "do_fom_threshold", "minimum_pick_fom"]
+    
+    unused = ["do_reextract", "fndata_reextract", "do_reset_offsets",
+                "do_recenter", "recenter_x", "recenter_y", "recenter_z", "do_extract_helix", "helical_tube_outer_diameter",
+                "helical_bimodal_angular_priors", "do_extract_helical_tubes", "do_cut_into_segments", 
+                "helical_nr_asu", "helical_rise"]
+    unused_re = ["do_extract_helix", "helical_tube_outer_diameter",
+                "helical_bimodal_angular_priors", "do_extract_helical_tubes", "do_cut_into_segments", 
+                "helical_nr_asu", "helical_rise"]
+
+    system = [("do_reextract", False)]
+    system_re =[("do_reextract", True)]
+
+    #####  EXTRACT PARTICLES
+    # 1. Create tool and tabs
+    tool = create_tool('extract_ptcls',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseExtractJob(False)
+    # 3. Build
+    groups = rwi.initialiseExtractWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/92.star',has_mpi, has_thread)
+
+    #####  RE-EXTRACT PARTICLES
+    # 1. Create tool and tabs
+    tool = create_tool('reextract_ptcls',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseExtractJob(False)
+    # 3. Build
+    groups = rwi.initialiseExtractWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_re)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_re)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/03_particles/91.star',has_mpi, has_thread)
 
 
 def initialiseSelectJob(has_mpi = False, has_thread = False):
@@ -729,7 +793,7 @@ if __name__ == '__main__' :
     initialiseCtffindJob()
     # initialiseManualpickJob()
     initialiseAutopickJob()
-    # initialiseExtractJob()
+    initialiseExtractJob()
     # initialiseSelectJob()
     initialiseClass2DJob()
     # initialiseInimodelJob()
