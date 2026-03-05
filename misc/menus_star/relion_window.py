@@ -77,7 +77,7 @@ class Fieldset:
         index = [ x.id for x in self.widgets ].index(widget_id)
         del self.widgets[index]
 
-    def end(self):
+    def end(self, tab="settings"):
         # Finalize something
         self.parent.append(self)
 
@@ -415,8 +415,8 @@ def initialiseAutopickWindow(is_tomo=False):
     grp = place(grp,"shrink", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group3)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group3)
     grp = place(grp,"gpu_ids")
     grp.end()
     
@@ -593,17 +593,12 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"tau_fudge")
     grp.end()
     
-<<<<<<< HEAD
-    grp =Fieldset(groups,"do_em_fs","Expectation-Maximization Algorithm")
-    # grp = place(grp,"do_em", TOGGLE_DEACTIVATE, group2)
-=======
-    grp =Fieldset(groups)
-    grp = place(grp,"do_em_fs", TOGGLE_DEACTIVATE, group2)
->>>>>>> f3887cb25b99a4f1263d6f64ae5bba0e19ab0745
+    grp =Fieldset(groups, "do_em_fs", "Expectation-Maximization Parameters")
+    grp = place(grp,"do_em", TOGGLE_DEACTIVATE, group2)
     grp = place(grp,"nr_iter_em")
     grp.end()
     
-    grp =Fieldset(groups,"do_grad","VDAM Algorithm")
+    grp =Fieldset(groups,"do_grad_fs","VDAM Parameters")
     grp = place(grp,"do_grad", TOGGLE_DEACTIVATE, group5)
     grp = place(grp,"nr_iter_grad")
     grp.end()
@@ -611,13 +606,9 @@ def initialiseClass2DWindow(is_tomo=False):
     grp =Fieldset(groups)
     grp = place(grp,"particle_diameter")
     grp = place(grp,"do_zero_mask", TOGGLE_DEACTIVATE)
-    grp.end()
-    
-    grp =Fieldset(groups)
+
     grp = place(grp,"highres_limit", TOGGLE_DEACTIVATE)
-    grp.end()
-    
-    grp =Fieldset(groups)
+
     grp = place(grp,"do_center")
     grp.end()
     
@@ -652,6 +643,7 @@ def initialiseClass2DWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
+
     grp =Fieldset(groups,"use_gpu","GPU",type="switch",icon="bi-gpu-card")
     # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
     grp = place(grp,"gpu_ids", TOGGLE_LEAVE_ACTIVE)
@@ -702,8 +694,8 @@ def initialiseInimodelWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group6)
     grp = place(grp,"gpu_ids", TOGGLE_LEAVE_ACTIVE)
 
     grp.end()
@@ -819,8 +811,8 @@ def initialiseClass3DWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group8)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group8)
     grp = place(grp,"gpu_ids")
 
     grp.end()
@@ -915,8 +907,8 @@ def initialiseAutorefineWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group5)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group5)
     grp = place(grp,"gpu_ids")
 
     grp.end()
@@ -964,8 +956,8 @@ def initialiseMultiBodyWindow(is_tomo=False):
     grp = place(grp,"do_combine_thru_disc")
     grp.end()
     
-    grp =Fieldset(groups,"gpu","GPU")
-    grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group4)
+    grp =Fieldset(groups,"use_gpu","Use GPU acceleration?", type="switch")
+    # grp = place(grp,"use_gpu", TOGGLE_LEAVE_ACTIVE, group4)
     grp = place(grp,"gpu_ids")
 
     grp.end()
