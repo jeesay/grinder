@@ -20,6 +20,7 @@ _io.widget
 _io.value
 _io.help
 indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          ?
+indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          ?
 outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          ?
 nodes                "Nodes"                                  bi-controller        fieldset   ?          ?
 system               "System"                                 bi-incognito         fieldset   ?          ?
@@ -34,7 +35,7 @@ _indata.arg0
 _indata.arg1
 _indata.arg2
 _indata.help
-fn_img               "Input images STAR file:"           file      LABEL_PARTS_CPIPE "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" 1               ?               
+fn_img               "Input images STAR file:"           node       LABEL_PARTS_CPIPE "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" 1               ?               
 ; A STAR file with all images (and their metadata).
 
  
@@ -42,6 +43,16 @@ fn_img               "Input images STAR file:"           file      LABEL_PARTS_C
 Therefore, running RELION with an input stack will in general provide sub-optimal results and is therefore not recommended!! Use the Preprocessingrh.PROCedure to get the input STAR file in a semi-automated manner.
 Read the RELION wiki for more information.
 ;
+#
+loop_
+_indata.id
+_indata.label
+_indata.widget
+_indata.default
+_indata.arg0
+_indata.arg1
+_indata.arg2
+_indata.help
 fn_cont              "Continue from here: "              file       ?               "STAR Files (*_optimiser.star)" CURRENT_ODIR    ?               
 ; Select the *_optimiser.star file for the iteration from which you want to continue a previous run.
 Note that the Output rootname of the continued run and the rootname of the previous run cannot be the same.
@@ -83,6 +94,11 @@ This was the default option in releases prior to 4.0-beta.
 If set to No, then one needs to use the (faster) VDAM (variable metric gradient descent with adaptive moments) algorithm below.
 will be used.
 ;
+do_grad              "Use VDAM algorithm?"               bool       false           "?"             ?               ?               
+; If set to Yes, the faster VDAM algorithm will be used.
+This algorithm was introduced with relion-4.0.
+If set to No, then the slower EM algorithm needs to be used.
+;
 #
 loop_
 _class2d_em_cmd.id
@@ -103,12 +119,12 @@ _settings.value
 _settings.help
 do_ctf_correction    " Do CTF-correction?"                    bi-chat-right-text   switch     ?          ?
 general              "General"                                bi-chat-right-text   fieldset   ?          ?
-do_em                "Expectation-Maximization Algorithm"     bi-chat-right-text   fieldset   ?          ?
+do_em_fs             "Expectation-Maximization Algorithm"     bi-chat-right-text   fieldset   ?          ?
 params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
 params_02            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
-center               "Center"                                 bi-chat-right-text   fieldset   ?          ?
+params_03            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
 dont_skip_align      "Perform image alignment?"               bi-chat-right-text   switch     ?          ?
-parallel_discio      "Parallel Discio"                        bi-chat-right-text   fieldset   ?          ?
+diskio               "Disk Access"                            bi-database-fill     fieldset   ?          ?
 use_gpu              "GPU"                                    bi-gpu-card          switch     ?          ?
 #
 loop_
@@ -150,14 +166,14 @@ Too small values yield too-low resolution structures; too high values result in 
 ;
 #
 loop_
-_do_em.id
-_do_em.label
-_do_em.widget
-_do_em.default
-_do_em.arg0
-_do_em.arg1
-_do_em.arg2
-_do_em.help
+_do_em_fs.id
+_do_em_fs.label
+_do_em_fs.widget
+_do_em_fs.default
+_do_em_fs.arg0
+_do_em_fs.arg1
+_do_em_fs.arg2
+_do_em_fs.help
 nr_iter_em           "Number of EM iterations:"          range      25              1               50              1               
 ; Number of EM iterations to be performed.
 Note that the current implementation of 2D class averaging and 3D classification does NOT comprise a convergence criterium.
@@ -213,14 +229,14 @@ In such cases, values in the range of 7-12 Angstroms have proven useful.
 ;
 #
 loop_
-_center.id
-_center.label
-_center.widget
-_center.default
-_center.arg0
-_center.arg1
-_center.arg2
-_center.help
+_params_03.id
+_params_03.label
+_params_03.widget
+_params_03.default
+_params_03.arg0
+_params_03.arg1
+_params_03.arg2
+_params_03.help
 do_center            "Center class averages?"            bool       true            "?"             ?               ?               
 ; If set to Yes, every iteration the class average images will be centered on their center-of-mass.
 This will only work for positive signals, so the particles should be white.
@@ -260,14 +276,14 @@ This may speed up the calculations.
 ;
 #
 loop_
-_parallel_discio.id
-_parallel_discio.label
-_parallel_discio.widget
-_parallel_discio.default
-_parallel_discio.arg0
-_parallel_discio.arg1
-_parallel_discio.arg2
-_parallel_discio.help
+_diskio.id
+_diskio.label
+_diskio.widget
+_diskio.default
+_diskio.arg0
+_diskio.arg1
+_diskio.arg2
+_diskio.help
 do_parallel_discio   "Use parallel disc I/O?"            bool       true            "?"             ?               ?               
 ; If set to Yes, all MPI followers will read images from disc.
 Otherwise, only the leader will read images and send them through the network to the followers.
