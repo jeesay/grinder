@@ -34,7 +34,7 @@ _indata.arg0
 _indata.arg1
 _indata.arg2
 _indata.help
-fn_img               "Input images STAR file:"           node       LABEL_PARTS_CPIPE "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" 1               ?               
+fn_img               "Input images STAR file:"           file       LABEL_PARTS_CPIPE "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" 1               ?               
 ; A STAR file with all images (and their metadata).
 
  
@@ -103,11 +103,11 @@ _settings.value
 _settings.help
 do_ctf_correction    " Do CTF-correction?"                    bi-chat-right-text   switch     ?          ?
 general              "General"                                bi-chat-right-text   fieldset   ?          ?
+do_grad_fs           "VDAM Parameters"                        bi-chat-right-text   fieldset   ?          ?
 params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
-params_02            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
 dont_skip_align      "Perform image alignment?"               bi-chat-right-text   switch     ?          ?
-diskio               "Disk Management"                        bi-chat-right-text   fieldset   ?          ?
-use_gpu              "Use GPU acceleration?"                  bi-chat-right-text   switch     ?          ?
+diskio               "Disk Access"                            bi-database-fill     fieldset   ?          ?
+use_gpu              "GPU"                                    bi-gpu-card          switch     ?          ?
 #
 loop_
 _do_ctf_correction.id
@@ -148,6 +148,21 @@ Too small values yield too-low resolution structures; too high values result in 
 ;
 #
 loop_
+_do_grad_fs.id
+_do_grad_fs.label
+_do_grad_fs.widget
+_do_grad_fs.default
+_do_grad_fs.arg0
+_do_grad_fs.arg1
+_do_grad_fs.arg2
+_do_grad_fs.help
+nr_iter_grad         "Number of VDAM mini-batches:"      range      200             50              500             10              
+; Number of mini-batches to berh.PROCessed using the VDAM algorithm.
+Using 200 has given good results for many data sets.
+Using 100 will run faster, at the expense of some quality in the results.
+;
+#
+loop_
 _params_01.id
 _params_01.label
 _params_01.widget
@@ -156,21 +171,6 @@ _params_01.arg0
 _params_01.arg1
 _params_01.arg2
 _params_01.help
-nr_iter_grad         "Number of VDAM mini-batches:"      range      200             50              500             10              
-; Number of mini-batches to berh.PROCessed using the VDAM algorithm.
-Using 200 has given good results for many data sets.
-Using 100 will run faster, at the expense of some quality in the results.
-;
-#
-loop_
-_params_02.id
-_params_02.label
-_params_02.widget
-_params_02.default
-_params_02.arg0
-_params_02.arg1
-_params_02.arg2
-_params_02.help
 particle_diameter    "Mask diameter (A):"                range      200             0               1000            10              
 ; The experimental images will be masked with a soft circular mask with this diameter.
 Make sure this radius is not set too small because that may mask away part of the signal! If set to a value larger than the image size no masking will be performed.

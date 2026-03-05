@@ -94,29 +94,87 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # has_diskio = False
     origin = ["do_raw", "fn_in_raw", "is_multiframe", 
               "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y", 
-              "do_other", "fn_in_other", "node_type", "optics_group_particles", 
-              "node_type", "optics_group_particles"]
+              "do_other", "fn_in_other", "node_type", "optics_group_particles"]
 
     # Remove duplicates
-    keys_raw =  ["do_raw", "fn_in_raw", "is_multiframe", 
+    keys_raw =  ["fn_in_raw", "is_multiframe", 
               "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y"]
     
-    keys_ptcls = ["do_raw", "fn_in_raw", "is_multiframe", 
-              "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y", 
-              "do_other", "fn_in_other", "node_type", "optics_group_particles", 
-              "node_type", "optics_group_particles"]
-    keys_other = ["do_raw", "fn_in_raw", "is_multiframe", 
-              "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y", 
-              "do_other", "fn_in_other", "node_type", "optics_group_particles", 
-              "node_type", "optics_group_particles"]
+    keys_ptcls = ["fn_in_other", "node_type", "optics_group_particles"]
+    keys_other = ["fn_in_other", "node_type", "optics_group_particles"]
     
 
     unused_raw = ["do_other", "fn_in_other", "node_type", "optics_group_particles", 
               "node_type", "optics_group_particles"]
-    unused_ptcls =[]
-    
-    fs = rwi.initialiseImportWindow()
-    jo = rjo.initialiseImportJob()
+    unused_ptcls =["do_raw", "fn_in_raw", "is_multiframe", 
+              "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y", ]
+    unused_other = ["do_raw", "fn_in_raw", "is_multiframe", 
+              "optics_group_name", "fn_mtf", "angpix", "beamtilt_x", "beamtilt_y"]
+
+    system_raw = [("do_raw", True)]
+    system_other = [("do_other", True)]
+
+    ##### ================================== IMPORT RAW =================================
+    # 1. Create tool and tabs
+    tool = create_tool('import_mov',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseImportJob(False, "mov")
+    # 3. Build
+    groups = rwi.initialiseImportWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_raw)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_raw)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/01_import/99.star',has_mpi, has_thread)
+
+    ##### ================================== Import PARTICLES =================================
+
+    # 1. Create tool and tabs
+    tool = create_tool('import_ptcls',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseImportJob(False, "particles")
+    # 3. Build
+    groups = rwi.initialiseImportWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_ptcls)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_other)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/01_import/98.star',has_mpi, has_thread)
+
+    ##### ================================== Import OTHER =================================
+
+    # 1. Create tool and tabs
+    tool = create_tool('import_other',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseImportJob(False, "other")
+    # 3. Build
+    groups = rwi.initialiseImportWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool,fs_params,jo,keys_other)
+
+    tool = update_system_fieldset(tool, groups.groups[0], jo, system_other)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/01_import/97.star',has_mpi, has_thread)
 
 def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
 
@@ -453,8 +511,8 @@ def initialiseTomoReconPartJob(has_mpi = True, has_thread = True):
 
 
 if __name__ == '__main__' :
-    # initialiseImportJob()
-    initialiseMotioncorrJob()
+    initialiseImportJob()
+    # initialiseMotioncorrJob()
     # initialiseCtffindJob()
     # initialiseManualpickJob()
     # initialiseAutopickJob()
