@@ -32,12 +32,12 @@ extras     'Extras'                     bi-bag-plus              fieldset ? misc
 #
 loop_
 _selection.id
-_selection.label 
-_selection.icon
-_selection.widget 
-_selection.default
-_selection.parent
-_selection.help
+_selection.label        
+_selection.widget    
+_selection.proc_id 
+_selection.labelnew
+_selection.help   
+_selection.filename
 subselect_class       "Select classes from job"                 radio_tool              7           ?           "?"             01.star
 subselect_mic         "Select from micrographs.star"            radio_tool              7           ?           "?"             02.star
 subselect_ptcls       "Select from particles.star"              radio_tool              7           ?           "?"             03.star
