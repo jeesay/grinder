@@ -18,7 +18,7 @@
  * await webSocketClient.disconnect();
  */
  
-class WSClient {
+export class WSClient {
 
   /*
     _socket: WebSocket;
