@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Grinder v0.2</title>
   <link rel="stylesheet" href="css/grinder.css" type="text/css">
+  <link rel="stylesheet" href="css/grinder_filechooser.css" type="text/css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Asap+Condensed&display=swap" rel="stylesheet">
@@ -65,46 +66,40 @@
   </div>
   <footer>
   </footer>
-  <!-- File Chooser   -->
-  <dialog class="filechooser" aria-labelledby="dialog_title" aria-describedby="dialog_description">
-    <div class="header">
-      <nav>
-        <ul>
-        <li id="dialog_title"></li>
-        <li><span class="space"></span></li>
-        <li><a href="#" title="Sort By"><i class="bi bi-sort-down-alt"></i></a>
-          <ul id="sortby" class="submenu">
-          <li class="menuitemselected" data-type="feature" data-param="name" onclick="fc_sortby('feature')(event)">Name</li>
-          <li class="menuitem" data-type="feature" data-param="type" onclick="fc_sortby('feature')(event)">Type</li>
-          <li class="menuitem" data-type="feature" data-param="size" onclick="fc_sortby('feature')(event)">Size</li>
-          <li class="menusep"></li>
-          <li class="menuitemselected" data-type="order" data-param="ascending" onclick="fc_sortby('order')(event)">Ascending</li>
-          <li class="menuitem" data-type="order" data-param="descending" onclick="fc_sortby('order')(event)">Descending</li>
-          </ul>
-        </li>
-        <li><a href="#" title="Refresh"><i class="bi bi-arrow-clockwise"></i></a></li>
 
-        <li><input type="text" placeholder="&#xf52a; Select files with pattern" style="font-family: 'Asap Condensed', bootstrap-icons !important;"/></li>
-        <li><a href="#" title="Select All Files Matching Pattern"><i class="bi bi-check-all"></i></a></li>
+<!-- File Chooser   -->
+  <dialog id="file-popup" class="popup-overlay" aria-labelledby="dialog_title" aria-describedby="dialog_description">
+    <div class="popup-content">
+        <div class="popup-header">
+            <div id="breadcrumb-wrapper" class="breadcrumbs-wrapper">
+                <div id="breadcrumb-more" class="breadcrumb-more hidden">
+                    <span class="breadcrumb-item">...</span>
+                    <div id="more-menu" class="more-menu"></div>
+                </div>
+                <span class="breadcrumb-separator more-sep hidden">&gt;</span>
+                
+                <div id="breadcrumb-container" class="breadcrumbs">
+                    </div>
+            </div>
+            <input type="text" id="file-search" placeholder="Search...">
+            <button id='close-popup-btn' class="close-btn">&times;</button>
+        </div>
+        
+        <div id="file-list" class="tree-container"></div>
 
-        <li><a href="#" title="Information" onclick="window.popup.showModal();"><i class="bi bi-info-circle"></i></a></li>
-        <li><a id="close_dialog" href="#"><i class="bi bi-x-circle"></i></a></li>
-        </ul>
-      </nav>
+        <div class="popup-footer">
+            <div class="status-left">
+                <span id="folder-info" class="count-label">0 items</span>
+            </div>
+            <div class="status-center">
+                <span id="selection-info" class="selection-label"></span>
+            </div>
+            <div class="action-buttons">
+                <button id='cancel-btn' class="btn btn-cancel">Cancel</button>
+                <button id="open-btn" class="btn btn-open" disabled>Open</button>
+            </div>
+        </div>
     </div>
-    <div class="path"></div>
-    <div class="filehead">
-      <span class='fileheaditem'>Name</span>
-      <span class='fileheaditem'>Size</span>
-      <span class='fileheaditem'>Date</span>
-    </div>
-    <div class="filetree">
-      <ul></ul>
-    </div>
-    <footer>
-      <a id="open_file" href="#">Open</a>
-      <a id="cancel" href="#">Cancel</a>
-    </footer>
   </dialog>
 
   <!--Popup -->
@@ -119,156 +114,13 @@
       </nav>
     </div>
 </dialog>
-  <script type="module">
-  import {StarGate} from "./src/stargate.js";
-  import {w_leftpanel, w_tab_tools} from "./src/widget.js";
+
+<script type="module">
+  import {fetchRootFile} from "./src/main.js";
+  import {w_tab_tools} from "./src/widget.js";
+  import {filterFiles,togglePopup,handleOpen} from "./src/browse.js";
   
-  const fetchFile = async filename => {
-    const file = await fetch(filename);
-    const text = await file.text();
-    
-    const obj = new StarGate();
-    obj.parseSTAR(text);
-    return obj.blocks();
-  }
-
-  const from_startable = (data) => data.rows.map( (row) => {
-      let obj = {};
-      for (let h in data.header) {
-        obj[data.header[h]] = row[h];
-      }
-      if (['program','toolmenu','tabgroup','radio_tool','tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(obj.widget)) {
-        obj.children = [];
-      }
-      return obj;
-    });
-
-  const is_table = (el) => typeof el == 'object' && 'header' in el;
-
-  const get_tables = (star) => Object.keys(star).filter(key => is_table(star[key])).map(key => ({key,table:star[key]}));
-
-  const flat_tables = (tables) => {
-    console.info('++++++++++++++ TABLES',tables);
-    // Convert each table into object
-    let flat_table = tables.map(t => {
-      console.log(t.key);
-      let rows = from_startable(t.table);
-      console.info(rows);
-      rows.forEach(row => row.parent = t.key );
-      return rows // {key: t.key,table: rows}
-    }).flat();
-    // flat_table = [{id:'tabs',children:[]},...flat_table];
-    console.info('++++++++++++++ TABLES',flat_table);
-    return flat_table;
-  }
-  
-  const build_tree = (datablock,parent) => {
-    // Get all tables and build hierarchy
-    let tables = get_tables(datablock);
-    let flat_table = flat_tables(tables);
-    let tab_count = parent.index;
-    flat_table.forEach(wdgt => {
-      console.log('WIDGET',wdgt);
-      // Attach the tab to the `toolset`
-      if (wdgt.widget == 'tab') {
-        console.log('ADD TAB',wdgt);
-        // wdgt.parent = db.id;
-        wdgt.index = tab_count;
-        tab_count++;
-        parent.children.push(wdgt);
-      }
-      else if ('parent' in wdgt) {
-        // Attach other widgets depending of their parent.
-        const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
-        console.info('FIND PARENT',index,wdgt,flat_table[index]);
-        flat_table[index].children.push(wdgt);
-      }
-    });
-    return parent;
-  }
-
-  const fetchRootFile = async filename => {
-    // Load and parse `grinder_spa.star`
-    const file = await fetch(filename);
-    const text = await file.text();
-    const all_of_them = [{dummy: '?'}];
-    
-    const obj = new StarGate();
-    obj.parseSTAR(text);
-    const left_panel = obj.datablock('grinder_spa').table('tool_panel');
-    console.info('PANEL',left_panel);
-    // Create items in left panel
-    w_leftpanel(document.querySelector('aside ul'),left_panel);
-    // Create Tools panel
-    let tools = [];
-    let tab_count = 1;
-    for (let tab of left_panel) {
-      console.info('Tab Data',tab);
-      // tab.path = 'spa/'+ tab.starfile.split('/')[0] + '/' //HACK
-      const _tmp = await fetchFile(tab.path + tab.starfile);
-      let db = _tmp.datablocks.default;
-      console.log('ROOT',db);
-      let root = {
-        id : db.id,
-        label: db.label,
-        widget:db.widget,
-        style: {display: 'none'},
-        parent:db.parent,
-        tab_count: tab_count, // Required by the click
-        children: []
-      };
-      // Get all tables and build hierarchy
-      let tables = get_tables(db);
-      let flat_table = flat_tables(tables);
-      flat_table.forEach(async wdgt => {
-        console.log('WIDGET',wdgt);
-        // Attach the tab to the `toolset`
-        if (wdgt.widget == 'toolmenu') {
-          console.log('ADD TOOLMENU',wdgt);
-          // wdgt.parent = db.id;
-          wdgt.index = tab_count;
-          tab_count++;
-          root.children.push(wdgt);
-        }
-        else if (wdgt.widget === 'radio_tool') {
-          // Load radio_tool (radio button + toolset)
-          const source = await fetchFile(tab.path + wdgt.filename);
-          console.info('SOURCE',tab.path + wdgt.filename,source);
-          // Create the toolset - parent of all the tool tabs
-          let toolset = Object.assign({}, wdgt);
-          toolset.widget = 'toolset';
-          toolset.index = tab_count;
-          toolset.parent = root.id;
-          tab_count += 4;
-          const tool = build_tree(source.datablocks.default,toolset);
-          console.info('THE TOOL',tool);
-          root.children.push(tool);
-          // Create the radio button
-          wdgt.id += '_radio';
-          wdgt.widget = 'radio';
-          wdgt.on_click = (e) => {
-            Array.from(document.querySelectorAll('.toolset')).map(el => el.style.display = 'none');
-            document.getElementById(toolset.id).style.display = 'block';
-          }
-          delete wdgt.children;
-          const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
-          console.info('FIND PARENT',index,wdgt,flat_table[index]);
-          flat_table[index].children.push(wdgt);         
-        }
-        else if ('parent' in wdgt) {
-          // Attach other widgets depending of their parent.
-          const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
-          console.info('FIND PARENT',index,wdgt,flat_table[index]);
-          flat_table[index].children.push(wdgt);
-        }
-      }); 
-      // Prepare all the widgets tree
-      console.info('TOOLS',root)
-
-      all_of_them.push(root);
-    }
-    return all_of_them;
-  }
+ 
   
     /********************* MAIN *********************/
     
@@ -296,6 +148,20 @@
         }
       }
     );
+
+
+// Initial call within renderFileList to show folder count even if no file is selected
+// updateFooterStatus(data);
+
+// Bind the search input
+  document.getElementById('file-search').addEventListener('input', filterFiles);
+
+  // Bind the toggle/cancel buttons
+  document.getElementById('cancel-btn').addEventListener('click', togglePopup);
+  document.getElementById('close-popup-btn').addEventListener('click', togglePopup);
+
+  // Bind the open button
+  document.getElementById('open-btn').addEventListener('click', handleOpen);
 
   // Go to Home, first
   document.querySelector('aside #home').click();

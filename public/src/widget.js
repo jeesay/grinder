@@ -20,6 +20,23 @@
 'use strict';
 
 import {h} from "./dom.js";
+import {togglePopup} from "./browse.js";
+
+const get_parent = (desc,parent_id,level=0) => {
+  console.info(desc);
+  if (desc.parent.id === parent_id || level == 10) {
+    return desc.parent;
+  }
+  return get_parent(desc.parent,parent_id,level++);
+}
+
+const get_parent_from_class = (desc,parent_widget,level=0) => {
+  console.info(desc);
+  if (!desc.hasOwnProperty(parent) || desc.parent.widget === parent_widget || level == 10) {
+    return desc.parent;
+  }
+  return get_parent_from_class(desc.parent,parent_widget,level++);
+}
 
 const w_label = (desc) => {
   // TODO
@@ -61,7 +78,7 @@ const w_switch = (desc) => {
   // TODO
   return h(`fieldset.switch${(desc.default === "true") ? '' : '.inactive'}`,
     {
-      attrs: {disabled: (desc.default === "true") ? true : false}
+      attrs: {disabled: (desc.default === "true") ? true : false},
     },
     [
       h('legend',w_switch_button(desc)),
@@ -71,22 +88,25 @@ const w_switch = (desc) => {
 }
 
 const w_switch_button = (desc) => {
+  const unique_id = `${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_on_off`;
   return [
     h('label',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h('div.switch_button',
       [
-        h(`input#${desc.id}_on_off.param`, 
+        h(`input#${unique_id}.param.switch-input`, 
           {
             attrs: {
               type:'checkbox',
               name:desc.label
             },
+            dataset: {toolset: desc.toolsetid,param: desc.id},
             props: {
               checked: (desc.default === "true") ? true : false
             },
-            on: {
-              click: (ev) => {
+            on: 
+              { click: (ev) => {
+                console.log("Clicked element:", ev.target);
                 ev.target.checked ? false : true; 
                 if (ev.target.checked) {
                   ev.target.closest('fieldset').classList.remove('inactive');
@@ -98,11 +118,11 @@ const w_switch_button = (desc) => {
                 } 
               }
             }
-          },
+          }
         ),
         h('label',
           {
-            attrs: {'for':`${desc.id}_on_off`},
+            attrs: {'for':`${unique_id}`},
 /*            on: {changed: (ev) => {console.log(ev.target); ev.target.disabled = !ev.target.disabled} } */
           },
           'Toggle'
@@ -111,6 +131,8 @@ const w_switch_button = (desc) => {
     )
   ]
 }
+
+///////////////////// FILE ///////////////////////
 
 const w_file = (desc) => {
   console.info('file',desc);
@@ -139,7 +161,7 @@ const w_file = (desc) => {
     [
       h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`,{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-      h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`, 
+      h(`input#${desc.id}-${desc.toolsetid.slice(-4)}.param${(prop === 'required') ? '.required' : ''}`, 
         {
           attrs: {
             type:'text',
@@ -147,10 +169,14 @@ const w_file = (desc) => {
             placeholder: placeholder || '',
             name:desc.id
           },
-          dataset: ('option' in desc) ? {option: desc.option} : {}
+          dataset: {
+            toolset: desc.toolsetid,
+            param: desc.id,
+            option: ('option' in desc) ? desc.option : 0
+          },
         }
       ),
-      h('input#open_dialog.browse', 
+      h('input#open_dialog.browse.open-trigger',
         {
           attrs: {
             type:'button',
@@ -159,7 +185,7 @@ const w_file = (desc) => {
           },
           dataset: ds,
           on: {
-            click: (ev) => {const dialog = new FileChooser(GRINDER.server); dialog.openDialog(ev) }
+            click: togglePopup
           }
         }
       )
@@ -171,14 +197,19 @@ const w_string = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.id}.param`, 
+    h(
+      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
       {
         attrs: {
           type:'text',
           value: desc.default,
           name:desc.id
         },
-        dataset: ('option' in desc) ? {option: desc.option} : {}
+        dataset: {
+          toolset: desc.toolsetid,
+          param: desc.id,
+          option: ('option' in desc) ? desc.option : 0
+        },
       }
     )
   ]
@@ -188,7 +219,8 @@ const w_string_ro = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.id}.param`, 
+    h(
+      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
       {
         attrs: {
           type:'text',
@@ -196,7 +228,11 @@ const w_string_ro = (desc) => h('div.row',
           name:desc.id,
           readOnly:true
         },
-        dataset: ('option' in desc) ? {option: desc.option} : {}
+        dataset: {
+          toolset: desc.toolsetid,
+          param: desc.id,
+          option: ('option' in desc) ? desc.option : 0
+        },
       }
     )
   ]
@@ -207,14 +243,19 @@ const w_text = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`textarea#${desc.id}.param`, 
+    h(
+      `textarea#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
       {
         attrs: {
           type:'text',
           value: desc.default,
           name:desc.id
         },
-        dataset: ('option' in desc) ? {option: desc.option} : {}
+        dataset: {
+          toolset: desc.toolsetid,
+          param: desc.id,
+          option: ('option' in desc) ? desc.option : 0
+        },
       }
     )
   ]
@@ -225,31 +266,20 @@ const w_paragraph = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`span#${desc.id}`, desc.content)
+    h(
+      `span#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+      desc.content
+    )
   ]
 );
 
 
-
-/*
-  {
-    name: 'poly_order',
-    title: 'Polynomial Order',
-    widget: 'int',
-    default: 1,
-    help: 'The polynomial order for fitting the baseline. Default is 1.'
-  }
-  Output:
-  <label for="poly_order">Polynomial Order</label>
-  <input name="poly_order" type="number" value=1></input> 
-  <i class="bi bi-question-circle" title="help"></i>
-
-*/
 const w_int = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.id}.param`, 
+    h(
+      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
       {
         attrs: {
           type:'number',
@@ -257,7 +287,11 @@ const w_int = (desc) => h('div.row',
           lang:'en',
           name:desc.id
         },
-        dataset: ('option' in desc) ? {option: desc.option} : {}
+        dataset: {
+          toolset: desc.toolsetid,
+          param: desc.id,
+          option: ('option' in desc) ? desc.option : 0
+        },
       }
     )
   ]
@@ -333,7 +367,9 @@ const w_range = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`div#${desc.id}_container.range-container`,
+    // `div#${desc.id.replace('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_container.range-container`,
+    h( 
+      `div#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_container.range-container`,
       {
         style: {display:'flex'},
         attrs: {value: desc.default}
@@ -349,11 +385,16 @@ const w_range = (desc) => h('div.row',
               value: desc.default,
               name:desc.id + '_range'
             },
-            dataset: ('option' in desc) ? {option: desc.option} : {},
+            dataset: {
+              toolset: desc.toolsetid,
+              param: desc.id,
+              option: ('option' in desc) ? desc.option : 0
+            },
             on: {input: (ev) => check_bounds(ev.target.value,ev.target) }
           }
         ),
-        h(`input#${desc.id}.param`, 
+        h(
+          `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
           {
             attrs: {
               type:'number',
@@ -362,85 +403,13 @@ const w_range = (desc) => h('div.row',
               lang:'en',
               name:desc.id
             },
-            dataset: ('option' in desc) ? {option: desc.option} : {},
+            dataset: {
+              toolset: desc.toolsetid,
+              param: desc.id,
+              option: ('option' in desc) ? desc.option : 0
+            },
             on: {input: (ev) => check_bounds(ev.target.value,ev.target)}
-
           }
-        )
-      ])
-    ]
-  );
-
-const w_range_old = (desc) => h('div.row',
-  [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h('div.range-container',
-      {
-        style: {display:'flex'}
-      },
-      [
-        h(`input#${desc.id}.param`, 
-          {
-            attrs: {
-              type:'range',
-              min: desc.arg0,
-              max: desc.arg1,
-              step: desc.arg2,
-              value: desc.default,
-              name:desc.id + '_range'
-            },
-            dataset: ('option' in desc) ? {option: desc.option} : {},
-            on: {input: (ev) => {number.value = ev.target.value; check_bounds(val,ev.target)} }
-          }
-        ),
-        h('output.not-allowed', {dataset: ('option' in desc) ? {option: desc.option} : {} }, desc.default.toString()),
-        h('a',
-          {
-            props:{href:'#',title:'Type Value'},
-            on: {
-              click: (ev) => {
-                const slider = ev.target.closest(".range_slider");
-                slider.style.display = 'none';
-                slider.nextElementSibling.style.display = 'flex';
-              } 
-            }
-          },
-          [h('i.bi.bi-pencil-square')],
-        ),
-      ]
-    ),
-    h('div.range_text',
-      {
-        style: {display:'none'}
-      },
-      [
-        h(`input#${desc.id}.param_`, 
-          {
-            attrs: {
-              type:'number',
-              value: desc.default,
-              step: desc.arg2,
-              lang:'en',
-              name:desc.id
-            },
-            dataset: ('option' in desc) ? {option: desc.option} : {}
-          }
-        ),
-        h('a',
-          {
-            props:{href:'#',title:'Modify'},
-            on: {
-              click: (ev) => {
-                const rtext = ev.target.closest(".range_text");
-                rtext.style.display = 'none';
-                rtext.previousElementSibling.style.display = 'flex';
-              } 
-            }
-
-    //        on:{'click': (ev) => view(ev)} 
-          },
-          [h('i.bi.bi-sliders')],
         )
       ])
     ]
@@ -450,7 +419,8 @@ const w_bool = (desc) => h('div.row',
   [
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-    h(`input#${desc.id}.param`, 
+    h(
+      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
       {
         attrs: {
           type:'checkbox',
@@ -459,7 +429,11 @@ const w_bool = (desc) => h('div.row',
         props: {
           checked: (desc.default === 'true') ? true : false,
         },
-        dataset: ('option' in desc) ? {option: desc.option} : {}
+        dataset: {
+          toolset: desc.toolsetid,
+          param: desc.id,
+          option: ('option' in desc) ? desc.option : 0
+        },
       }
     ),
   ]
@@ -481,7 +455,9 @@ const w_bool = (desc) => h('div.row',
 */
 const w_radio = (desc) => h('div.row',
   [
-    h(`input#${desc.id}.param`, 
+    h(
+      // Unique ID
+      `input#${desc.id}.param`, 
       {
         attrs: {
           type:'radio',
@@ -491,7 +467,11 @@ const w_radio = (desc) => h('div.row',
         props: {
           checked: (desc.default === true) ? true : false
         },
-        dataset: ('option' in desc) ? {option: desc.option} : {},
+        dataset: {
+          toolset: desc.toolsetid,
+          param: desc.id,
+          option: ('option' in desc) ? desc.option : 0
+        },
         on: ('on_click' in desc) ? {click: desc.on_click} : {}
       }
     ),
@@ -512,50 +492,6 @@ const w_tab_tools = (parent,desc) => {
   const g = w_section(desc);
   console.log(g);
   parent.appendChild(g);
-}
-
-const w_tab_tools_old = (parent,desc) => {
-
-  const to_obj = (data) => data.rows.map( (row) => {
-        let obj = {children: []};
-        for (let h in data.header) {
-          obj[data.header[h]] = row[h];
-        }
-        return obj;
-      });
-      
-  desc.children = to_obj(desc.table);
-  console.log('TABS',desc);
-  const i = +desc.index;
-  const el = h(`section#${desc.id}.tabs`, 
-    {
-      style: {display: 'none'},
-      dataset: {parent_id: desc.parent} 
-    },
-    [
-      h(`article#tools.tab`, 
-      [
-        h(`input#tab-${i}.tab-switch`, 
-          {
-            attrs: { 
-              type:'radio',
-              name:'css-tabs',
-            },
-            props: {
-              checked: (i==0) ? true : false
-            },
-            on: ('on_click' in desc) ? {click: desc.on_click} : {}
-          }
-        ),
-        h('label.tab-label',{attrs: {'for': `tab-${i}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),
-        h('div.tab-content', 
-          ('children' in desc) ? w_group(desc): []
-        )
-      ])
-    ]
-  );
-  parent.appendChild(el);
-
 }
 
 const w_import = (desc) => {
@@ -596,37 +532,6 @@ const w_navtab = (desc) => {
 }
 
 const w_toolmenu = w_navtab;
-
-const w_navtab_old = (parent,desc) => {
-  // Remove all the previous children
-  parent.innerHTML = '';
-  // Step #1 Header
-  desc.forEach( (child,i) => {
-    console.log('TABS',child);
-    const el = h(`article#${child.label}.tab`,
-      [
-        h(`input#tab-${i+1}.tab-switch`, 
-          {
-            attrs: { 
-              type:'radio',
-              name:'css-tabs'
-            },
-            props: {
-              checked: (i==0) ? true : false
-            },
-            on: ('on_click' in child) ? {click: child.on_click} : {}
-          }
-        ),
-        h('label.tab-label',{attrs: {'for': `tab-${i+1}`}},[h(`i.bi.${child.icon}`),' ',child.title]),
-        h('div.tab-content', 
-          ('children' in child) ? w_group(child): []
-        )
-      ]
-    );
-    console.info(el);
-    parent.appendChild(el);
-  });
-}
 
 const w_radiotool = (desc) => {
 //  // Create radio button linked to the `toolmenu`
@@ -695,7 +600,8 @@ const w_toolset = (desc) => {
       {id: 'schedule',label: 'Schedule job',arg1: 'bi-calendar2-week'},
       {id: 'overwrite',label: 'Overwrite job',arg1: 'bi-pencil-square'},
       {id: 'delete',label: 'Remove job',arg1: 'bi-trash'},
-      
+      {id: 'h4.title',label: 'Status',arg1: '?'},
+      {id: 'h4.title',label: 'Pending',arg1: 'bi-person-standing'},       
     ]
   }
   console.log('toolmenu',desc);
@@ -706,8 +612,8 @@ const w_toolset = (desc) => {
   const el = h(`div#${desc.id}.toolset`, 
     {
       style: {display: 'none'},
-      dataset: {parent: desc.parent}
-    },
+      dataset: {parent: desc.parent},
+     },
     w_group(desc)
   );
   console.log('Done!',el);
@@ -736,7 +642,16 @@ const w_section = (desc) => {
 
 const w_details = (desc) => {
   console.log('details',desc.label);
-  return h(`details#${desc.id}`,[h('summary',desc.label),...w_group(desc)]);
+  return h(`details#${desc.id}`,
+    {
+      dataset: {
+        toolset: desc.toolsetid,
+        param: desc.id,
+        option: ('option' in desc) ? desc.option : 0
+      }
+    },
+    [h('summary',desc.label),...w_group(desc)]
+  );
 }
 
 const w_cli = (desc) => {
@@ -744,7 +659,8 @@ const w_cli = (desc) => {
 
   // Private function
   const gen_cli = (ev) => {
-    const all_args = document.querySelectorAll('section .param');
+    console.info(ev.target.dataset.toolset);
+    const all_args = document.querySelectorAll(`#${ev.target.dataset.toolset} .param`);
     // Create command-line from all the args set up in the GUI
     let cli = '';
     all_args.forEach( (w) => cli += (w.id+ ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n') );
@@ -753,60 +669,48 @@ const w_cli = (desc) => {
       [
         h('caption','Program parameters'),
         h('thead',
-          [ h('tr',[h('th',{attrs: {scope: "col"}},'Key'),h('th',{attrs: {scope: "col"}},'Value')])]
+          [ h('tr',[
+            h('th',{attrs: {scope: "col"}},'ID'),
+            h('th',{attrs: {scope: "col"}},'Key'),
+            h('th',{attrs: {scope: "col"}},'Value')
+          ])]
         ),
         h('tbody',
-          Array.from(all_args).map(wdgt => h('tr',[h('td',{attrs: {scope: "row"}},wdgt.id),h('td',{attrs: {scope: "row"}},wdgt.value)])
+          Array.from(all_args).map(wdgt => h('tr',[
+            h('td',{attrs: {scope: "row"}},wdgt.id),
+            h('td',{attrs: {scope: "row"}},wdgt.dataset.param),
+            h('td',{attrs: {scope: "row"}},(wdgt.type === 'checkbox') ? wdgt.checked.toString() : wdgt.value)
+          ])
       ))
       ]
     );
-/*
-  <thead>
-    <tr>
-      <th scope="col">Nom</th>
-      <th scope="col">Principal intérêt</th>
-      <th scope="col">Âge</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">Chris</th>
-      <td>Tables HTML</td>
-      <td>22</td>
-    </tr>
-    <tr>
-      <th scope="row">Dennis</th>
-      <td>Accessibilité web</td>
-      <td>45</td>
-    </tr>
-    <tr>
-      <th scope="row">Sarah</th>
-      <td>Frameworks JavaScript</td>
-      <td>29</td>
-    </tr>
-    <tr>
-      <th scope="row">Karen</th>
-      <td>Performance web</td>
-      <td>36</td>
-    </tr>
-  </tbody>
-  <tfoot>
-    <tr>
-      <th scope="row" colspan="2">Âge moyen</th>
-      <td>33</td>
-    </tr>
-  </tfoot>
-</table>')
-*/
-    document.getElementById('source_code').appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
+
+    document.querySelector(`#${ev.target.dataset.toolset}_cmd p.source_code`).appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
   }
   
   // Main
   return h(`details#${desc.id}.cli`,
     {
+      dataset: {
+        toolset: desc.toolsetid,
+        param: desc.id,
+        option: ('option' in desc) ? desc.option : 0
+      },
       on: {click: gen_cli }
     },
-    [h('summary',desc.label),h('p#source_code','')]
+    [
+      h('summary',
+        {
+          dataset: {
+            toolset: desc.toolsetid,
+            param: desc.id,
+            option: ('option' in desc) ? desc.option : 0
+          }
+        },
+        desc.label
+      ),
+      h('p.source_code','')
+    ]
   );
 }
 

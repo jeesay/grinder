@@ -1,5 +1,6 @@
 import {StarGate} from "./stargate.js";
-//import {*} from "./ws_client.js";
+import {w_leftpanel, w_tab_tools} from "./widget.js";
+import {WSClient} from "./ws_client.js";
 //import {*} from "./dom.js";
 //import {*} from "./job.js";
 //import {*} from "./history.js";
@@ -294,4 +295,153 @@ const connect_to_ws_server = async () => {
 */
 };
 
+ const fetchFile = async filename => {
+    const file = await fetch(filename);
+    const text = await file.text();
+    
+    const obj = new StarGate();
+    obj.parseSTAR(text);
+    return obj.blocks();
+  }
+
+  const from_startable = (data) => data.rows.map( (row) => {
+      let obj = {};
+      for (let h in data.header) {
+        obj[data.header[h]] = row[h];
+      }
+      if (['program','toolmenu','tabgroup','radio_tool','tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(obj.widget)) {
+        obj.children = [];
+      }
+      return obj;
+    });
+
+  const is_table = (el) => typeof el == 'object' && 'header' in el;
+
+  const get_tables = (star) => Object.keys(star).filter(key => is_table(star[key])).map(key => ({key,table:star[key]}));
+
+  const flat_tables = (tables) => {
+    console.info('++++++++++++++ TABLES',tables);
+    // Convert each table into object
+    let flat_table = tables.map(t => {
+      console.log(t.key);
+      let rows = from_startable(t.table);
+      console.info(rows);
+      rows.forEach(row => row.parent = t.key );
+      return rows // {key: t.key,table: rows}
+    }).flat();
+    // flat_table = [{id:'tabs',children:[]},...flat_table];
+    console.info('++++++++++++++ TABLES',flat_table);
+    return flat_table;
+  }
   
+  const build_tree = (datablock,parent) => {
+    // Get all tables and build hierarchy
+    let tables = get_tables(datablock);
+    let flat_table = flat_tables(tables);
+    let tab_count = parent.index;
+    flat_table.forEach(wdgt => {
+      console.log('WIDGET',wdgt);
+      // Attach the tab to the `toolset`
+      if (wdgt.widget == 'tab') {
+        console.log('ADD TAB',wdgt);
+        // wdgt.parent = db.id;
+        wdgt.index = tab_count;
+        wdgt.toolsetid = parent.id;
+        tab_count++;
+        parent.children.push(wdgt);
+      }
+      else if ('parent' in wdgt) {
+        // Update toolset info
+        wdgt.toolsetid = parent.id;
+        // Attach other widgets depending of their parent.
+        const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+        console.info('FIND PARENT',index,wdgt,flat_table[index]);
+        flat_table[index].children.push(wdgt);
+      }
+    });
+    return parent;
+  }
+
+  export const fetchRootFile = async filename => {
+    // Load and parse `grinder_spa.star`
+    const file = await fetch(filename);
+    const text = await file.text();
+    const all_of_them = [{dummy: '?'}];
+    
+    const obj = new StarGate();
+    obj.parseSTAR(text);
+    const left_panel = obj.datablock('grinder_spa').table('tool_panel');
+    console.info('PANEL',left_panel);
+    // Create items in left panel
+    w_leftpanel(document.querySelector('aside ul'),left_panel);
+    // Create Tools panel
+    let tools = [];
+    let tab_count = 1;
+    for (let tab of left_panel) {
+      console.info('Tab Data',tab);
+      // tab.path = 'spa/'+ tab.starfile.split('/')[0] + '/' //HACK
+      const _tmp = await fetchFile(tab.path + tab.starfile);
+      let db = _tmp.datablocks.default;
+      console.log('ROOT',db);
+      let root = {
+        id : db.id,
+        label: db.label,
+        widget:db.widget,
+        style: {display: 'none'},
+        parent:db.parent,
+        tab_count: tab_count, // Required by the click
+        children: []
+      };
+      // Get all tables and build hierarchy
+      let tables = get_tables(db);
+      let flat_table = flat_tables(tables);
+      flat_table.forEach(async wdgt => {
+        console.log('WIDGET',wdgt);
+        // Attach the tab to the `toolset`
+        if (wdgt.widget == 'toolmenu') {
+          console.log('ADD TOOLMENU',wdgt);
+          // wdgt.parent = db.id;
+          wdgt.index = tab_count;
+          tab_count++;
+          root.children.push(wdgt);
+        }
+        else if (wdgt.widget === 'radio_tool') {
+          // Load radio_tool (radio button + toolset)
+          const source = await fetchFile(tab.path + wdgt.filename);
+          console.info('SOURCE',tab.path + wdgt.filename,source);
+          // Create the toolset - parent of all the tool tabs
+          let toolset = Object.assign({}, wdgt);
+          toolset.widget = 'toolset';
+          toolset.index = tab_count;
+          toolset.parent = root.id;
+          tab_count += 4;
+          const tool = build_tree(source.datablocks.default,toolset);
+          console.info('THE TOOL',tool);
+          root.children.push(tool);
+          // Create the radio button
+          wdgt.id += '_radio';
+          wdgt.widget = 'radio';
+          wdgt.on_click = (e) => {
+            Array.from(document.querySelectorAll('.toolset')).map(el => el.style.display = 'none');
+            document.getElementById(toolset.id).style.display = 'block';
+          }
+          delete wdgt.children;
+          const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+          console.info('FIND PARENT',index,wdgt,flat_table[index]);
+          flat_table[index].children.push(wdgt);         
+        }
+        else if ('parent' in wdgt) {
+          // Attach other widgets depending of their parent.
+          const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+          console.info('FIND PARENT',index,wdgt,flat_table[index]);
+          flat_table[index].children.push(wdgt);
+        }
+      }); 
+      // Prepare all the widgets tree
+      console.info('TOOLS',root)
+
+      all_of_them.push(root);
+    }
+    return all_of_them;
+  }
+

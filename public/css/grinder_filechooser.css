@@ -1,0 +1,238 @@
+:root {
+    --ubuntu-orange: #E95420;
+    --ubuntu-gray-bg: #f6f5f4;
+    --ubuntu-border: #d1cfcd;
+}
+
+.popup-overlay { font-family: 'Ubuntu', sans-serif; background: #f0f0f0; }
+
+.popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    align-items: center; justify-content: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 10px;
+    width: 500px;
+    height: 600px;
+    border: 1px solid #bcbcbc;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* Header */
+.popup-header {
+    display: flex;
+    align-items: center;
+    height: 54px;
+    padding: 0 12px;
+    background: linear-gradient(to bottom, #f6f5f4, #edebe9);
+    border-bottom: 1px solid var(--ubuntu-border);
+    flex-shrink: 0;
+}
+
+.breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.breadcrumb-item {
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-weight: 500;
+    color: #3d3d3d;
+    transition: 0.2s;
+}
+
+.breadcrumb-item:hover { background: #e0e0e0; color: var(--ubuntu-orange); }
+
+.breadcrumb-separator { color: #aaa; }
+
+.breadcrumbs-wrapper {
+    display: flex;
+    align-items: center;
+    overflow: visible; /* CRITICAL: Change from hidden to visible */
+    flex-shrink: 1;
+    margin-right: 10px;
+}
+
+.breadcrumb-more {
+    position: relative;
+    display: inline-block;
+}
+
+/* The Dropdown Menu */
+.more-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    z-index: 100;
+    min-width: 120px;
+    padding: 5px 0;
+}
+
+.more-menu .menu-item {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.more-menu .menu-item:hover {
+    background-color: #f0f0f0;
+    color: var(--ubuntu-orange);
+}
+
+.breadcrumb-more:hover .more-menu {
+    display: block;
+}
+
+.hidden { display: none !important; }
+
+#file-search {
+    flex-grow: 1;
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid #cdc7c2;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline-color: var(--ubuntu-orange);
+}
+
+.close-btn {
+    width: 28px; height: 28px; margin-left: 10px;
+    border-radius: 50%; border: 1px solid #cdc7c2;
+    background: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* File List */
+.tree-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px;
+}
+
+.tree-node {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    border-bottom: 1px solid #f9f9f9;
+    transition: background 0.1s;
+}
+
+.tree-node:hover:not(.selected-file) { background-color: #f0f0f0; }
+
+.file-label {
+    flex: 1;
+    min-width: 0; /* Vital for truncation */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.95rem;
+}
+
+.selected-file {
+    background-color: var(--ubuntu-orange) !important;
+    color: #fff !important;
+}
+
+.selected-file i { color: #fff !important; }
+
+/* Trigger Button Styling */
+.open-trigger { padding: 10px 20px; cursor: pointer; }
+
+.popup-footer {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1.5fr; /* Left, Center, Right */
+    align-items: center;
+    height: 54px;
+    padding: 0 15px;
+    background: var(--ubuntu-gray-bg);
+    border-top: 1px solid var(--ubuntu-border);
+}
+
+.count-label {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.selection-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ubuntu-orange);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; /* Prevents long names from pushing buttons */
+    display: inline-block;
+}
+
+.status-left { justify-self: start; }
+.status-center { justify-self: center; }
+.action-buttons { justify-self: end; display: flex; gap: 8px; }
+
+/*
+.status-info {
+  font-size: 0.85rem;
+  color: #666;
+}
+*/
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--ubuntu-border);
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #fff;
+  color: #333;
+}
+
+.btn-cancel:hover { background: #f0f0f0; }
+
+.btn-open {
+  background: var(--ubuntu-orange);
+  color: #fff;
+  border-color: #d34817;
+}
+
+.btn-open:hover:not(:disabled) {
+  background: #ff6331;
+}
+
+.btn-open:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
