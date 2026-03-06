@@ -36,8 +36,8 @@ _motion.proc_id
 _motion.labelnew
 _motion.help
 _motion.filename
-rln_mc   "RELION Motion Correction"    radio_tool    1    relion.motioncorr.own    'RELIONs own implementation'    99.star
-mc2   "UCSF Motion Correction2"    radio_tool    1    relion.motioncorr.motioncor2    'MotionCorr executable'    98.star
+rln_mc   "RELION Motion Correction"    radio_tool    1    relion.motioncorr.own    'RELIONs own implementation'    01.star
+ucsf_mc   "UCSF Motion Correction2"    radio_tool    1    relion.motioncorr.motioncor2    'MotionCorr executable'    02.star
 #
 loop_
 _ctffind.id
@@ -47,4 +47,4 @@ _ctffind.proc_id
 _ctffind.labelnew
 _ctffind.help
 _ctffind.filename
-ctf         "CTFFIND 4.1"       radio_tool     2      "relion.ctffind"    "CTF with CTFFIND 4.1"    97.star
+ctf         "CTFFIND 4.1"       radio_tool     2      "relion.ctffind"    "CTF with CTFFIND 4.1"    03.star

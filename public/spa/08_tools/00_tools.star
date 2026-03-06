@@ -28,10 +28,16 @@ selection  'Subset selection'           bi-list-check            fieldset ? misc
 class_sel  'Automatic class selection'  bi-robot                 fieldset ? misc_tools ? 
 split_data 'Split data'                 bi-arrows-angle-expand   fieldset ? misc_tools ? 
 joinstar   'Join STAR files'            bi-arrows-angle-contract fieldset ? misc_tools ? 
-extras     'Extras'                     bi-bag-plus              fieldset ? misc_tools ? 
-
-
-
-
-
-
+extras     'Extras'                     bi-bag-plus              fieldset ? misc_tools ?
+#
+loop_
+_selection.id
+_selection.label 
+_selection.icon
+_selection.widget 
+_selection.default
+_selection.parent
+_selection.help
+subselect_class       "Select classes from job"                 radio_tool              7           ?           "?"             01.star
+subselect_mic         "Select from micrographs.star"            radio_tool              7           ?           "?"             02.star
+subselect_ptcls       "Select from particles.star"              radio_tool              7           ?           "?"             03.star
