@@ -38,5 +38,39 @@ _class2d.proc_id
 _class2d.labelnew
 _class2d.help   
 _class2d.filename
-class2d_em          "Expectation Maximisation Algorithm (EM)"    radio_tool   0       ?                '?'   99.star
-class2d_vdam        "VDAM Algorithm"                             radio_tool   0       ?                '?'   98.star
+class2d_em          "Expectation Maximisation Algorithm (EM)"    radio_tool   7       ?                '?'   99.star
+class2d_vdam        "VDAM Algorithm"                             radio_tool   7       ?                '?'   98.star
+#
+loop_
+_auto.id
+_auto.label        
+_auto.widget    
+_auto.proc_id 
+_auto.labelnew
+_auto.help   
+_auto.filename
+log_filter       "Laplacian of Gaussian filter"             radio_tool              4           ?           "?"             97.star
+ref2d           "Picking by 2D References"                  radio_tool              4           ?           "?"             96.star
+ref3d           "Picking by 3D References"                  radio_tool              4           ?           "?"             95.star
+#
+loop_
+_auto_topaz.id
+_auto_topaz.label        
+_auto_topaz.widget    
+_auto_topaz.proc_id 
+_auto_topaz.labelnew
+_auto_topaz.help   
+_auto_topaz.filename
+topaz_train     "Topaz Training"                 radio_tool              4           ?           "?"             94.star
+topaz_pick      "Topaz picking"                  radio_tool              4           ?           "?"             93.star
+#
+loop_
+_extract.id
+_extract.label        
+_extract.widget    
+_extract.proc_id 
+_extract.labelnew
+_extract.help   
+_extract.filename
+extract_ptcls       "Extract Particules"                 radio_tool              5           ?           "?"             92.star
+reextract_ptcls     "Re-extract Refined Particles"       radio_tool              5           ?           "?"             91.star

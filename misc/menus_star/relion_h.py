@@ -301,9 +301,10 @@ proc_grinder_settings = {
 	'PROC_IMPORT_OTHER_GRR'        : ("import_other", "'Import other files'", "radio_tool", PROC_IMPORT, PROC_IMPORT_LABELNEW + ".other", "'Import Other File'", "03.star"),
 	'PROC_MOTIONCORR_OWN_GRR'      : ("motioncor", "'Motion Correction'", "radio_tool", PROC_MOTIONCORR,PROC_MOTIONCORR_LABELNEW + ".own", "'RELIONs own implementation'", "01.star"), 
 	'PROC_MOTIONCORR_MC2_GRR'      : ("motioncor2", "'Motion Correction2'", "radio_tool", PROC_MOTIONCORR, PROC_MOTIONCORR_LABELNEW + ".motioncor2", "'MotionCorr executable'", "02.star"), 
+    'PROC_CTFFIND' 				   : ("ctf", "CTF with CTFFIND 4.1", "radio_tool", PROC_CTFFIND,PROC_CTFFIND_LABELNEW, "CTF with CTFFIND 4.1", "03.star"),
 
 	# A FAIRE
-	'PROC_CTFFIND':("ctf", "CTF with CTFFIND 4.1", "ctffind", "", PROC_CTFFIND,PROC_CTFFIND_DIRNAME,PROC_CTFFIND_LABELNEW),
+	
 	'PROC_MANUALPICK':(PROC_MANUALPICK,PROC_MANUALPICK_DIRNAME,PROC_MANUALPICK_LABELNEW),
 	'PROC_AUTOPICK':(PROC_AUTOPICK,PROC_AUTOPICK_DIRNAME,PROC_AUTOPICK_LABELNEW),
 	'PROC_EXTRACT':(PROC_EXTRACT,PROC_EXTRACT_DIRNAME,PROC_EXTRACT_LABELNEW),
@@ -336,15 +337,15 @@ proc_grinder_settings = {
 }
 
 job_sampling_options = [
-    "30 degrees",
-    "15 degrees",
-    "7.5 degrees",
-    "3.7 degrees",
-    "1.8 degrees",
-    "0.9 degrees",
-    "0.5 degrees",
-    "0.2 degrees",
-    "0.1 degrees"
+    ("30 degrees",0),
+    ("15 degrees",1),
+    ("7.5 degrees",2),
+    ("3.7 degrees",3),
+    ("1.8 degrees",4),
+    ("0.9 degrees",5),
+    ("0.5 degrees",6),
+    ("0.2 degrees",7),
+    ("0.1 degrees",8)
 ]
 
 # job_nodetype_options = [

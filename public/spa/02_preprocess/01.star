@@ -1,4 +1,5 @@
-
+data_
+#
 loop_
 _tabs.id
 _tabs.label
@@ -11,7 +12,6 @@ io       'I/O'                    bi-arrow-down-up       tab ? ? ?
 settings 'Settings'               bi-tools               tab ? ? ?
 log      'Logs'                   bi-binoculars-fill     tab ? ? ?
 result   'DataViz'                bi-eye                 tab ? ? ?
-
 #
 loop_
 _io.id
@@ -20,7 +20,8 @@ _io.icon
 _io.widget
 _io.default
 _io.help
-indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help' 
+indata   'Input'       bi-arrow-bar-down      fieldset ?      'No Help'
+rln_cli  'Check Command'   ?                    cli      ? 'No Help'
 #
 loop_
 _settings.id
@@ -29,8 +30,10 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help' 
-#
+general  'General'      bi-chat-right-text     fieldset ?      'No Help'
+use_gpu     'GPU'       ?                       fieldset    ?       ''
+process   'Parallel computing'  ?                   fieldset ?      ''
+##
 loop_
 _indata.id
 _indata.label
@@ -163,7 +166,6 @@ gpu_ids 'Which GPUs to use:' string '' ? ? ?
 ;This argument is not necessary. If left empty, the job itself will try to allocate available GPU resources. You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use. MPI-processes are separated by ':', threads by ','. For example: '0,0:1,1:0,0:1,1'
 ;
 #
-
 loop_
 _process.id
 _process.label

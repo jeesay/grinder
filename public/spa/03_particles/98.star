@@ -34,7 +34,7 @@ _indata.arg0
 _indata.arg1
 _indata.arg2
 _indata.help
-fn_img               "Input images STAR file:"           file       LABEL_PARTS_CPIPE "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" 1               ?               
+fn_img               "Input images STAR file:"           node       LABEL_PARTS_CPIPE "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" 1               ?               
 ; A STAR file with all images (and their metadata).
 
  

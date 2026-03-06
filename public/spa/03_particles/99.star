@@ -20,7 +20,6 @@ _io.widget
 _io.value
 _io.help
 indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          ?
-indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          ?
 outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          ?
 nodes                "Nodes"                                  bi-controller        fieldset   ?          ?
 system               "System"                                 bi-incognito         fieldset   ?          ?
@@ -42,11 +41,6 @@ fn_img               "Input images STAR file:"           node       LABEL_PARTS_
  Alternatively, you may give a Spider/MRC stack of 2D images, but in that case NO metadata can be included and thus NO CTF correction can be performed, nor will it be possible to perform noise spectra estimation or intensity scale corrections in image groups.
 Therefore, running RELION with an input stack will in general provide sub-optimal results and is therefore not recommended!! Use the Preprocessingrh.PROCedure to get the input STAR file in a semi-automated manner.
 Read the RELION wiki for more information.
-;
-fn_cont              "Continue from here: "              file       ?               "STAR Files (*_optimiser.star)" CURRENT_ODIR    ?               
-; Select the *_optimiser.star file for the iteration from which you want to continue a previous run.
-Note that the Output rootname of the continued run and the rootname of the previous run cannot be the same.
-If they are the same, the program will automatically add a '_ctX' to the output rootname, with X being the iteration from which one continues the previous run.
 ;
 #
 loop_

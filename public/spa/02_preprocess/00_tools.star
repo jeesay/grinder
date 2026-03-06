@@ -26,7 +26,7 @@ _tool_menu.parent
 _tool_menu.help
 motion 'Motion Correction'  bi-graph-up  fieldset ? prep_tools ?
 ctffind 'CTF Estimation'    bi-bullseye  fieldset ? prep_tools ?
-curation 'Micrograpĥ Curation' bi-check2-square  fieldset ? prep_tools ?
+curation 'Micrograph Curation' bi-check2-square  fieldset ? prep_tools ?
 #
 loop_
 _motion.id
@@ -37,4 +37,14 @@ _motion.labelnew
 _motion.help
 _motion.filename
 rln_mc   "RELION Motion Correction"    radio_tool    1    relion.motioncorr.own    'RELIONs own implementation'    99.star
-mc2   "UCSF Motion Correction2"    radio_tool    1    relion.motioncorr.motioncor2    'MotionCorr executable'    02.star
+mc2   "UCSF Motion Correction2"    radio_tool    1    relion.motioncorr.motioncor2    'MotionCorr executable'    98.star
+#
+loop_
+_ctffind.id
+_ctffind.label
+_ctffind.widget
+_ctffind.proc_id
+_ctffind.labelnew
+_ctffind.help
+_ctffind.filename
+ctf         "CTFFIND 4.1"       radio_tool     2      "relion.ctffind"    "CTF with CTFFIND 4.1"    97.star

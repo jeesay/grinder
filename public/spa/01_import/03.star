@@ -1,13 +1,13 @@
 data_
 #
 loop_
-_import_other.id
-_import_other.label
-_import_other.icon
-_import_other.widget
-_import_other.default
-_import_other.parent
-_import_other.help
+_tabs.id
+_tabs.label
+_tabs.icon
+_tabs.widget
+_tabs.default
+_tabs.parent
+_tabs.help
 io       'I/O'                    bi-arrow-down-up       tab ? ? ?
 settings 'Settings'               bi-tools               tab ? ? ?
 log      'Logs'                   bi-binoculars-fill     tab ? ? ?
@@ -29,8 +29,8 @@ _settings.icon
 _settings.widget
 _settings.default
 _settings.help
-general  'General'      bi-chat-right-text     fieldset ?      'No Help' 
-#
+general  'General'      bi-chat-right-text     fieldset ?      'No Help'
+##
 loop_
 _indata.id
 _indata.label

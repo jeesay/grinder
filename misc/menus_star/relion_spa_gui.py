@@ -1,7 +1,7 @@
 import relion_h as rh
 import relion_option as rno
 
-def initialiseImportJob(is_tomo):
+def initialiseImportJob(is_tomo, job_type=""):
     joboptions = {}
     hidden_name = ".gui_import"
 
@@ -23,7 +23,7 @@ Although that is probably slightly less accurate, the overall quality of your ma
     joboptions["Q0"] = rno.JobOption("Amplitude contrast:", 0.1, 0, 0.3, 0.01, """Fraction of amplitude contrast. Often values around 10% work better than theoretically more accurate lower values...""")
     joboptions["beamtilt_x"] = rno.JobOption("Beamtilt in X (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the X-direction (in mrad). Set to zero if unknown.""")
     joboptions["beamtilt_y"] = rno.JobOption("Beamtilt in Y (mrad):", 0.0, -1.0, 1.0, 0.1, """Known beamtilt in the Y-direction (in mrad). Set to zero if unknown.""")
-
+    
 
     joboptions["do_other"] = rno.JobOptionIO("Import other node types?", False, "Set this to Yes if you plan to import anything else than movies or micrographs")
 
@@ -34,11 +34,11 @@ Note that movie-particle STAR files cannot be imported from a previous version o
 For the import of a particle, 2D references or micrograph STAR file or of a 3D reference or mask, only a single file can be imported at a time. \n \n \
 Note that due to a bug in a fltk library, you cannot import from directories that contain a substring  of the current directory, e.g. dont important from /home/betagal if your current directory is called /home/betagal_r2. In this case, just change one of the directory names.""")
 
-    joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_particles, 0, "Select the type of Node this is.")
-    joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
+    if job_type == "ptcls" :
+        joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_particles, 0, "Select the type of Node this is.")
+    elif job_type == "other" :
+        joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_other, 0, "Select the type of Node this is.")
 
-
-    joboptions["node_type"] = rno.JobOption("Node type:", rh.job_nodetype_options_other, 0, "Select the type of Node this is.")
     joboptions["optics_group_particles"] = rno.JobOption("Rename optics group for particles:", "", """Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.""")
 
     return hidden_name,joboptions
