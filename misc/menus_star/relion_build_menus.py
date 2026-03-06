@@ -20,14 +20,17 @@ def write_starfile(t,filename,flag_mpi, flag_thread):
     with open(filename, 'w') as f:
         f.write(t.to_star())
 
-def update_fieldset(tool,fs,jo,params):
+def update_fieldset(tool,   fs,jo,params):
     # fieldset = rho.Table(fs_data.fsid, fs_data.fsname, icon = "", widget = "fieldset")
     removed = []
     fs_options = []
     for wdgt in fs:
         if wdgt.id in params:
             # Create the widget with joboptions
+            if jo[wdgt.id].widget == 'node':
+                jo[wdgt.id].widget = 'file'
             wdgt.set_options(jo[wdgt.id])
+            # Create the widget select + options 
             if jo[wdgt.id].widget == 'select':
                 fs_opt = rwi.Fieldset(fs, wdgt.id,"Options")
                 fs_opt.group = rwi.group8
@@ -45,7 +48,7 @@ def update_fieldset(tool,fs,jo,params):
     print('REMOVED',removed)
     for rm in removed:
         fs.delete(rm)
-    
+
     # If fieldset not empty, append to tab
     tab = 'io' if fs.fsid == 'indata' else 'settings'
     if not fs.is_empty():
@@ -54,8 +57,9 @@ def update_fieldset(tool,fs,jo,params):
         for fo in fs_options:
             tool.append_fieldset(fo,tab)
     return tool
+
         
-def update_system_fieldset(tool,fs,jo,params):
+def update_system_fieldset(tool, has_mpi, has_thread, fs,jo,params):
     # Create fieldset `outdata`
     fout = rwi.Fieldset(fs.parent,"outdata","Output Data",icon="bi-box-arrow-down")
     fout.group = rwi.group6
@@ -85,6 +89,26 @@ def update_system_fieldset(tool,fs,jo,params):
     fcli.group = rwi.group9
     fcli.current_group = rwi.group9
     tool.append_fieldset(fcli,'io')
+
+    fs_compute = None
+    if (has_mpi or has_thread) and fs_compute == None :
+        # create mpi 
+        fs_compute = rwi.Fieldset(fs, 'parallel_computing',"Parallel Computing")
+        tool.append_fieldset(fs_compute,'settings')
+    if has_mpi :
+        # create mpi
+        wmpi = rwi.Widget(fs,'nr_mpi',fs_compute.parent)
+        jo = rho.JobOption()
+        jo.init_slider("Number of MPI procs:", '{QSUB_NRMPI_VAL}', 1, '{RELION_MPI_MAX}', 1, "Number of MPI nodes to use in parallel. When set to 1, MPI will not be used. The maximum can be set through the environment variable RELION_MPI_MAX.")
+        wmpi.set_options(jo)
+        fs_compute.append(wmpi)
+    if has_thread :
+        # create thread
+        wthread = rwi.Widget(fs,'nr_threads',fs_compute.parent)
+        jo = rho.JobOption()
+        jo.init_slider("Number of threads:", '{QSUB_NRTHREADS_VAL}', 1, "{RELION_THREAD_MAX}", 1, "Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used. The maximum can be set through the environment variable RELION_THREAD_MAX.")
+        wthread.set_options(jo)
+        fs_compute.append(wthread)
     return tool
 
 ################## RELION SPA FUNCTIONS ##################
@@ -122,9 +146,9 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 3. Build
     groups = rwi.initialiseImportWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_raw)
+        tool = update_fieldset(tool,   fs_params,jo,keys_raw)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_raw)
+    tool = update_system_fieldset(tool, has_mpi, has_thread, groups.groups[0], jo, system_raw)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -143,9 +167,9 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 3. Build
     groups = rwi.initialiseImportWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_ptcls)
+        tool = update_fieldset(tool,   fs_params,jo,keys_ptcls)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_other)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_other)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -164,9 +188,9 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 3. Build
     groups = rwi.initialiseImportWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_other)
+        tool = update_fieldset(tool,   fs_params,jo,keys_other)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_other)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_other)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -210,9 +234,9 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     # 3. Build
     groups = rwi.initialiseMotioncorrWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_rln)
+        tool = update_fieldset(tool,   fs_params,jo,keys_rln)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_rln)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_rln)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -229,9 +253,9 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     # 3. Build
     groups = rwi.initialiseMotioncorrWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_ucsf)
+        tool = update_fieldset(tool,   fs_params,jo,keys_ucsf)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_ucsf)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_ucsf)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -262,9 +286,9 @@ def initialiseCtffindJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseCtffindWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys)
+        tool = update_fieldset(tool,   fs_params,jo,keys)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -372,9 +396,9 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseAutopickWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_log)
+        tool = update_fieldset(tool,   fs_params,jo,keys_log)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_log)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_log)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -392,9 +416,9 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseAutopickWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_ref2d)
+        tool = update_fieldset(tool,   fs_params,jo,keys_ref2d)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_ref2d)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_ref2d)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -412,9 +436,9 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseAutopickWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_ref3d)
+        tool = update_fieldset(tool,   fs_params,jo,keys_ref3d)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_ref3d)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_ref3d)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -432,9 +456,9 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseAutopickWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_topaz_train)
+        tool = update_fieldset(tool,   fs_params,jo,keys_topaz_train)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_topaz_train)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_topaz_train)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -452,9 +476,9 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseAutopickWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_topaz_pick)
+        tool = update_fieldset(tool,   fs_params,jo,keys_topaz_pick)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_topaz_pick)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_topaz_pick)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -504,9 +528,9 @@ def initialiseExtractJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseExtractWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys)
+        tool = update_fieldset(tool,   fs_params,jo,keys)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -524,9 +548,9 @@ def initialiseExtractJob(has_mpi = True, has_thread = False):
     # 3. Build
     groups = rwi.initialiseExtractWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_re)
+        tool = update_fieldset(tool,   fs_params,jo,keys_re)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_re)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_re)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -583,9 +607,9 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
     # 3. Build
     groups = rwi.initialiseClass2DWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_em)
+        tool = update_fieldset(tool,   fs_params,jo,keys_em)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_em)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_em)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -604,9 +628,9 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
     # 3. Build
     groups = rwi.initialiseClass2DWindow()
     for fs_params in groups:
-        tool = update_fieldset(tool,fs_params,jo,keys_vdam)
+        tool = update_fieldset(tool,   fs_params,jo,keys_vdam)
 
-    tool = update_system_fieldset(tool, groups.groups[0], jo, system_vdam)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_vdam)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'

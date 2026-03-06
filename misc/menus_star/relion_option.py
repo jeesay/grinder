@@ -42,6 +42,8 @@ class JobOption:
             self.init_innode(*args)
         elif len(args) == 8: 
             self.init_widget(*args)
+        elif len(args) == 0 :
+            pass
         else:
           print('Unknown widget',args[0])
     
