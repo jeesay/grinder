@@ -1,12 +1,12 @@
 data_
 #
 loop_
-_inimodel.id
-_inimodel.label
-_inimodel.icon
-_inimodel.widget
-_inimodel.value
-_inimodel.help
+_multibody.id
+_multibody.label
+_multibody.icon
+_multibody.widget
+_multibody.value
+_multibody.help
 io                   "I/O"                      bi-arrow-down-up    tab              ?        ?
 settings             "Settings"                bi-tools             tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
@@ -23,7 +23,7 @@ indata               "Input Data"                             bi-box-arrow-in-do
 outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          ?
 nodes                "Nodes"                                  bi-controller        fieldset   ?          ?
 system               "System"                                 bi-incognito         fieldset   ?          ?
-inimodel_cmd         "Check command"                          bi-chat-right-text   cli        ?          ?
+multibody_cmd        "Check command"                          bi-chat-right-text   cli        ?          ?
 #
 loop_
 _indata.id
@@ -34,15 +34,34 @@ _indata.arg0
 _indata.arg1
 _indata.arg2
 _indata.help
-fn_img               "Input images STAR file:"           file       LABEL_PARTS_CPIPE "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" 1               ?               
-; A STAR file with all images (and their metadata).
-In Gradient optimisation, it is very important that there are particles from enough different orientations.
-One only needs a few thousand to 10k particles.
-When selecting good 2D classes in the Subset Selection jobtype, use the option to select a maximum number of particles from each class to generate more even angular distributions for SGD.
+fn_in                "Consensus refinement optimiser.star: " file       ?               "STAR Files (run_it*_optimiser.star)" Refine3D/.      ?               
+; Select the *_optimiser.star file for the iteration of the consensus refinement from which you want to start multi-body refinement.
+;
+fn_bodies            "Body STAR file:"                   file       ?               "STAR Files (*.{star})" .               ?               
+;  Provide the STAR file with all information about the bodies to be used in multi-body refinement.
+An example for a three-body refinement would look like this: 
+
+data_
+loop_
+_rlnBodyMaskName
+_rlnBodyRotateRelativeTo
+_rlnBodySigmaAngles
+_rlnBodySigmaOffset
+large_body_mask.mrc 2 10 2
+small_body_mask.mrc 1 10 2
+head_body_mask.mrc 2 10 2
+
+Where each data line represents a different body, and: 
+  - rlnBodyMaskName contains the name of a soft-edged mask with values in [0,1] that define the body; 
+ - rlnBodyRotateRelativeTo defines relative to which other body this body rotates (first body is number 1) 
+ - rlnBodySigmaAngles and _rlnBodySigmaOffset are the standard deviations (widths) of Gaussian priors on the consensus rotations and translations; 
+
+ Optionally, there can be a fifth column with _rlnBodyReferenceName.
+Entries can be 'None' (without the ''s) or the name of a MRC map with an initial reference for that body.
+In case the entry is None, the reference will be taken from the density in the consensus refinement.
  
- Alternatively, you may give a Spider/MRC stack of 2D images, but in that case NO metadata can be included and thus NO CTF correction can be performed, nor will it be possible to perform noise spectra estimation or intensity scale corrections in image groups.
-Therefore, running RELION with an input stack will in general provide sub-optimal results and is therefore not recommended!! Use the Preprocessingrh.PROCedure to get the input STAR file in a semi-automated manner.
-Read the RELION wiki for more information.
+Also note that larger bodies should be above smaller bodies in the STAR file.
+For more information, see the multi-body paper.
 ;
 #
 loop_
@@ -74,16 +93,20 @@ _system.arg0
 _system.arg1
 _system.arg2
 _system.help
+do_analyse           "Run flexibility analysis?"         bool       false           "?"             ?               ?               
+; If set to Yes, after the multi-body refinement has completed, a PCA analysis will be run on the orientations all all bodies in the data set.
+This can be set to No initially, and then the job can be continued afterwards to only perform this analysis.
+;
 #
 loop_
-_inimodel_cmd.id
-_inimodel_cmd.label
-_inimodel_cmd.widget
-_inimodel_cmd.default
-_inimodel_cmd.arg0
-_inimodel_cmd.arg1
-_inimodel_cmd.arg2
-_inimodel_cmd.help
+_multibody_cmd.id
+_multibody_cmd.label
+_multibody_cmd.widget
+_multibody_cmd.default
+_multibody_cmd.arg0
+_multibody_cmd.arg1
+_multibody_cmd.arg2
+_multibody_cmd.help
 #
 loop_
 _settings.id
@@ -92,30 +115,13 @@ _settings.icon
 _settings.widget
 _settings.value
 _settings.help
-do_ctf_correction    "Do CTF-correction?"                     bi-chat-right-text   switch     ?          ?
 general              "General"                                bi-chat-right-text   fieldset   ?          ?
 params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
+sampling             "Options"                                bi-chat-right-text   fieldset   ?          ?
 diskio               "Disk Management"                        bi-chat-right-text   fieldset   ?          ?
-params_03            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
+params_02            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
 use_gpu              "Use GPU acceleration?"                  bi-chat-right-text   switch     ?          ?
 parallel_computing   "Parallel Computing"                     bi-chat-right-text   fieldset   ?          ?
-#
-loop_
-_do_ctf_correction.id
-_do_ctf_correction.label
-_do_ctf_correction.widget
-_do_ctf_correction.default
-_do_ctf_correction.arg0
-_do_ctf_correction.arg1
-_do_ctf_correction.arg2
-_do_ctf_correction.help
-ctf_intact_first_peak "Ignore CTFs until first peak?"     bool       false           "?"             ?               ?               
-; If set to Yes, then CTF-amplitude correction will only be performed from the first peak of each CTF onward.
-This can be useful if the CTF model is inadequate at the lowest resolution.
-Still, in general using higher amplitude contrast on the CTFs (e.g.
-10-20%) often yields better results.
-Therefore, this option is not generally recommended: try increasing amplitude contrast (in your input STAR file) first!
-;
 #
 loop_
 _general.id
@@ -126,19 +132,11 @@ _general.arg0
 _general.arg1
 _general.arg2
 _general.help
-nr_iter              "Number of VDAM mini-batches:"      range      200             50              500             10              
-; How many iterations (i.e.
-mini-batches) to perform with the VDAM algorithm?
-;
-tau_fudge            "Regularisation parameter T:"       range      4               0.1             10              0.1             
-; Bayes law strictly determines the relative weight between the contribution of the experimental data and the prior.
-However, in practice one may need to adjust this weight to put slightly more weight on the experimental data to allow optimal results.
-Values greater than 1 for this regularisation parameter (T in the JMB2011 paper) put more weight on the experimental data.
-Values around 2-4 have been observed to be useful for 3D initial model calculations
-;
-nr_classes           "Number of classes:"                range      1               1               50              1               
-; The number of classes (K) for a multi-reference ab initio SGD refinement.
-These classes will be made in an unsupervised manner, starting from a single reference in the initial iterations of the SGD, and the references will become increasingly dissimilar during the inbetween iterations.
+do_subtracted_bodies "Reconstruct subtracted bodies?"    bool       true            "?"             ?               ?               
+; If set to Yes, then the reconstruction of each of the bodies will use the subtracted images.
+This may give useful insights about how well the subtraction worked.
+If set to No, the original particles are used for reconstruction (while the subtracted ones are still used for alignment).
+This will result in fuzzy densities for bodies outside the one used for refinement.
 ;
 #
 loop_
@@ -150,19 +148,46 @@ _params_01.arg0
 _params_01.arg1
 _params_01.arg2
 _params_01.help
-particle_diameter    "Mask diameter (A):"                range      200             0               1000            10              
-; The experimental images will be masked with a soft circular mask with this diameter.
-Make sure this radius is not set too small because that may mask away part of the signal! If set to a value larger than the image size no masking will be performed.
+do_blush             "Use Blush regularisation?"         bool       false           "?"             ?               ?               
+; If set to Yes, relion_refine will use a neural network to perform regularisation by denoising at every iteration, instead of the standard smoothness regularisation.
+;
+sampling             "Initial angular sampling:"         select     4               4               ?               ?               
+; There are only a few discrete angular samplings possible because we use the HealPix library to generate the sampling of the first two Euler angles on the sphere.
+The samplings are approximate numbers and vary slightly over the sphere.
 
-The same diameter will also be used for a spherical mask of the reference structures if no user-provided mask is specified.
+ Note that this will only be the value for the first few iteration(s): the sampling rate will be increased automatically after that.
 ;
-do_solvent           "Flatten and enforce non-negative solvent?" bool       true            "?"             ?               ?               
-; If set to Yes, the job will apply a spherical mask and enforce all values in the reference to be non-negative.
+offset_range         "Initial offset range (pix):"       range      3               0               30              1               
+; Probabilities will be calculated only for translations in a circle with this radius (in pixels).
+The center of this circle changes at every iteration and is placed at the optimal translation for each image in the previous iteration.
+
+ Note that this will only be the value for the first few iteration(s): the sampling rate will be increased automatically after that.
 ;
-sym_name             "Symmetry:"                         string     C1              "?"             ?               ?               
-; The initial model is always generated in C1 and then aligned to and symmetrized with the specified point group.
-If the automatic alignment fails, please manually rotate run_itNNN_class001.mrc (NNN is the number of iterations) so that it conforms the symmetry convention.
+offset_step          "Initial offset step (pix):"        range      0.75            0.1             5               0.1             
+; Translations will be sampled with this step-size (in pixels).Translational sampling is also done using the adaptive approach.
+Therefore, if adaptive=1, the translations will first be evaluated on a 2x coarser grid.
+
+ Note that this will only be the value for the first few iteration(s): the sampling rate will be increased automatically after that.
 ;
+#
+loop_
+_sampling.id
+_sampling.label
+_sampling.widget
+_sampling.default
+_sampling.arg0
+_sampling.arg1
+_sampling.arg2
+_sampling.help
+sampling_opt_00      "30 degrees"                        option     0               "?"             ?               ?               "?"
+sampling_opt_01      "15 degrees"                        option     1               "?"             ?               ?               "?"
+sampling_opt_02      "7.5 degrees"                       option     2               "?"             ?               ?               "?"
+sampling_opt_03      "3.7 degrees"                       option     3               "?"             ?               ?               "?"
+sampling_opt_04      "1.8 degrees"                       option     4               "?"             ?               ?               "?"
+sampling_opt_05      "0.9 degrees"                       option     5               "?"             ?               ?               "?"
+sampling_opt_06      "0.5 degrees"                       option     6               "?"             ?               ?               "?"
+sampling_opt_07      "0.2 degrees"                       option     7               "?"             ?               ?               "?"
+sampling_opt_08      "0.1 degrees"                       option     8               "?"             ?               ?               "?"
 #
 loop_
 _diskio.id
@@ -190,20 +215,26 @@ If it is set to 3 and one uses 8 threads, batches of 3x8=24 particles will be re
 This may improve performance on systems where disk access, and particularly metadata handling of disk access, is a problem.
 It has a modest cost of increased RAM usage.
 ;
+do_pad1              "Skip padding?"                     bool       false           "?"             ?               ?               
+; If set to Yes, the calculations will not use padding in Fourier space for better interpolation in the references.
+Otherwise, references are padded 2x before Fourier transforms are calculated.
+Skipping padding (i.e.
+use --pad 1) gives nearly as good results as using --pad 2, but some artifacts may appear in the corners from signal that is folded back.
+;
 #
 loop_
-_params_03.id
-_params_03.label
-_params_03.widget
-_params_03.default
-_params_03.arg0
-_params_03.arg1
-_params_03.arg2
-_params_03.help
+_params_02.id
+_params_02.label
+_params_02.widget
+_params_02.default
+_params_02.arg0
+_params_02.arg1
+_params_02.arg2
+_params_02.help
 do_preread_images    "Pre-read all particles into RAM?"  bool       false           "?"             ?               ?               
 ; If set to Yes, all particle images will be read into computer memory, which will greatly speed up calculations on systems with slow disk access.
 However, one should of course be careful with the amount of RAM available.
-Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM.
+Because particles are read in float-precision, it will take ( N * box_size * box_size * 8 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM.
 For 100 thousand 200x200 images, that becomes 15Gb, or 60 Gb for the same number of 400x400 particles.
 Remember that running a single MPI follower on each node that runs as many threads as available cores will have access to all available RAM.
 
@@ -242,7 +273,7 @@ gpu_ids              "Which GPUs to use:"                string                 
 If left empty, the job itself will try to allocate available GPU resources.
 You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use.
 MPI-processes are separated by ':', threads by ','.
-For example: '0,0:1,1:0,0:1,1'
+ For example: '0,0:1,1:0,0:1,1'
 ;
 #
 loop_

@@ -28,7 +28,36 @@ _tool_menu.help
 ab_initio     'Ab initio'           bi-box       fieldset ? 3d_tools ?
 class_3d      '3D Classification'   bi-boxes     fieldset ? 3d_tools ?
 refine        'Refinement'          bi-crosshair fieldset ? 3d_tools ?
-
-
-
-
+#
+loop_
+_ab_initio.id
+_ab_initio.label        
+_ab_initio.widget    
+_ab_initio.proc_id 
+_ab_initio.labelnew
+_ab_initio.help   
+_ab_initio.filename
+inimodel        '3D initial référence'      radio_tool      18       relion.initialmodel     "?"        01.star
+#
+loop_
+_class_3d.id
+_class_3d.label        
+_class_3d.widget    
+_class_3d.proc_id 
+_class_3d.labelnew
+_class_3d.help   
+_class_3d.filename
+3d_align        '3D Classification with image alignment'        radio_tool      9       relion.class3d.align    "?"     02.star
+3d_skip_align   '3D Classification'                             radio_tool      9       relion.class3d          "?"     03.star
+#
+loop_
+_refine.id
+_refine.label        
+_refine.widget    
+_refine.proc_id 
+_refine.labelnew
+_refine.help   
+_refine.filename
+autorefine      '3D Auto-Refine'                                  radio_tool      10          relion.refine3d           "?"             04.star
+multibody_flex  '3D Multi-body with flexibility analysis'         radio_tool      19          relion.multibody.flex     "?"             05.star
+multibody       '3D Multi-body'                                   radio_tool      19          relion.multibody          "?"             06.star

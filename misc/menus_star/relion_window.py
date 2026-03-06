@@ -126,7 +126,8 @@ class FsGroup:
         return '\n'.join([str(fs) for fs in self.groups])
 
 def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True,force=False):
-    if 'fn_in' in id or 'input_' in id or "fn_img" in id or "fn_cont" in id or id == "fn_ref" or id == "fn_mask" or id == "star_mics" or id == "coords_suffix":
+    name_list = ["fn_cont", "fn_ref", "fn_mask", "star_mics", "coords_suffix", "fn_model", "fn_mic", "fn_data", "fn_bodies"]
+    if 'fn_in' in id or 'input_' in id or "fn_img" in id or id in name_list :
         parent.fsid = 'indata'
         parent.fsname = '"Input Data"'
         parent.icon = 'bi-box-arrow-in-down'
@@ -765,13 +766,11 @@ def initialiseClass3DWindow(is_tomo=False):
     grp = place(grp,"do_blush", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups, "dont_skip_align", "Perform image alignment?", type="switch")
-    # grp = place(grp,"dont_skip_align", TOGGLE_LEAVE_ACTIVE, group3)
+    grp =Fieldset(groups, "dont_skip_align_fs", "Perform image alignment")
+    grp = place(grp,"dont_skip_align", TOGGLE_LEAVE_ACTIVE, group3)
     grp = place(grp,"sampling")
     grp = place(grp,"offset_range")
     grp = place(grp,"offset_step")
-
-    # grp =Fieldset(groups)
     grp = place(grp,"allow_coarser")
     grp.end()
 
@@ -780,9 +779,7 @@ def initialiseClass3DWindow(is_tomo=False):
     grp = place(grp,"sigma_angles")
     grp = place(grp,"relax_sym")
     grp.end()
-    
 
-    
     grp =Fieldset(groups)
     grp = place(grp,"sigma_tilt", TOGGLE_DEACTIVATE)
     # helix_text", TOGGLE_DEACTIVATE) # (current_y, "Nov 21, 2015")
@@ -829,16 +826,14 @@ def initialiseClass3DWindow(is_tomo=False):
 
 def initialiseAutorefineWindow(is_tomo=False):
     groups = FsGroup()
-    grp = Fieldset(groups)
-    grp = placeTomoInput(True, True, True, False)
-    grp = place(grp,"fn_img", TOGGLE_DEACTIVATE)
-    grp.end()
     
-    grp =Fieldset(groups)
+    grp = Fieldset(groups)
+    # grp = placeTomoInput(True, True, True, False)
+    grp = place(grp,"fn_img", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_ref", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mask")
     grp.end()
-    
+
     grp =Fieldset(groups)
     grp = place(grp,"fn_cont", TOGGLE_REACTIVATE)
     grp.end("cont")
@@ -930,15 +925,13 @@ def initialiseMultiBodyWindow(is_tomo=False):
     groups = FsGroup()
     grp = Fieldset(groups)
     grp = place(grp,"fn_in", TOGGLE_DEACTIVATE)
+    grp = place(grp,"fn_bodies", TOGGLE_DEACTIVATE)
     grp.end()
     
     grp =Fieldset(groups)
     grp = place(grp,"fn_cont", TOGGLE_REACTIVATE)
     grp.end("cont")
     
-    grp =Fieldset(groups)
-    grp = place(grp,"fn_bodies", TOGGLE_DEACTIVATE)
-    grp.end()
     
     grp =Fieldset(groups)
     grp = place(grp,"do_subtracted_bodies", TOGGLE_DEACTIVATE)
@@ -951,13 +944,13 @@ def initialiseMultiBodyWindow(is_tomo=False):
     grp = place(grp,"offset_step", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups,"do_analyse", "Run flexibility analysis?", type="switch")
-    # grp = place(grp,"do_analyse", TOGGLE_LEAVE_ACTIVE, group5)
+    grp =Fieldset(groups,"do_analyse_fs", "Run flexibility analysis")
+    grp = place(grp,"do_analyse", TOGGLE_LEAVE_ACTIVE, group5)
     grp = place(grp,"nr_movies")
     grp.end()
     
     grp =Fieldset(groups, "do_select", "Select particles based on eigenvalues?", type="switch")
-    grp = place(grp,"do_select", TOGGLE_LEAVE_ACTIVE, group6)
+    # grp = place(grp,"do_select", TOGGLE_LEAVE_ACTIVE, group6)
     grp = place(grp,"select_eigenval")
     grp = place(grp,"eigenval_min")
     grp = place(grp,"eigenval_max")

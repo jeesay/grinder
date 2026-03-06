@@ -156,7 +156,7 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/01_import/99.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/01_import/01.star',has_mpi, has_thread)
 
     #####  Import PARTICLES 
 
@@ -177,7 +177,7 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/01_import/98.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/01_import/02.star',has_mpi, has_thread)
 
     #####  Import OTHER 
 
@@ -198,7 +198,7 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/01_import/97.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/01_import/03.star',has_mpi, has_thread)
 
 def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
 
@@ -228,7 +228,7 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
 
     #####   RELION implementation
     # 1. Create tool and tabs
-    tool = create_tool('relion_mc',['io','settings','log','dataviz'])
+    tool = create_tool('rln_mc',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseMotioncorrJob(False)
     # 3. Build
@@ -244,10 +244,11 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/02_preprocess/99.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/02_preprocess/01.star',has_mpi, has_thread)
 
     #####   UCSF implementation
-    # 1. Create tool and tabs+
+    # 1. Create tool and tabs
+    tool = create_tool('ucsf_mc',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseMotioncorrJob(False)
     # 3. Build
@@ -263,7 +264,7 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/02_preprocess/98.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/02_preprocess/02.star',has_mpi, has_thread)
 
 def initialiseCtffindJob(has_mpi = True, has_thread = False):
     # has_gpu = False
@@ -296,7 +297,7 @@ def initialiseCtffindJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/02_preprocess/97.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/02_preprocess/03.star',has_mpi, has_thread)
 
 
 def initialiseManualpickJob(has_mpi = False, has_thread = False):
@@ -406,7 +407,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/97.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/01.star',has_mpi, has_thread)
 
     #####  2D References
     # 1. Create tool and tabs
@@ -426,7 +427,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/96.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/02.star',has_mpi, has_thread)
 
     #####  3D References
     # 1. Create tool and tabs
@@ -446,7 +447,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/95.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/03.star',has_mpi, has_thread)
 
     #####  Topaz Training
     # 1. Create tool and tabs
@@ -466,7 +467,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/94.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/04.star',has_mpi, has_thread)
 
     #####  Topaz Picker
     # 1. Create tool and tabs
@@ -486,7 +487,7 @@ def initialiseAutopickJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/93.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/05.star',has_mpi, has_thread)
 
 
 def initialiseExtractJob(has_mpi = True, has_thread = False):
@@ -538,7 +539,7 @@ def initialiseExtractJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/92.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/06.star',has_mpi, has_thread)
 
     #####  RE-EXTRACT PARTICLES
     # 1. Create tool and tabs
@@ -558,7 +559,7 @@ def initialiseExtractJob(has_mpi = True, has_thread = False):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/91.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/07.star',has_mpi, has_thread)
 
 
 def initialiseSelectJob(has_mpi = False, has_thread = False):
@@ -570,6 +571,86 @@ def initialiseSelectJob(has_mpi = False, has_thread = False):
               "select_minval", "select_maxval", "do_discard", "discard_label", "discard_sigma", "do_split", 
               "do_random", "split_size", "nr_split", "do_remove_duplicates", "duplicate_threshold", "image_angpix", 
               "do_filaments", "dendrogram_threshold", "dendrogram_minclass"]
+    
+    keys_class = ["fn_model", "do_class_ranker", "rank_threshold", "select_nr_parts", 
+              "select_nr_classes", "do_recenter", "do_regroup", "nr_groups", "do_select_values", "select_label", 
+              "select_minval", "select_maxval", "do_discard", "discard_label", "discard_sigma", "do_split", 
+              "do_random", "split_size", "nr_split", "do_remove_duplicates", "duplicate_threshold", "image_angpix", 
+              "do_filaments", "dendrogram_threshold", "dendrogram_minclass"]
+    keys_mic = ["fn_mic", "do_class_ranker", "rank_threshold", "select_nr_parts", 
+              "select_nr_classes", "do_recenter", "do_regroup", "nr_groups", "do_select_values", "select_label", 
+              "select_minval", "select_maxval", "do_discard", "discard_label", "discard_sigma", "do_split", 
+              "do_random", "split_size", "nr_split", "do_remove_duplicates", "duplicate_threshold", "image_angpix", 
+              "do_filaments", "dendrogram_threshold", "dendrogram_minclass"]
+    keys_ptcls = ["fn_data", "do_class_ranker", "rank_threshold", "select_nr_parts", 
+              "select_nr_classes", "do_recenter", "do_regroup", "nr_groups", "do_select_values", "select_label", 
+              "select_minval", "select_maxval", "do_discard", "discard_label", "discard_sigma", "do_split", 
+              "do_random", "split_size", "nr_split", "do_remove_duplicates", "duplicate_threshold", "image_angpix", 
+              "do_filaments", "dendrogram_threshold", "dendrogram_minclass"]
+
+    unused = []
+
+    system = []
+    
+    ##### SUBSET SELECTION CLASSES
+    # 1. Create tool and tabs
+    tool = create_tool('subselect_class',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseSelectJob(False)
+    # 3. Build
+    groups = rwi.initialiseSelectWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_class)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/08_tools/01.star',has_mpi, has_thread)
+
+    ##### SUBSET SELECTION FROM MICROGRAPHS
+    # 1. Create tool and tabs
+    tool = create_tool('subselect_mic',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseSelectJob(False)
+    # 3. Build
+    groups = rwi.initialiseSelectWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_mic)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/08_tools/02.star',has_mpi, has_thread)
+
+    ##### SUBSET SELECTION FROM PARTICLES
+    # 1. Create tool and tabs
+    tool = create_tool('subselect_ptcls',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseSelectJob(False)
+    # 3. Build
+    groups = rwi.initialiseSelectWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_ptcls)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/08_tools/03.star',has_mpi, has_thread)
 
 
 def initialiseClass2DJob(has_mpi = True, has_thread = True):
@@ -577,7 +658,7 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
     # has_diskio = False
     origin = ["fn_img", "fn_cont", "do_ctf_correction", "ctf_intact_first_peak", "nr_classes", "tau_fudge", "do_em", 
               "nr_iter_em", "do_grad", "nr_iter_grad", "particle_diameter", "do_zero_mask", "highres_limit", "do_center", 
-              "dont_skip_align", "psi_sampling", "offset_range", "offset_step", "allow_coarser", "do_helix", 
+              "dont_skip_ali gn", "psi_sampling", "offset_range", "offset_step", "allow_coarser", "do_helix", 
               "helical_tube_outer_diameter", "do_bimodal_psi", "range_psi", "do_restrict_xoff", "helical_rise", 
               "nr_pool", "do_parallel_discio", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
     
@@ -617,7 +698,7 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/99.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/08.star',has_mpi, has_thread)
 
     #####  VDAM Algorithm 
 
@@ -638,7 +719,7 @@ def initialiseClass2DJob(has_mpi = True, has_thread = True):
     # 5. Create the `outdata`` fieldset
     # 6. Create the script
     # 7. Write the file `xx.star`
-    write_starfile(tool,'./public/spa/03_particles/98.star',has_mpi, has_thread)
+    write_starfile(tool,'./public/spa/03_particles/09.star',has_mpi, has_thread)
 
 def initialiseInimodelJob(has_mpi = True, has_thread = True):
 
@@ -647,7 +728,33 @@ def initialiseInimodelJob(has_mpi = True, has_thread = True):
     origin = ["fn_img", "fn_cont", "nr_iter", "tau_fudge", "nr_classes", "sym_name", "particle_diameter", "do_solvent", 
               "sigma_tilt", "do_ctf_correction", "ctf_intact_first_peak", "do_parallel_discio", "nr_pool", "do_preread_images", 
               "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    keys = ["fn_img", "nr_iter", "tau_fudge", "nr_classes", "sym_name", "particle_diameter", "do_solvent", 
+            "do_ctf_correction", "ctf_intact_first_peak", "do_parallel_discio", "nr_pool", "do_preread_images", 
+              "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    unused = ["fn_cont", "sigma_tilt"]
+    system = []
 
+    # 1. Create tool and tabs
+    tool = create_tool('inimodel',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseInimodelJob(False)
+    # 3. Build
+    groups = rwi.initialiseInimodelWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/04_3d/01.star',has_mpi, has_thread)
+1
 
 def initialiseClass3DJob(has_mpi = True, has_thread = True):
 
@@ -662,6 +769,71 @@ def initialiseClass3DJob(has_mpi = True, has_thread = True):
               "do_local_search_helical_symmetry", "helical_twist_min", "helical_twist_max", "helical_twist_inistep", "helical_rise_min", 
               "helical_rise_max", "helical_rise_inistep", "helical_range_distance", "keep_tilt_prior_fixed", "do_parallel_discio", "nr_pool", 
               "do_pad1", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    keys_align = ["fn_img", "fn_ref", "fn_mask", "ref_correct_greyscale", "trust_ref_size", "ini_high", "sym_name", 
+              "do_ctf_correction", "ctf_intact_first_peak", "nr_classes", "tau_fudge", "nr_iter", "do_fast_subsets", 
+              "particle_diameter", "do_zero_mask", "highres_limit", "do_blush", "sampling", "offset_range", 
+              "offset_step", "do_local_ang_searches", "sigma_angles", "allow_coarser", "relax_sym", "do_parallel_discio", "nr_pool", 
+              "do_pad1", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    keys_skip = ["fn_img", "fn_ref", "fn_mask", "ref_correct_greyscale", "trust_ref_size", "ini_high", "sym_name", 
+              "do_ctf_correction", "ctf_intact_first_peak", "nr_classes", "tau_fudge", "nr_iter", "do_fast_subsets", 
+              "particle_diameter", "do_zero_mask", "highres_limit", "do_blush", "do_parallel_discio", "nr_pool", 
+              "do_pad1", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    unused_align = ["fn_cont", "sigma_tilt", "do_helix", 
+              "helical_tube_inner_diameter", "helical_tube_outer_diameter", "range_rot", "range_tilt", "range_psi", 
+              "do_apply_helical_symmetry", "helical_nr_asu", "helical_twist_initial", "helical_rise_initial", "helical_z_percentage", 
+              "do_local_search_helical_symmetry", "helical_twist_min", "helical_twist_max", "helical_twist_inistep", "helical_rise_min", 
+              "helical_rise_max", "helical_rise_inistep", "helical_range_distance", "keep_tilt_prior_fixed"]
+    unused_skip = ["fn_cont", "dont_skip_align", "sampling", "offset_range", 
+              "offset_step", "do_local_ang_searches", "sigma_angles", "allow_coarser", "relax_sym", "sigma_tilt", "do_helix", 
+              "helical_tube_inner_diameter", "helical_tube_outer_diameter", "range_rot", "range_tilt", "range_psi", 
+              "do_apply_helical_symmetry", "helical_nr_asu", "helical_twist_initial", "helical_rise_initial", "helical_z_percentage", 
+              "do_local_search_helical_symmetry", "helical_twist_min", "helical_twist_max", "helical_twist_inistep", "helical_rise_min", 
+              "helical_rise_max", "helical_rise_inistep", "helical_range_distance", "keep_tilt_prior_fixed"]
+
+    system_align = [("dont_skip_align", True)]
+    system_skip = [("dont_skip_align", False)]
+
+    ##### 3D CLASS WITH IMAGE ALIGNMENT
+    # 1. Create tool and tabs
+    tool = create_tool('3d_align',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseClass3DJob(False)
+    # 3. Build
+    groups = rwi.initialiseClass3DWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_align)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_align)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/04_3d/02.star',has_mpi, has_thread)
+
+    #####  3D CLASS WITHOUT IMAGE ALIGNMENT
+    # 1. Create tool and tabs
+    tool = create_tool('3d_skip_align',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseClass3DJob(False)
+    # 3. Build
+    groups = rwi.initialiseClass3DWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_skip)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_skip)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/04_3d/03.star',has_mpi, has_thread)
 
 
 
@@ -677,6 +849,37 @@ def initialiseAutorefineJob(has_mpi = True, has_thread = True):
               "helical_twist_min", "helical_twist_max", "helical_twist_inistep", "helical_rise_min", "helical_rise_max", "helical_rise_inistep", 
               "helical_range_distance", "keep_tilt_prior_fixed", "do_parallel_discio", "nr_pool", "do_pad1", "do_preread_images", "scratch_dir", 
               "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    keys = ["fn_img", "fn_ref", "fn_mask", "ref_correct_greyscale", "trust_ref_size", "ini_high", "sym_name", 
+              "do_ctf_correction", "ctf_intact_first_peak", "particle_diameter", "do_zero_mask", "do_solvent_fsc", "do_blush", 
+              "sampling", "offset_range", "offset_step", "auto_local_sampling", "relax_sym", "auto_faster", "do_parallel_discio", "nr_pool", "do_pad1", "do_preread_images", "scratch_dir", 
+              "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    unused = ["fn_cont", "sigma_tilt", "do_helix", 
+              "helical_tube_inner_diameter", "helical_tube_outer_diameter", "range_rot", "range_tilt", "range_psi", "do_apply_helical_symmetry", 
+              "helical_nr_asu", "helical_twist_initial", "helical_rise_initial", "helical_z_percentage", "do_local_search_helical_symmetry", 
+              "helical_twist_min", "helical_twist_max", "helical_twist_inistep", "helical_rise_min", "helical_rise_max", "helical_rise_inistep", 
+              "helical_range_distance", "keep_tilt_prior_fixed"]
+    system = []
+
+    # 1. Create tool and tabs
+    tool = create_tool('autorefine',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseAutorefineJob(False)
+    # 3. Build
+    groups = rwi.initialiseAutorefineWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/04_3d/04.star',has_mpi, has_thread)
 
 
 
@@ -687,7 +890,60 @@ def initialiseMultiBodyJob(has_mpi = True, has_thread = True):
     origin = ["fn_in", "fn_cont", "fn_bodies", "do_subtracted_bodies", "do_blush", "sampling", "offset_range", "offset_step", 
               "do_analyse", "nr_movies", "do_select", "select_eigenval", "eigenval_min", "eigenval_max", "do_parallel_discio",
               "nr_pool", "do_pad1", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    keys_flex = ["fn_in", "fn_bodies", "do_subtracted_bodies", "do_blush", "sampling", "offset_range", "offset_step", 
+              "nr_movies", "do_select", "select_eigenval", "eigenval_min", "eigenval_max", "do_parallel_discio",
+              "nr_pool", "do_pad1", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
+    
+    keys_no_flex = ["fn_in", "fn_bodies", "do_subtracted_bodies", "do_blush", "sampling", "offset_range", "offset_step", 
+              "do_parallel_discio", "nr_pool", "do_pad1", "do_preread_images", "scratch_dir", "do_combine_thru_disc", "use_gpu", "gpu_ids"]
 
+    unused_flex = ["fn_cont", ]
+    unused_no_flex = ["fn_cont", "do_analyse", "nr_movies", "do_select", "select_eigenval", "eigenval_min", "eigenval_max"]
+
+    system_flex = [("do_analyse", True)]
+    system_no_flex = [("do_analyse", False)]
+
+
+    #####  MULTI-BODY WITH FLEXIBILITY ANALYSIS
+    # 1. Create tool and tabs
+    tool = create_tool('multibody_flex',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseMultiBodyJob(False)
+    # 3. Build
+    groups = rwi.initialiseMultiBodyWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_flex)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_flex)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/04_3d/05.star',has_mpi, has_thread)
+
+    #####  MULTI-BODY
+    # 1. Create tool and tabs
+    tool = create_tool('multibody',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseMultiBodyJob(False)
+    # 3. Build
+    groups = rwi.initialiseMultiBodyWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_no_flex)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_no_flex)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/04_3d/06.star',has_mpi, has_thread)
 
 
 def initialiseMaskcreateJob(has_mpi = False, has_thread = True):
@@ -818,12 +1074,12 @@ if __name__ == '__main__' :
     # initialiseManualpickJob()
     initialiseAutopickJob()
     initialiseExtractJob()
-    # initialiseSelectJob()
+    initialiseSelectJob()
     initialiseClass2DJob()
-    # initialiseInimodelJob()
-    # initialiseClass3DJob()
-    # initialiseAutorefineJob()
-    # initialiseMultiBodyJob()
+    initialiseInimodelJob()
+    initialiseClass3DJob()
+    initialiseAutorefineJob()
+    initialiseMultiBodyJob()
     # initialiseMaskcreateJob()
     # initialiseJoinstarJob()
     # initialiseSubtractJob()
