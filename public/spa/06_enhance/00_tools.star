@@ -27,11 +27,3 @@ _tool_menu.help
 mask_create     'Mask Creation'         bi-1-circle-fill    fieldset ? enhance_tools ?
 locres          'Local Resolution'      bi-trophy           fieldset ? enhance_tools ?
 subpart         'Particle Substraction' ?                   fieldset ? enhance_tools ?
-
-
-
-
-
-
-
-

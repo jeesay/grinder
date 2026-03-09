@@ -62,16 +62,19 @@ def update_fieldset(tool,   fs,jo,params):
 def update_system_fieldset(tool, has_mpi, has_thread, fs,jo,params):
     # Create fieldset `outdata`
     fout = rwi.Fieldset(fs.parent,"outdata","Output Data",icon="bi-box-arrow-down")
+    fout.display = 'hidden'
     fout.group = rwi.group6
     fout.current_group = rwi.group6
     tool.append_fieldset(fout,'io')
    # Create fieldset `nodes`
     fnod = rwi.Fieldset(fs.parent,"nodes","Nodes",icon="bi-controller")
+    fnod.display = "hidden"
     fnod.group = rwi.group7
     fnod.current_group = rwi.group7
     tool.append_fieldset(fnod,'io')
     # Create fieldset `system`
     fsys = rwi.Fieldset(fs.parent,"system","System",icon="bi-incognito")
+    fsys.display = 'hiddden'
     fsys.group = rwi.group8
     fsys.current_group = rwi.group8
     print('FSYS')

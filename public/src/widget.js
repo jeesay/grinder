@@ -137,8 +137,10 @@ const w_switch_button = (desc) => {
 const w_file = (desc) => {
   console.info('file',desc);
   const prop = (desc.arg0 !== "?") ? desc.arg0 : '';
-  const placeholder = desc.arg1;
-  const nodetype = desc.arg2;
+  const nodetype = desc.arg0;
+  const tree_depth = desc.arg1;
+  const placeholder = desc.arg2;
+  
 
   let ds = {inputfile: desc.id};
   if ('filetype' in desc) {
@@ -165,13 +167,18 @@ const w_file = (desc) => {
         {
           attrs: {
             type:'text',
-            value: (desc.default === '?') ? '' : desc.default,
+            value: (desc.default === '?' || desc.default === '') ? '' : desc.default,
             placeholder: placeholder || '',
             name:desc.id
           },
+          props: {
+              required: (desc.constraint === "required") ? true : false
+            },
           dataset: {
             toolset: desc.toolsetid,
             param: desc.id,
+            node: nodetype,
+            depth: tree_depth,
             option: ('option' in desc) ? desc.option : 0
           },
         }

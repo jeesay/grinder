@@ -18,12 +18,13 @@ _io.label
 _io.icon
 _io.widget
 _io.value
+_io.display
 _io.help
-indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          ?
-outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          ?
-nodes                "Nodes"                                  bi-controller        fieldset   ?          ?
-system               "System"                                 bi-incognito         fieldset   ?          ?
-import_other_cmd     "Check command"                          bi-chat-right-text   cli        ?          ?
+indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          show       ?
+outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          hidden     ?
+nodes                "Nodes"                                  bi-controller        fieldset   ?          hidden     ?
+system               "System"                                 bi-incognito         fieldset   ?          hiddden    ?
+import_other_cmd     "Check command"                          bi-chat-right-text   cli        ?          show       ?
 #
 loop_
 _indata.id
@@ -33,8 +34,9 @@ _indata.default
 _indata.arg0
 _indata.arg1
 _indata.arg2
+_indata.constraint
 _indata.help
-fn_in_other          "Input file:"                       file       ref.mrc         "Input file (*.*)" .               ?               
+fn_in_other          "Input file:"                       file       ref.mrc         "Input file (*.*)" "."             "?"             required        
 ; Select any file(s) to import.
 
  
@@ -64,6 +66,7 @@ _outdata.default
 _outdata.arg0
 _outdata.arg1
 _outdata.arg2
+_outdata.constraint
 _outdata.help
 #
 loop_
@@ -74,6 +77,7 @@ _nodes.default
 _nodes.arg0
 _nodes.arg1
 _nodes.arg2
+_nodes.constraint
 _nodes.help
 #
 loop_
@@ -84,11 +88,12 @@ _system.default
 _system.arg0
 _system.arg1
 _system.arg2
+_system.constraint
 _system.help
-do_raw               "Import raw movies/micrographs?"    bool       false           "?"             ?               ?               
+do_raw               "Import raw movies/micrographs?"    bool       false           "?"             "?"             "?"             ?               
 ; Set this to Yes if you plan to import raw movies or micrographs
 ;
-do_other             "Import other node types?"          bool       true            "?"             ?               ?               
+do_other             "Import other node types?"          bool       true            "?"             "?"             "?"             ?               
 ; Set this to Yes if you plan to import anything else than movies or micrographs
 ;
 #
@@ -100,6 +105,7 @@ _import_other_cmd.default
 _import_other_cmd.arg0
 _import_other_cmd.arg1
 _import_other_cmd.arg2
+_import_other_cmd.constraint
 _import_other_cmd.help
 #
 loop_
@@ -108,9 +114,10 @@ _settings.label
 _settings.icon
 _settings.widget
 _settings.value
+_settings.display
 _settings.help
-params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          ?
-node_type            "Options"                                bi-chat-right-text   fieldset   ?          ?
+params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          show       ?
+node_type            "Options"                                bi-chat-right-text   fieldset   ?          show       ?
 #
 loop_
 _params_01.id
@@ -120,9 +127,10 @@ _params_01.default
 _params_01.arg0
 _params_01.arg1
 _params_01.arg2
+_params_01.constraint
 _params_01.help
-node_type            "Node type:"                        select     0               "LABEL_IMPORT_2DIMG" ?               ?               "Select the type of Node this is."
-optics_group_particles "Rename optics group for particles:" string                     "?"             ?               ?               
+node_type            "Node type:"                        select     0               "LABEL_IMPORT_2DIMG" "?"             "?"             ?               "Select the type of Node this is."
+optics_group_particles "Rename optics group for particles:" string     ?               "?"             "?"             "?"             ?               
 ; Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.
 ;
 #
@@ -134,12 +142,13 @@ _node_type.default
 _node_type.arg0
 _node_type.arg1
 _node_type.arg2
+_node_type.constraint
 _node_type.help
-node_type_opt_00     "Multiple (2D or 3D) references (.star or .mrcs)" option     LABEL_IMPORT_2DIMG "?"             ?               ?               "?"
-node_type_opt_01     "Micrographs STAR file (.star)"     option     LABEL_IMPORT_MICS "?"             ?               ?               "?"
-node_type_opt_02     "3D reference (.mrc)"               option     LABEL_IMPORT_MAP "?"             ?               ?               "?"
-node_type_opt_03     "3D mask (.mrc)"                    option     LABEL_IMPORT_MASK "?"             ?               ?               "?"
-node_type_opt_04     "Unfiltered half-map (unfil.mrc)"   option     LABEL_IMPORT_HALFMAP "?"             ?               ?               "?"
+node_type_opt_00     "Multiple (2D or 3D) references (.star or .mrcs)" option     LABEL_IMPORT_2DIMG "?"             "?"             "?"             ?               "?"
+node_type_opt_01     "Micrographs STAR file (.star)"     option     LABEL_IMPORT_MICS "?"             "?"             "?"             ?               "?"
+node_type_opt_02     "3D reference (.mrc)"               option     LABEL_IMPORT_MAP "?"             "?"             "?"             ?               "?"
+node_type_opt_03     "3D mask (.mrc)"                    option     LABEL_IMPORT_MASK "?"             "?"             "?"             ?               "?"
+node_type_opt_04     "Unfiltered half-map (unfil.mrc)"   option     LABEL_IMPORT_HALFMAP "?"             "?"             "?"             ?               "?"
 #
 loop_
 _log.id
@@ -147,6 +156,7 @@ _log.label
 _log.icon
 _log.widget
 _log.value
+_log.display
 _log.help
 #
 loop_
@@ -155,5 +165,6 @@ _dataviz.label
 _dataviz.icon
 _dataviz.widget
 _dataviz.value
+_dataviz.display
 _dataviz.help
 #

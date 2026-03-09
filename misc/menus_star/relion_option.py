@@ -95,9 +95,10 @@ class JobOption:
         clear()
         self.initialise(_label, _default_value, _helptext)
         self.widget = 'node'
-        self.value = _nodetype
-        self.arg0 = _pattern
+        self.arg0 = _nodetype
         self.arg1 = _node_type_depth
+        self.arg2 = _pattern
+        
         
         joboption_type = rh.JOBOPTION_INPUTNODE
         pattern = _pattern
@@ -326,6 +327,7 @@ class Tab:
         self.widget = 'tab'
         self.default = '?'
         self.icon = icon
+        self.display = 'show'
         self.help = '?'
         self.tables: Dict[str, Table] = {} # Dictionnaire de tables
         self.fieldsets = []
@@ -338,9 +340,9 @@ class Tab:
 
     def to_star(self):
         def fs_star(fs):
-            return f'{fs.fsid:<20} {fs.fsname:<40} {fs.icon:<20} {fs.widget:<10} {fs.default:<10} {fs.help}\n'
+            return f'{fs.fsid:<20} {fs.fsname:<40} {fs.icon:<20} {fs.widget:<10} {fs.default:<10} {fs.display:<10} {fs.help}\n'
         
-        header0 = f'loop_\n_{self.tid}.id\n_{self.tid}.label\n_{self.tid}.icon\n_{self.tid}.widget\n_{self.tid}.value\n_{self.tid}.help\n'
+        header0 = f'loop_\n_{self.tid}.id\n_{self.tid}.label\n_{self.tid}.icon\n_{self.tid}.widget\n_{self.tid}.value\n_{self.tid}.display\n_{self.tid}.help\n'
         content0 =  ''.join([fs_star(fs) for fs in self.fieldsets])
         #
         content = ''.join([w.to_star() for w in self.fieldsets])

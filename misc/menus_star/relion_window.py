@@ -18,26 +18,27 @@ class Widget:
         self.arg0 = '?'
         self.arg1 = '?'
         self.arg2 = '?'
+        self.constraint = '?'
         self.help = '"No Help"'
 
     # Copy from joboption
     def set_options(self,jo):
         self.label = f'"{jo.label}"'
         self.widget = jo.widget
-        self.value = jo.value
+        self.value = jo.value if jo.value != '' else '?'
         self.arg0 = jo.arg0 if isinstance(jo.arg0, int) or isinstance(jo.arg0, float) else f'"{jo.arg0}"'
-        self.arg1 = jo.arg1
-        self.arg2 = jo.arg2
-        self.help = jo.help
+        self.arg1 = jo.arg1 if isinstance(jo.arg1, int) or isinstance(jo.arg1, float) else f'"{jo.arg1}"'
+        self.arg2 = jo.arg2 if isinstance(jo.arg2, int) or isinstance(jo.arg2, float) else f'"{jo.arg2}"'
+        self.help = jo.help 
 
     def to_star(self):
         if self.help[0] == ';':
-            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15}\n{self.help}\n'
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15}\n{self.help}\n'
         elif len(self.help) > 60:
             helptxt = '\n; ' + '.\n'.join(self.help.split('. ')) + '\n;'
-            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {helptxt}\n'
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15} {helptxt}\n'
         else:
-            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} "{self.help}"\n'
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15} "{self.help}"\n'
     
     def __repr__(self):
         return self.__dict__
@@ -53,6 +54,7 @@ class Fieldset:
         self.group = parent.current_group
         self.default = '?'
         self.help = '?'
+        self.display = 'show'
         self.widget = type
         self.icon = 'bi-chat-right-text' if icon == '?' else icon
 
@@ -92,7 +94,7 @@ class Fieldset:
         return len(self.widgets)
     
     def to_star(self):
-        header = f'loop_\n_{self.fsid}.id\n_{self.fsid}.label\n_{self.fsid}.widget\n_{self.fsid}.default\n_{self.fsid}.arg0\n_{self.fsid}.arg1\n_{self.fsid}.arg2\n_{self.fsid}.help\n'
+        header = f'loop_\n_{self.fsid}.id\n_{self.fsid}.label\n_{self.fsid}.widget\n_{self.fsid}.default\n_{self.fsid}.arg0\n_{self.fsid}.arg1\n_{self.fsid}.arg2\n_{self.fsid}.constraint\n_{self.fsid}.help\n'
         content = ''.join([w.to_star() for w in self.widgets])
         return header + content + '#\n'
 
@@ -143,8 +145,10 @@ def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True,force=False):
         fs.group = grp
         fs.current_group = grp
         # parent.parent.current_group = grp
-
-    fs.append(Widget(parent,id,grp, toggle, flag),force)
+    w = Widget(parent,id,grp, toggle, flag)
+    if 'fn_in' in id or 'input_' in id or "fn_img" in id or id in name_list :
+        w.constraint = 'required'
+    fs.append(w,force)
     return fs
 
 def place2(parent,id1,id2,label,toggle):

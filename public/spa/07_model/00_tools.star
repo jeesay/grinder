@@ -25,9 +25,3 @@ _tool_menu.default
 _tool_menu.parent
 _tool_menu.help
 model    'Model Building' ?          fieldset ? model_tools ?
-
-
-
-
-
-
