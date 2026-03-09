@@ -34,8 +34,9 @@ _connect.default  # None
 _connect.arg0     # Status
 _connect.arg1     # Placeholder
 _connect.arg2     # Node Type
+_connect.toolsetid
 _connect.help
-url        'URL'        string  '127.0.0.1' ?       ? ? 'URL displayed by `grinder-server`'
-port       'Port'       string  8000        ?       ? ? 'Port displayed by `grinder-server`'
-do_connect 'Connect'    button  true        bi-send ? ? 'Send the connection request'
+url        'Server IP Address'   string  '127.0.0.1' ?       ? ? home_dummy 'URL displayed by `grinder-server`'
+port       'Server Port'         string  8000        ?       ? ? home_dummy 'Port displayed by `grinder-server`'
+do_connect 'Connect'             button  true        bi-send ? ? home_dummy 'Send the connection request'
 #
