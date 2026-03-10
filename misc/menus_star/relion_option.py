@@ -176,7 +176,10 @@ class JobOption:
         return s
 
     def getBoolean(self):
-        return self.valuevalue
+        return self.value
+    
+    def getString(self):
+        return str(self.value)
     
     def __repr__(self):
         return str(self.__dict__)
