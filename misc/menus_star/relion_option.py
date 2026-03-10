@@ -95,6 +95,7 @@ class JobOption:
         clear()
         self.initialise(_label, _default_value, _helptext)
         self.widget = 'node'
+        self.nodetype = _nodetype
         self.arg0 = _nodetype
         self.arg1 = _node_type_depth
         self.arg2 = _pattern
