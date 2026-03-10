@@ -36,8 +36,8 @@ _motion.proc_id
 _motion.labelnew
 _motion.help
 _motion.filename
-rln_mc   "RELION Motion Correction"    radio_tool    1    relion.motioncorr.own    'RELIONs own implementation'    01.star
-ucsf_mc   "UCSF Motion Correction2"    radio_tool    1    relion.motioncorr.motioncor2    'MotionCorr executable'    02.star
+rln_mc   "RELION Motion Correction"    radio_tool    1    "relion.motioncorr.own"           'RELIONs own implementation'    01.star
+ucsf_mc   "UCSF Motion Correction2"    radio_tool    1    "relion.motioncorr.motioncor2"    'MotionCorr executable'         02.star
 #
 loop_
 _ctffind.id

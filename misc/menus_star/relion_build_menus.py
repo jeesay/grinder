@@ -956,6 +956,30 @@ def initialiseMaskcreateJob(has_mpi = False, has_thread = True):
     origin = ["fn_in", "lowpass_filter", "angpix", "inimask_threshold", "extend_inimask", "width_mask_edge", "do_helix", 
               "helical_z_percentage"]
 
+    keys = ["fn_in", "lowpass_filter", "angpix", "inimask_threshold", "extend_inimask", "width_mask_edge"]
+    
+    unused = ["do_helix", "helical_z_percentage"]
+    system = []
+
+    # 1. Create tool and tabs
+    tool = create_tool('mask_create',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseMaskcreateJob(False)
+    # 3. Build
+    groups = rwi.initialiseMaskcreateWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/06_enhance/01.star',has_mpi, has_thread)
+
 
 def initialiseJoinstarJob(has_mpi = False, has_thread = False):
 
@@ -963,6 +987,79 @@ def initialiseJoinstarJob(has_mpi = False, has_thread = False):
     # has_diskio = False
     origin = ["do_part", "fn_part1", "fn_part2", "fn_part3", "fn_part4", "do_mic", "fn_mic1", "fn_mic2", "fn_mic3", "fn_mic4", 
               "do_mov", "fn_mov1", "fn_mov2", "fn_mov3", "fn_mov4"]
+    
+    keys_ptcls = ["fn_part1", "fn_part2", "fn_part3", "fn_part4"]
+    keys_mic = ["fn_mic1", "fn_mic2", "fn_mic3", "fn_mic4"]
+    keys_mov = ["fn_mov1", "fn_mov2", "fn_mov3", "fn_mov4"]
+    
+    unused_ptcls = ["do_mic", "fn_mic1", "fn_mic2", "fn_mic3", "fn_mic4", 
+              "do_mov", "fn_mov1", "fn_mov2", "fn_mov3", "fn_mov4"]
+    unused_mic = ["do_part", "fn_part1", "fn_part2", "fn_part3", "fn_part4", "do_mov", "fn_mov1", "fn_mov2", "fn_mov3", "fn_mov4"]
+    unused_mov = ["do_part", "fn_part1", "fn_part2", "fn_part3", "fn_part4", "do_mic", "fn_mic1", "fn_mic2", "fn_mic3", "fn_mic4"]
+
+    system_ptcls = [("do_part", True), ("do_mic", False), ("do_mov", False)]
+    system_mic = [("do_part", False), ("do_mic", True), ("do_mov", False)]
+    system_mov = [("do_part", False), ("do_mic", False), ("do_mov", True)]
+
+    #####  JOIN PARTICLES
+    # 1. Create tool and tabs
+    tool = create_tool('join_ptcls',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseJoinstarJob(False)
+    # 3. Build
+    groups = rwi.initialiseJoinstarWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_ptcls)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_ptcls)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/08_tools/04.star',has_mpi, has_thread)
+
+        #####  JOIN MICROGRAPHS
+    # 1. Create tool and tabs
+    tool = create_tool('join_mics',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseJoinstarJob(False)
+    # 3. Build
+    groups = rwi.initialiseJoinstarWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_mic)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_mic)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/08_tools/05.star',has_mpi, has_thread)
+
+    #####  JOIN MOVIES
+    # 1. Create tool and tabs
+    tool = create_tool('join_movs',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseJoinstarJob(False)
+    # 3. Build
+    groups = rwi.initialiseJoinstarWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_mov)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_mov)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/08_tools/06.star',has_mpi, has_thread)
 
 
 def initialiseSubtractJob(has_mpi = True, has_thread = False):
@@ -970,8 +1067,56 @@ def initialiseSubtractJob(has_mpi = True, has_thread = False):
     # has_gpu = False
     # has_diskio = False
     origin = ["fn_opt", "fn_mask", "do_data", "fn_data", "do_float16", "do_fliplabel", "fn_fliplabel", "do_center_mask", 
-              "do_center_xyz", "center_x", "center_y", "center_z", "new_box"]
+              "do_center_xyz", "center_x", "center_y", "center_z", "new_box"] 
+    
+    keys_mask = ["fn_opt", "fn_mask", "do_data", "fn_data", "do_float16", "do_fliplabel", "fn_fliplabel", "new_box"] 
+    keys_coor = ["fn_opt", "fn_mask", "do_data", "fn_data", "do_float16", "do_fliplabel", "fn_fliplabel", "center_x", "center_y", "center_z", "new_box"] 
+    
+    unused_mask = ["do_center_xyz", "center_x", "center_y", "center_z"]
+    unsued_coor = ["do_center_mask"]
 
+    system_mask = [("do_center_mask", True), ("do_center_xyz", False)]
+    system_coor = [("do_center_mask", False), ("do_center_xyz", True)]
+
+    #####  CENTER SUBSTRACTED IMAGES ON MASK
+    # 1. Create tool and tabs
+    tool = create_tool('sub_mask',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseSubtractJob(False)
+    # 3. Build
+    groups = rwi.initialiseSubtractWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_mask)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_mask)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/06_enhance/02.star',has_mpi, has_thread)
+
+    #####  CENTER ON COORDINATES
+    # 1. Create tool and tabs
+    tool = create_tool('sub_coor',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseSubtractJob(False)
+    # 3. Build
+    groups = rwi.initialiseSubtractWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_coor)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_coor)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/06_enhance/03.star',has_mpi, has_thread)
 
 def initialisePostprocessJob(has_mpi = False, has_thread = False):
 
@@ -980,6 +1125,31 @@ def initialisePostprocessJob(has_mpi = False, has_thread = False):
     origin = ["fn_in", "fn_mask", "angpix", "do_auto_bfac", "autob_lowres", "do_adhoc_bfac", "adhoc_bfac", "fn_mtf", "mtf_angpix", 
               "do_skip_fsc_weighting", "low_pass"]
 
+    keys = ["fn_in", "fn_mask", "angpix", "do_auto_bfac", "autob_lowres", "do_adhoc_bfac", "adhoc_bfac", "fn_mtf", "mtf_angpix", 
+              "do_skip_fsc_weighting", "low_pass"]
+
+    unused = []
+    system = []
+
+    # 1. Create tool and tabs
+    tool = create_tool('pprcss',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialisePostprocessJob(False)
+    # 3. Build
+    groups = rwi.initialisePostprocessWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/05_postprocess/01.star',has_mpi, has_thread)
+
 
 def initialiseLocalresJob(has_mpi = True, has_thread = False):
 
@@ -987,6 +1157,55 @@ def initialiseLocalresJob(has_mpi = True, has_thread = False):
     # has_diskio = False
     origin = ["fn_in", "angpix", "do_resmap_locres", "fn_resmap", "fn_mask", "pval", "minres", "maxres", "stepres", "do_relion_locres", 
               "locres_sampling", "randomize_at", "adhoc_bfac", "fn_mtf"]
+    
+    keys_resmap = ["fn_in", "angpix", "fn_resmap", "fn_mask", "pval", "minres", "maxres", "stepres"]
+    keys_rln = ["fn_in", "angpix", "fn_mask", "adhoc_bfac", "fn_mtf"]
+
+    unused_resmap = ["do_relion_locres", "adhoc_bfac", "fn_mtf", "locres_sampling", "randomize_at"]
+    unused_rln = ["do_resmap_locres", "fn_resmap", "pval", "minres", "maxres", "stepres", "locres_sampling", "randomize_at"]
+
+    system_resmap = [("do_resmap_locres", True), ("do_relion_locres", False)]
+    system_rln = [("do_resmap_locres", False), ("do_relion_locres", True)]
+
+    #####  ResMap LOCAL RESOLUTION
+    # 1. Create tool and tabs
+    tool = create_tool('resmap_locres',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseLocalresJob(False)
+    # 3. Build
+    groups = rwi.initialiseLocresWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_resmap)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_resmap)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/06_enhance/04.star',has_mpi, has_thread)
+
+    #####  RELION LOCAL RESOLUTION
+    # 1. Create tool and tabs
+    tool = create_tool('rln_locres',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseLocalresJob(False)
+    # 3. Build
+    groups = rwi.initialiseLocresWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_rln)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_rln)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/06_enhance/05.star',has_mpi, has_thread)
 
 
 def initialiseDynaMightJob(has_mpi = False, has_thread = True):
@@ -996,13 +1215,60 @@ def initialiseDynaMightJob(has_mpi = False, has_thread = True):
     origin = ["fn_star", "fn_map", "fn_mask", "gpu_id", "do_preload", "fn_dynamight_exe", "nr_gaussians", "initial_threshold", 
               "reg_factor", "fn_checkpoint", "do_visualize", "halfset", "do_inverse", "nr_epochs", "do_store_deform", "do_reconstruct", 
               "backproject_batchsize"]
+    
+    keys = ["fn_star", "fn_map", "gpu_id", "do_preload", "fn_dynamight_exe", "nr_gaussians", "initial_threshold", 
+              "reg_factor"]
+
+    unused = ["fn_mask", "fn_checkpoint", "do_visualize", "halfset", "do_inverse", "nr_epochs", "do_store_deform", "do_reconstruct", 
+              "backproject_batchsize"]
+    system = []
+
+     # 1. Create tool and tabs
+    tool = create_tool('dynamight',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseDynaMightJob(False)
+    # 3. Build
+    groups = rwi.initialiseDynaMightWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/04_3d/07.star',has_mpi, has_thread)
 
 
 def initialiseModelAngeloJob(has_mpi = False, has_thread = False):
 
     # has_gpu = False
     # has_diskio = False
-    origin = ["fn_map", "p_seq", "d_seq", "r_seq", "fn_modelangelo_exe", "gpu_id", "do_hhmer", "fn_lib", "alphabet"]
+    origin = ["fn_map", "p_seq", "d_seq", "r_seq", "fn_modelangelo_exe", "gpu_id", "do_hhmer", "fn_lib", "alphabet", "F1", "F2", "F3", "E"]
+    unused = []
+    system = []
+
+    # 1. Create tool and tabs
+    tool = create_tool('angelo',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseModelAngeloJob(False)
+    # 3. Build
+    groups = rwi.initialiseModelAngeloWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,origin)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/07_model/01.star',has_mpi, has_thread)
 
 
 def initialiseMotionrefineJob(has_mpi = True, has_thread = True):
@@ -1012,6 +1278,57 @@ def initialiseMotionrefineJob(has_mpi = True, has_thread = True):
     origin = ["fn_mic", "fn_data", "fn_post", "do_float16", "first_frame", "last_frame", "extract_size", "rescale", "do_param_optim", 
               "eval_frac", "optim_min_part", "do_polish", "opt_params", "do_own_params", "sigma_vel", "sigma_div", "sigma_acc", "minres", 
               "maxres"]
+    
+    keys_ptcls = ["fn_mic", "fn_data", "fn_post", "do_float16", "first_frame", "last_frame", "extract_size", "rescale", "do_param_optim", 
+              "eval_frac", "optim_min_part", "opt_params", "do_own_params", "sigma_vel", "sigma_div", "sigma_acc", "minres", 
+              "maxres"]
+    keys = ["fn_mic", "fn_data", "fn_post", "do_float16", "first_frame", "last_frame", "extract_size", "rescale", "do_param_optim", 
+              "eval_frac", "optim_min_part"]
+
+    unused_ptcls = []
+    unused = ["do_polish", "opt_params", "do_own_params", "sigma_vel", "sigma_div", "sigma_acc", "minres", "maxres"]
+
+    system_ptcls = [("do_polish", True)]
+    system = [("do_polish", False)]
+    ##### PERFORM PARTICLE POLISHING
+    # 1. Create tool and tabs
+    tool = create_tool('ptcls_polish',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseMotionrefineJob(False)
+    # 3. Build
+    groups = rwi.initialiseMotionrefineWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_ptcls)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_ptcls)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/05_postprocess/02.star',has_mpi, has_thread)
+
+    #### OTHER POLISHING
+    # 1. Create tool and tabs
+    tool = create_tool('other_polish',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseMotionrefineJob(False)
+    # 3. Build
+    groups = rwi.initialiseMotionrefineWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/05_postprocess/03.star',has_mpi, has_thread)
 
 
 def initialiseCtfrefineJob(has_mpi = True, has_thread = True):
@@ -1083,14 +1400,14 @@ if __name__ == '__main__' :
     initialiseClass3DJob()
     initialiseAutorefineJob()
     initialiseMultiBodyJob()
-    # initialiseMaskcreateJob()
-    # initialiseJoinstarJob()
-    # initialiseSubtractJob()
-    # initialisePostprocessJob()
-    # initialiseLocalresJob()
-    # initialiseDynaMightJob()
-    # initialiseModelAngeloJob()
-    # initialiseMotionrefineJob()
+    initialiseMaskcreateJob()
+    initialiseJoinstarJob()
+    initialiseSubtractJob()
+    initialisePostprocessJob()
+    initialiseLocalresJob()
+    initialiseDynaMightJob()
+    initialiseModelAngeloJob()
+    initialiseMotionrefineJob()
     # initialiseCtfrefineJob()
     # initialiseExternalJob()
 

@@ -421,9 +421,9 @@ job_tomo_pick_mode = [
 ]
 
 job_modelangelo_alphabet_options = [
-    "amino",
-    "DNA",
-    "RNA"
+    ("amino", 0),
+    ("DNA", 1),
+    ("RNA", 2)
 ]
 
 # GRINDER Labels
