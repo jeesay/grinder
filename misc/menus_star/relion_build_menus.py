@@ -1337,6 +1337,57 @@ def initialiseCtfrefineJob(has_mpi = True, has_thread = True):
     # has_diskio = False
     origin = ["fn_data", "fn_post", "minres", "do_ctf", "do_defocus", "do_astig", "do_bfactor", "do_phase", "do_aniso_mag", "do_tilt", 
               "do_trefoil", "do_4thorder"]
+    
+    keys_aniso = ["fn_data", "fn_post", "minres", "do_ctf", "do_defocus", "do_astig", "do_bfactor", "do_phase", "do_tilt", 
+              "do_trefoil", "do_4thorder"]
+    keys = ["fn_data", "fn_post", "minres"]
+
+    unused_aniso = []
+    unsued = ["do_ctf", "do_defocus", "do_astig", "do_bfactor", "do_phase", "do_aniso_mag", "do_tilt", 
+              "do_trefoil", "do_4thorder"]
+
+    system_aniso = [("do_aniso_mag", True)]
+    system = [("do_aniso_mag", False)]
+
+    #### CTF REFINEMENT WITH ANISOTROPIC MAGNIFICATION ESTIMATION
+    # 1. Create tool and tabs
+    tool = create_tool('anisomag',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseCtfrefineJob(False)
+    # 3. Build
+    groups = rwi.initialiseCtfrefineWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys_aniso)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_aniso)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/05_postprocess/04.star',has_mpi, has_thread)
+
+    #### CTF REFINEMENT
+    # 1. Create tool and tabs
+    tool = create_tool('ctfref',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseCtfrefineJob(False)
+    # 3. Build
+    groups = rwi.initialiseCtfrefineWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,keys)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/05_postprocess/05.star',has_mpi, has_thread)
 
 
 def initialiseExternalJob(has_mpi = False, has_thread = False):
@@ -1346,10 +1397,31 @@ def initialiseExternalJob(has_mpi = False, has_thread = False):
               "param2_value", "param3_label", "param3_value", "param4_label", "param4_value", "param5_label", "param5_value", "param6_label", 
               "param6_value", "param7_label", "param7_value", "param8_label", "param8_value", "param9_label", "param9_value", "param10_label", 
               "param10_value"]
+    
+    system = []
+
+    # 1. Create tool and tabs
+    tool = create_tool('external',['io','settings','log','dataviz'])
+    # 2. Read the joboptions
+    hidden_name,jo = rjo.initialiseExternalJob(False)
+    # 3. Build
+    groups = rwi.initialiseExternalWindow()
+    for fs_params in groups:
+        tool = update_fieldset(tool, fs_params,jo,origin)
+
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system)
+
+    # 4. Read the commands
+    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
+    # 7. Write the file `xx.star`
+    write_starfile(tool,'./public/spa/08_tools/07.star',has_mpi, has_thread)
 
 
-def initialiseExternalJob(has_mpi = False, has_thread = True):
-    pass
+# def initialiseExternalJob(has_mpi = False, has_thread = True):
+#     pass
 
 ################### TOMO ###################
 
@@ -1408,6 +1480,6 @@ if __name__ == '__main__' :
     initialiseDynaMightJob()
     initialiseModelAngeloJob()
     initialiseMotionrefineJob()
-    # initialiseCtfrefineJob()
-    # initialiseExternalJob()
+    initialiseCtfrefineJob()
+    initialiseExternalJob()
 

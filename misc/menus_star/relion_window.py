@@ -128,7 +128,7 @@ class FsGroup:
         return '\n'.join([str(fs) for fs in self.groups])
 
 def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True,force=False):
-    name_list = ["fn_cont", "fn_ref", "fn_mask", "star_mics", "coords_suffix", "fn_model", "fn_mic", "fn_data", "fn_bodies", "fn_star", "fn_map", "fn_post"]
+    name_list = ["fn_cont", "fn_ref", "fn_mask", "star_mics", "coords_suffix", "fn_model", "fn_mic", "fn_data", "fn_bodies", "fn_star", "fn_map", "fn_post", "in_mic", "in_mov", "in_part", "in_coords", "in_3dref", "in_mask", "fn_exe"]
     if 'fn_in' in id or 'input_' in id or "fn_img" in id or "fn_mic" in id or "fn_part" in id or "fn_mov" in id or "_seq" in id or id in name_list :
         parent.fsid = 'indata'
         parent.fsname = '"Input Data"'
@@ -1194,8 +1194,9 @@ def initialiseCtfrefineWindow(is_tomo=False):
     grp = place(grp,"fn_post", TOGGLE_DEACTIVATE)
     grp.end()
 
-    grp = Fieldset(groups)
+    grp = Fieldset(groups, "do_aniso_mag_fs", "Anisotropic Magnification Estimation Parameters")
     grp = place(grp,"do_aniso_mag", TOGGLE_LEAVE_ACTIVE, group3, True) # True means: activating aniso_mag will deactive higher-order aberrations
+    grp = place(grp,"do_4thorder", TOGGLE_LEAVE_ACTIVE)
     grp.end()
 
     grp = Fieldset(groups, "do_ctf", "Perform CTF parameter fitting?", type="switch")
@@ -1211,9 +1212,9 @@ def initialiseCtfrefineWindow(is_tomo=False):
     grp = place(grp,"do_trefoil", TOGGLE_LEAVE_ACTIVE)
     grp.end()
     
-    grp = Fieldset(groups)
-    grp = place(grp,"do_4thorder", TOGGLE_LEAVE_ACTIVE)
-    grp.end()
+    # grp = Fieldset(groups)
+    # grp = place(grp,"do_4thorder", TOGGLE_LEAVE_ACTIVE)
+    # grp.end()
     
     grp = Fieldset(groups)
     grp = place(grp,"minres", TOGGLE_DEACTIVATE)
@@ -1298,14 +1299,15 @@ def initialiseExternalWindow(is_tomo=False):
     groups = FsGroup()
     grp = Fieldset(groups)
     grp = place(grp,"fn_exe", TOGGLE_DEACTIVATE)
-    grp.end()
- 
     grp = place(grp,"in_mov", TOGGLE_DEACTIVATE)
     grp = place(grp,"in_mic", TOGGLE_DEACTIVATE)
     grp = place(grp,"in_part", TOGGLE_DEACTIVATE)
     grp = place(grp,"in_coords", TOGGLE_DEACTIVATE)
     grp = place(grp,"in_3dref", TOGGLE_DEACTIVATE)
     grp = place(grp,"in_mask", TOGGLE_DEACTIVATE)
+    grp.end()
+
+    grp = Fieldset(groups)
     grp = place2(grp,"param1_label", "param1_value", "Param1 label, value:", TOGGLE_LEAVE_ACTIVE)
     grp = place2(grp,"param2_label", "param2_value", "Param2 label, value:", TOGGLE_LEAVE_ACTIVE)
     grp = place2(grp,"param3_label", "param3_value", "Param3 label, value:", TOGGLE_LEAVE_ACTIVE)
