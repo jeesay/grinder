@@ -101,6 +101,26 @@ class Fieldset:
     def __repr__(self):
         return f'**{self.widget.capitalize()}**{self.fsid}:{self.fsname}[{len(self.widgets)}]\n' + '\n'.join([str(w) for w in self.widgets]) + '\n'
 
+class ArgSet(Fieldset):
+    def __init__(self,parent,id="general",name='General',type="fieldset",icon="?"):
+        super(ArgSet, self).__init__(parent,id,name,type,icon)
+
+    def append(self,p,force=False):
+        # if not force and len(self.widgets) == 0 and w.id[0:3] == 'do_':
+        #     self.fsid = w.id[3:]
+        #     self.fsname = ' '.join([word.capitalize() for word in w.id[3:].replace('_',' ').split(' ')])
+        #     self.fsname = f'"{self.fsname}"'
+        self.widgets.append(p)
+        for pi in p.others:
+            self.widgets.append(pi)
+        for a in p.args:
+            self.widgets.append(a)
+
+    def to_star(self):
+        header = f'loop_\n_{self.fsid}.type\n_{self.fsid}.arg\n_{self.fsid}.param_id\n_{self.fsid}.flag\n_{self.fsid}.flagvalue\n'
+        content = ''.join([w.to_star() for w in self.widgets])
+        return header + content + '#\n'
+
 class FsGroup:
     def __init__(self):
         self.groups = [] # List of Fieldset

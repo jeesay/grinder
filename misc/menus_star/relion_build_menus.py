@@ -2,7 +2,7 @@ import relion_h as rh
 import relion_option as rho
 import relion_window as rwi
 import relion_spa_gui as rjo
-import relion_spa_commands as rcmd
+import relion_spa_commands_2 as rcmd
 
 ################## UTILITIES ##################
 
@@ -234,6 +234,11 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     tool = create_tool('rln_mc',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseMotioncorrJob(False)
+    # 4. Read the commands
+    outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
+    prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
+    # 5. Create the `outdata`` fieldset
+    # 6. Create the script
     # 3. Build
     groups = rwi.initialiseMotioncorrWindow()
     for fs_params in groups:
@@ -241,11 +246,6 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
 
     tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_rln)
 
-    # 4. Read the commands
-    # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
-    # prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
-    # 5. Create the `outdata`` fieldset
-    # 6. Create the script
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/02_preprocess/01.star',has_mpi, has_thread)
 
