@@ -21,6 +21,7 @@
 
 import {h} from "./dom.js";
 import {togglePopup} from "./browse.js";
+import {connect_to_ws_server} from "./main.js"
 
 const get_parent = (desc,parent_id,level=0) => {
   console.info(desc);
@@ -72,6 +73,12 @@ const w_button = (desc) => {
         desc.label
       )
     ])
+}
+
+// Specialized button
+const w_connect = (desc) => {
+  desc.on_click = connect_to_ws_server;
+  return w_button(desc);
 }
 
 const w_switch = (desc) => {
@@ -755,11 +762,11 @@ const w_group = (desc) => {
   console.info('group',desc);
   // Primitive Widgets
   const types = [
-    'label','h3','button','bool','cli','import','int','float','file','toolset','string','string_ro','text','range',
+    'label','h3','button','bool','cli','connect','import','int','float','file','toolset','string','string_ro','text','range',
     'radio','radio_tool','select','option','section','switch','fieldset','details',
     'tab','table','thead','tbody','trow','tcell','toolbar','toolmenu','paragraph'];
   const creators = [
-    w_label,w_h3,w_button,w_bool,w_cli,w_import,w_int,w_float,w_file,w_toolset,w_string,w_string_ro,w_text,w_range,
+    w_label,w_h3,w_button,w_bool,w_cli,w_connect,w_import,w_int,w_float,w_file,w_toolset,w_string,w_string_ro,w_text,w_range,
     w_radio,w_radiotool,w_select,w_option,w_section,w_switch,
     w_fieldset,w_details,w_navtab,
     w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_toolmenu,w_paragraph
