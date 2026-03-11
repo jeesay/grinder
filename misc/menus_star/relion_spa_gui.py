@@ -1393,6 +1393,8 @@ def initialiseExternalJob(is_tomo):
     joboptions["param10_label"] = rno.JobOption("Param10 - label:", (""), """Define label and value for optional parameters to the script. These will be passed as an argument --label value""")
     joboptions["param10_value"] = rno.JobOption("Param10 - value:" , (""), """Define label and value for optional parameters to the script. These will be passed as an argument --label value""")
 
+    return hidden_name, joboptions
+
 def getCommandsImportJob(is_tomo):
     pass
 

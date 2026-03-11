@@ -48,5 +48,16 @@ _motionrefine.filename
 _motionrefine.help
 ptcls_polish        'Perform Particle Polishing'     radio_tool       20          "relion.polish"         02.star         "?"   
 other_polish        'Bayesian Polishing'             radio_tool       20          "relion.polish"         03.star         "?"   
+#
+loop_
+_ctfrefine.id
+_ctfrefine.label        
+_ctfrefine.widget    
+_ctfrefine.proc_id 
+_ctfrefine.labelnew
+_ctfrefine.filename
+_ctfrefine.help
+anisomag           'Anisotropic Magnification Estimation CTF Refinement'       radio_tool      21      "relion.ctfrefine"      04.star         "?"
+ctfref              'Classic CTF Refinement'                                    radio_tool      21      "relion.ctfrefine"      05.star         "?"
 
 

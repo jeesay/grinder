@@ -397,9 +397,9 @@ job_gain_flip_options = [
 ]
 
 job_ctffit_options = [
-    "No",
-    "Per-micrograph",
-    "Per-particle"
+    ("No", 0),
+    ("Per-micrograph", 1),
+    ("Per-particle", 2)
 ]
 
 job_tomo_align_shiftonly_options = [

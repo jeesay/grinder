@@ -52,19 +52,20 @@ def floatToString(v):
 
 def getCommandsImportJob(joboptions,outputname, label="none", job_counter=-1):
     script, cli = clear(label)
-    cli.add_prog(rc.Prog("relion_import"))
+    initialisePipeline(outputname, job_counter)
+    cli.main_prog(rc.Prog("relion_import"))
 
     # Movies
     fn_out = "movies.star"
     nod = rc.Node(outputname + fn_out, rh.LABEL_IMPORT_MOVIES)
-    nod.flag("is_multiframe", True )
+    # nod.flag("is_multiframe", True )
     cli.add_outnode(nod)
     new_arg = rc.Flag("--do_movies","","is_multiframe", True )
     cli.append_arg(new_arg)
     # Micrographs
     fn_out = "micrographs.star"
     nod = rc.Node(outputname + fn_out, rh.LABEL_IMPORT_MICS)
-    nod.flag("is_multiframe", False )
+    # nod.flag("is_multiframe", False )
     cli.add_outnode(nod)
     new_arg = rc.Flag("--do_micrographs","","is_multiframe",  False)
     cli.append_arg(new_arg)
@@ -89,7 +90,7 @@ def getCommandsImportJob(joboptions,outputname, label="none", job_counter=-1):
     # node_type == "Particle coordinates (*.box, *_pick.star)")
     fn_out = fn_out = "coords_suffix" + "{fn_in_other}"
     nod = rc.Node(outputname + fn_out, rh.LABEL_IMPORT_COORDS)
-    nod.flag("node_type","LABEL_IMPORT_COORDS")
+    # nod.flag("node_type","LABEL_IMPORT_COORDS")
     cli.add_outnode(nod)
     new_arg = rc.Param("--do_coordinates","")
     cli.append_arg(new_arg)
@@ -98,32 +99,32 @@ def getCommandsImportJob(joboptions,outputname, label="none", job_counter=-1):
 	# node_type == "Particles STAR file (.star)")
     mynodetype = rh.LABEL_IMPORT_PARTS
     nod = rc.Node(outputname + fn_out, mynodetype)
-    nod.flag("node_type","LABEL_IMPORT_PARTS")
+    # nod.flag("node_type","LABEL_IMPORT_PARTS")
     cli.add_outnode(nod)
     # node_type == "Multiple (2D or 3D) references (.star or .mrcs)")
     mynodetype = rh.LABEL_IMPORT_2DIMG
     nod = rc.Node(outputname + fn_out, mynodetype)
-    nod.flag("node_type","LABEL_IMPORT_2DIMG")
+    # nod.flag("node_type","LABEL_IMPORT_2DIMG")
     cli.add_outnode(nod)
      # (node_type == "3D reference (.mrc)")
     mynodetype = rh.LABEL_IMPORT_MAP
     nod = rc.Node(outputname + fn_out, mynodetype)
-    nod.flag("node_type","LABEL_IMPORT_MAP")
+    # nod.flag("node_type","LABEL_IMPORT_MAP")
     cli.add_outnode(nod)
      # node_type == "3D mask (.mrc)")
     mynodetype = rh.LABEL_IMPORT_MASK
     nod = rc.Node(outputname + fn_out, mynodetype)
-    nod.flag("node_type","LABEL_IMPORT_MASK")
+    # nod.flag("node_type","LABEL_IMPORT_MASK")
     cli.add_outnode(nod)
     # node_type == "Micrographs STAR file (.star)")
     mynodetype = rh.LABEL_IMPORT_MICS
     nod = rc.Node(outputname + fn_out, mynodetype)
-    nod.flag("node_type","LABEL_IMPORT_MICS")
+    # nod.flag("node_type","LABEL_IMPORT_MICS")
     cli.add_outnode(nod)
     # node_type == "Unfiltered half-map (unfil.mrc)")
     mynodetype = rh.LABEL_IMPORT_HALFMAP
     nod = rc.Node(outputname + fn_out, mynodetype)
-    nod.flag("node_type","LABEL_IMPORT_HALFMAP")
+    # nod.flag("node_type","LABEL_IMPORT_HALFMAP")
     cli.add_outnode(nod)
     new_arg = rc.Flag("--do_halfmaps","","node_type","LABEL_IMPORT_HALFMAP")
     cli.append_arg(new_arg)
@@ -131,7 +132,7 @@ def getCommandsImportJob(joboptions,outputname, label="none", job_counter=-1):
     # Particles LABEL_PARTS_CPIPE
     mynodetype = rh.LABEL_PARTS_CPIPE
     nod = rc.Node(outputname + fn_out, mynodetype)
-    nod.flag("node_type","LABEL_PARTS_CPIPE")
+    # nod.flag("node_type","LABEL_PARTS_CPIPE")
     cli.add_outnode(nod)
     new_arg = rc.Flag("--do_particles","","node_type","LABEL_PARTS_CPIPE")
     cli.append_arg(new_arg)
@@ -139,10 +140,12 @@ def getCommandsImportJob(joboptions,outputname, label="none", job_counter=-1):
     cli.append_arg(new_arg)
 
     new_arg = rc.Param("--i ","fn_in")
+    cli.append_arg(new_arg)
     new_arg = rc.Param("--odir", "outputname")
+    cli.append_arg(new_arg)
     new_arg = rc.Param("--ofile ","fn_out")
-                       
-    new_arg = rc.Param(f" --pipeline-control {outputname}", "")
+    cli.append_arg(new_arg)
+    new_arg = rc.Param("--pipeline-control", outputname)
     cli.append_arg(new_arg)
     return script
 

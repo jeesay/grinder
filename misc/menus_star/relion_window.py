@@ -36,9 +36,9 @@ class Widget:
         #     return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15}\n{self.help}\n'
         if len(self.help) > 60:
             helptxt = '\n; ' + '.\n'.join(self.help.split('. ')) + '\n;'
-            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15} {helptxt}\n'
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<30} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15} {helptxt}\n'
         else:
-            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15} "{self.help}"\n'
+            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<30} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15} "{self.help}"\n'
     
     def __repr__(self):
         return self.__dict__

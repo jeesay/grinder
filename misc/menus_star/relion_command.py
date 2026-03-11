@@ -40,7 +40,9 @@ class Prog:
     
     def to_star(self):
         p = f'"{str(self.prog).strip()}"' if ' ' in self.prog else self.prog
-        return f'{self.type:<7} {p:<50} {self.flag:<20} {self.value:<20} {"?":<20}\n'
+        flg = self.flag if self.flag is not None else "?"
+        val = self.value if self.value is not None else "?"
+        return f'{self.type:<7} {p:<50} {flg:<20} {val:<20} {"?":<20}\n'
 
     def __str__(self):
         return f'prog    {self.prog}  {self.flag} {self.value}'

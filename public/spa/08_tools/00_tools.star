@@ -36,11 +36,11 @@ _selection.label
 _selection.widget    
 _selection.proc_id 
 _selection.labelnew
-_selection.help   
 _selection.filename
-subselect_class       "Select classes from job"                 radio_tool              7           "relion.select"           "?"             01.star
-subselect_mic         "Select from micrographs.star"            radio_tool              7           "relion.select"           "?"             02.star
-subselect_ptcls       "Select from particles.star"              radio_tool              7           "relion.select"           "?"             03.star
+_selection.help   
+subselect_class       "Select classes from job"                 radio_tool              7           "relion.select"           01.star       "?"
+subselect_mic         "Select from micrographs.star"            radio_tool              7           "relion.select"           02.star       "?"
+subselect_ptcls       "Select from particles.star"              radio_tool              7           "relion.select"           03.star       "?"
 #
 loop_
 _joinstar.id
@@ -48,8 +48,18 @@ _joinstar.label
 _joinstar.widget    
 _joinstar.proc_id 
 _joinstar.labelnew
-_joinstar.help   
 _joinstar.filename
-join_ptcls      "Combine particle STAR files"         radio_tool      13          "relion.joinstar"       "?"         04.star
-join_mics       "Combine micrograph STAR files"       radio_tool      13          "relion.joinstar"       "?"         05.star
-join_movs       "Combine movie STAR files"            radio_tool      13          "relion.joinstar"       "?"         06.star
+_joinstar.help   
+join_ptcls      "Combine particle STAR files"         radio_tool      13          "relion.joinstar"       04.star           "?"
+join_mics       "Combine micrograph STAR files"       radio_tool      13          "relion.joinstar"       05.star           "?"
+join_movs       "Combine movie STAR files"            radio_tool      13          "relion.joinstar"       06.star           "?"
+#
+loop_
+_extras.id
+_extras.label        
+_extras.widget    
+_extras.proc_id 
+_extras.labelnew
+_extras.filename
+_extras.help   
+external        "Provide an External Executable"        radio_tool      99      "relion.external"       07.star         "?"
