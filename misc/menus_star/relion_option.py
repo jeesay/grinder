@@ -180,7 +180,7 @@ class JobOption:
         return self.value
     
     def getString(self):
-        return str(self.value)
+        return str(self.id)
     
     def __repr__(self):
         return str(self.__dict__)

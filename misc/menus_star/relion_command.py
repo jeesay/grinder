@@ -1,9 +1,19 @@
 import relion_h as rh
 
 class Node:
-    def __init__(self,name,nodetype):
+    def __init__(self,name,nodetype,id='?'):
+        self.id = id
         self.name = name
         self.nodetype = nodetype
+        self.flag = '?'
+        self.value = '?'
+
+    def flag(self,f,v):
+        self.flag = f
+        self.v = v
+
+    def __repr__(self):
+        return f"{self.name:<80} {self.nodetype:<50}"
 
 # class Command:
 #     def __init__(self):
@@ -14,11 +24,24 @@ class Node:
 #             args.append({'type':cmnd_type'content':cmnd_content_content,'flag': cmnd_flag,'bool':cmnd_bool})
 
 class Prog:
-    def __init__(self,progname,flag=None,boolean=None):
-        self.prog = progname
+    def __init__(self,progname,flag=None,v=None):
+        self.prog =  progname
+        self.type = 'prog'
         self.flag = flag
-        self.value = boolean
+        self.value = v
+        self.args = []
+        self.others = [] # Other program depending of configuration (mpi, etc.) and argument/flag values
+
+    def append_prog(self,p):
+        self.others.append(p)    
         
+    def append_arg(self,arg):
+        self.args.append(arg)
+    
+    def to_star(self):
+        p = f'"{str(self.prog).strip()}"' if ' ' in self.prog else self.prog
+        return f'{self.type:<7} {p:<50} {self.flag:<20} {self.value:<20} {"?":<20}\n'
+
     def __str__(self):
         return f'prog    {self.prog}  {self.flag} {self.value}'
     
@@ -32,30 +55,35 @@ class Arg:
     def add_outnode(self,nod):
         self.out_nodes.append(nod)
 
+    def to_star(self):
+        v = f'"{str(self.value).strip()}"' if ' ' in self.value else self.value
+        return f'{self.type:<7} {self.arg:<50} {v:<50} {self.flag[0]:<20} {str(self.flag[1]):<5}\n'
+
 class Flag(Arg):
     def __init__(self,arg,value, flag,boolean):
         super(Flag,self).__init__()
         # arg if value == boolean
         self.type = "flag"
-        self.arg = arg
-        self.value = value
+        self.arg = arg if arg != "" else "?"
+        self.value = str(value) if value != "" else "?"
         self.flag = (flag,boolean)
-
+    
     def __str__(self):
-        argval = f'{self.arg} {{{self.value}}}' if self.value !="" else self.arg
+        argval = f"'{self.arg} {{{self.value}}}'" if self.value !="" else f"'{self.arg}'"
         return f'{self.type:<7} {argval:<50} {self.flag[0]:<20} {str(self.flag[1]):<5}'
 
 class Param(Arg):
     def __init__(self,arg,value,assertion=None):
         super(Param,self).__init__()
         self.type = "param"
-        self.arg = arg
-        self.value = str(value)
+        self.arg = arg if arg != "" else "?"
+        self.value = str(value) if value != "" else "?"
+        self.flag = ('?','?')
         self.assertion = '?' if not assertion else assertion
-
+    
     def __str__(self):
-        argval = f'{self.arg} {{{self.value}}}' if self.value !="" else self.arg
-        return f'{self.type:<7} {argval:<50} {'?':<20} {'?':<20} {self.assertion:<30}'
+        argval = f"'{self.arg} {{{self.value}}}'" if self.value !="" else f"'{self.arg}'"
+        return f"{self.type:<7} {argval:<50} {'?':<20} {'?':<20}"
 
 class CLI:
     def __init__(self):
@@ -63,15 +91,28 @@ class CLI:
         self.args = []
         self.outnodes = []
         self.innodes = []
+        self.current_prog = None
 
-    def add_prog(self,nod):
-        self.progs.append(nod)
+    def main_prog(self,p):
+        self.progs.append(p)
+        self.current_prog = p
+
+    def secondary_prog(self,p):
+        self.current_prog.append_prog(p)
 
     def add_innode(self,nod):
         self.innodes.append(nod)
 
     def add_outnode(self,nod):
+        nod.id = f'outnode_{len(self.outnodes):02}'
         self.outnodes.append(nod)
+
+    def append_arg(self,arg):
+        self.current_prog.append_arg(arg)
+
+    def label(self,labelnew,flag,flag_value):
+        self._label = labelnew
+        self._flag = (flag,flag_value)
 
     def __str__(self):
         p = '\n'.join(p.__str__() for p in self.progs)

@@ -59,24 +59,40 @@ def update_fieldset(tool,   fs,jo,params):
     return tool
 
         
-def update_system_fieldset(tool, has_mpi, has_thread, fs,jo,params):
+def update_system_fieldset(tool, has_mpi, has_thread, fs,jo, prog, params):
     # Create fieldset `outdata`
-    fout = rwi.Fieldset(fs.parent,"outdata","Output Data",icon="bi-box-arrow-down")
-    fout.display = 'hidden'
-    fout.group = rwi.group6
-    fout.current_group = rwi.group6
-    tool.append_fieldset(fout,'io')
-   # Create fieldset `nodes`
+    # fout = rwi.Fieldset(fs.parent,"outdata","Output Data",icon="bi-box-arrow-down")
+    # fout.display = 'hidden'
+    # fout.group = rwi.group6
+    # fout.current_group = rwi.group6
+    # tool.append_fieldset(fout,'io')
+    # Create fieldset `nodes`
     fnod = rwi.Fieldset(fs.parent,"nodes","Nodes",icon="bi-controller")
     fnod.display = "hidden"
-    fnod.group = rwi.group7
-    fnod.current_group = rwi.group7
+    fnod.group = rwi.group6
+    fnod.current_group = rwi.group6
     tool.append_fieldset(fnod,'io')
+    for nod in prog.commands[0].innodes:
+        wdgt = rwi.Widget(fnod,'?',fnod)
+        wdgt.id = nod.id
+        wdgt.widget = 'innode'
+        wdgt.label = nod.id
+        wdgt.arg0 = nod.nodetype
+        wdgt.value = nod.name
+        fnod.append(wdgt,force=True)
+    for nod in prog.commands[0].outnodes:
+        wdgt = rwi.Widget(fnod,'?',fnod)
+        wdgt.id = nod.id
+        wdgt.widget = 'outnode'
+        wdgt.label = nod.id
+        wdgt.arg0 = nod.nodetype
+        wdgt.value = nod.name
+        fnod.append(wdgt,force=True)
     # Create fieldset `system`
     fsys = rwi.Fieldset(fs.parent,"system","System",icon="bi-incognito")
     fsys.display = 'hiddden'
-    fsys.group = rwi.group8
-    fsys.current_group = rwi.group8
+    fsys.group = rwi.group7
+    fsys.current_group = rwi.group7
     print('FSYS')
     # Append widgets
     for wid,wv in params:
@@ -87,6 +103,13 @@ def update_system_fieldset(tool, has_mpi, has_thread, fs,jo,params):
         wdgt.group = fsys
         fsys.append(wdgt,force=True)
     tool.append_fieldset(fsys,'io')
+    # Create fieldset `scripting`
+    fcli = rwi.ArgSet(fs.parent,f'{tool.toolid}_prgm',"Script",type="cli")
+    fcli.group = rwi.group8
+    fcli.current_group = rwi.group8
+    tool.append_fieldset(fcli,'io')
+    for p in prog.commands[0].progs:
+        fcli.append(p)
     # Create fieldset `cli`
     fcli = rwi.Fieldset(fs.parent,f'{tool.toolid}_cmd',"Check command",type="cli")
     fcli.group = rwi.group9
@@ -113,6 +136,7 @@ def update_system_fieldset(tool, has_mpi, has_thread, fs,jo,params):
         wthread.set_options(jo)
         fs_compute.append(wthread)
     return tool
+
 
 ################## RELION SPA FUNCTIONS ##################
 
@@ -234,17 +258,15 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     tool = create_tool('rln_mc',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseMotioncorrJob(False)
-    # 4. Read the commands
-    outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
-    prog = rcmd.getCommandsMotioncorrJob(outputname,rh.PROC_MOTIONCORR)
-    # 5. Create the `outdata`` fieldset
-    # 6. Create the script
-    # 3. Build
+    # 3. Read the commands
+    outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/${RELION_NEW_JOB}/'
+    prog = rcmd.getCommandsMotioncorrJob(jo,outputname)
+    # 4. Build
     groups = rwi.initialiseMotioncorrWindow()
     for fs_params in groups:
         tool = update_fieldset(tool,   fs_params,jo,keys_rln)
 
-    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_rln)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, system_rln)
 
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/02_preprocess/01.star',has_mpi, has_thread)
@@ -254,12 +276,15 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     tool = create_tool('ucsf_mc',['io','settings','log','dataviz'])
     # 2. Read the joboptions
     hidden_name,jo = rjo.initialiseMotioncorrJob(False)
-    # 3. Build
+    # 3. Read the commands
+    outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/${RELION_NEW_JOB}/'
+    prog = rcmd.getCommandsMotioncorrJob(jo,outputname)
+    # 4. Build
     groups = rwi.initialiseMotioncorrWindow()
     for fs_params in groups:
         tool = update_fieldset(tool,   fs_params,jo,keys_ucsf)
 
-    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, system_ucsf)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, system_ucsf)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
