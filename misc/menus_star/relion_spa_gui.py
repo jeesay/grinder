@@ -1202,10 +1202,10 @@ def initialiseLocalresJob(is_tomo):
     joboptions["angpix"] = rno.JobOption("Calibrated pixel size (A)", 1, 0.3, 5, 0.1, """Provide the final, calibrated pixel size in Angstroms. This value may be different from the pixel-size used thus far, e.g. when you have recalibrated the pixel size using the fit to a PDB model. The X-axis of the output FSC plot will use this calibrated value.""")
 
     # Check for environment variable RELION_RESMAP_TEMPLATE
-    default_location = RELION_RESMAP_EXECUTABLE
-    default_resmap = DEFAULTRESMAPLOCATION
-    if (default_location == NULL):
-        default_location = default_resmap
+    default_location = 'RELION_RESMAP_EXECUTABLE'
+    default_resmap = 'DEFAULTRESMAPLOCATION'
+    # if (default_location == NULL):
+    #     default_location = default_resmap
 
 
     joboptions["do_resmap_locres"] = rno.JobOption("Use ResMap?", True, "If set to Yes, then ResMap will be used for local resolution estimation.")
@@ -1277,7 +1277,7 @@ def initialiseModelAngeloJob(is_tomo):
 
     joboptions["do_hhmer"] = rno.JobOption("Perform HMMer search?", False ,"""If set to Yes, model-angelo will perform a HMM search using HHMer in the output directory of the model-angelo run (without sequence). You can continue an old run with this option switched on, and the model building step will be skipped if the output .cif exists. This way, you can try multiple HHMer runs.""")
     joboptions["fn_lib"] = rno.JobOption("Library with sequences for HMMer search:",rh.LABEL_SEQUENCE_CPIPE, 1, "", "FASTA sequence files (*.{fasta,txt})", """FASTA file with library with all sequences for HMMer search. This is often an entire proteome.""")
-    joboptions["alphabet"] = rno.JobOption("Alphabet for the HMMer search:", job_modelangelo_alphabet_options, 0, "Type of Alphabet for HMM searches.")
+    joboptions["alphabet"] = rno.JobOption("Alphabet for the HMMer search:", rh.job_modelangelo_alphabet_options, 0, "Type of Alphabet for HMM searches.")
     joboptions["F1"] = rno.JobOption("HMMSearch F1: ", 0.02, 1., 10., 0.1, """F1 parameter for HMMSearch, see their documentation at http:#eddylab.org/software/hmmer/Userguide.pdf""")
     joboptions["F2"] = rno.JobOption("HMMSearch F2: ", 0.001, 1., 10., 0.1, """F2 parameter for HMMSearch, see their documentation at http:#eddylab.org/software/hmmer/Userguide.pdf""")
     joboptions["F3"] = rno.JobOption("HMMSearch F3: ", 0.00001, 0., 10., 0.1, """F3 parameter for HMMSearch, see their documentation at http:#eddylab.org/software/hmmer/Userguide.pdf""")

@@ -32,9 +32,9 @@ class Widget:
         self.help = jo.help 
 
     def to_star(self):
-        if self.help[0] == ';':
-            return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15}\n{self.help}\n'
-        elif len(self.help) > 60:
+        # if self.help[0] == ';':
+        #     return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15}\n{self.help}\n'
+        if len(self.help) > 60:
             helptxt = '\n; ' + '.\n'.join(self.help.split('. ')) + '\n;'
             return f'{self.id:<20} {self.label:<35} {self.widget:<10} {self.value:<15} {self.arg0:<15} {self.arg1:<15} {self.arg2:<15} {self.constraint:<15} {helptxt}\n'
         else:
@@ -148,8 +148,8 @@ class FsGroup:
         return '\n'.join([str(fs) for fs in self.groups])
 
 def place(parent,id,toggle=TOGGLE_UNKNOWN,grp=group_unk,flag=True,force=False):
-    name_list = ["fn_cont", "fn_ref", "fn_mask", "star_mics", "coords_suffix", "fn_model", "fn_mic", "fn_data", "fn_bodies"]
-    if 'fn_in' in id or 'input_' in id or "fn_img" in id or id in name_list :
+    name_list = ["fn_cont", "fn_ref", "fn_mask", "star_mics", "coords_suffix", "fn_model", "fn_mic", "fn_data", "fn_bodies", "fn_star", "fn_map", "fn_post"]
+    if 'fn_in' in id or 'input_' in id or "fn_img" in id or "fn_mic" in id or "fn_part" in id or "fn_mov" in id or "_seq" in id or id in name_list :
         parent.fsid = 'indata'
         parent.fsname = '"Input Data"'
         parent.icon = 'bi-box-arrow-in-down'
@@ -1002,6 +1002,9 @@ def initialiseMaskcreateWindow(is_tomo=False):
     groups = FsGroup()
     grp = Fieldset(groups)
     grp = place(grp,"fn_in", TOGGLE_DEACTIVATE) # (current_y, "Input 3D map:", NODE_3DREF, "", "MRC map files (*.mrc)", "Provide an input MRC map from which to start binarizing the map.")
+    grp.end()
+    
+    grp =Fieldset(groups)
     grp = place(grp,"lowpass_filter")
     grp = place(grp,"angpix")
     grp.end()
@@ -1023,29 +1026,28 @@ def initialiseMaskcreateWindow(is_tomo=False):
 
 def initialiseJoinstarWindow(is_tomo=False):
     groups = FsGroup()
-    grp = Fieldset(groups, "do_part", "Combine particle STAR files?", type="switch")
-    # grp = place(grp,"do_part", TOGGLE_DEACTIVATE, group1)
+    grp = Fieldset(groups, "do_part", "Combine particle STAR files")
+    grp = place(grp,"do_part", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"fn_part1", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_part2", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_part3", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_part4", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp = Fieldset(groups, "do_mic", "Combine micrograph STAR files?", type="switch")
-    # grp = place(grp,"do_mic", TOGGLE_DEACTIVATE, group2)
+    grp = Fieldset(groups, "do_mic", "Combine micrograph STAR files")
+    grp = place(grp,"do_mic", TOGGLE_DEACTIVATE, group2)
     grp = place(grp,"fn_mic1", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mic2", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mic3", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mic4", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp = Fieldset(groups, "do_mov", "Combine movie STAR files?", type="switch")
-    # grp = place(grp,"do_mov", TOGGLE_DEACTIVATE, group3) # (current_y, "Combine movie STAR files?", False, "", mov_group)
+    grp = Fieldset(groups, "do_mov", "Combine movie STAR files?")
+    grp = place(grp,"do_mov", TOGGLE_DEACTIVATE, group3) # (current_y, "Combine movie STAR files?", False, "", mov_group)
     grp = place(grp,"fn_mov1", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mov2", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mov3", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mov4", TOGGLE_DEACTIVATE)
-
     grp.end()
     
 
@@ -1056,12 +1058,14 @@ def initialiseSubtractWindow(is_tomo=False):
     grp = Fieldset(groups)
     grp = place(grp,"fn_opt", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_mask", TOGGLE_DEACTIVATE)
+    grp = place(grp,"fn_data", TOGGLE_DEACTIVATE)
+    grp.constraint = "?"
     grp.end()
     
-    grp =Fieldset(groups, "do_data", "Use different particles?", type="switch")
-    # grp = place(grp,"do_data", TOGGLE_DEACTIVATE, group1)
-    grp = place(grp,"fn_data", TOGGLE_DEACTIVATE)
-    grp.end()
+    # grp =Fieldset(groups, "do_data", "Use different particles?", type="switch")
+    # # grp = place(grp,"do_data", TOGGLE_DEACTIVATE, group1)
+    # grp = place(grp,"fn_data", TOGGLE_DEACTIVATE)
+    # grp.end()
     
     grp =Fieldset(groups)
     grp = place(grp,"do_float16", TOGGLE_DEACTIVATE)
@@ -1072,11 +1076,11 @@ def initialiseSubtractWindow(is_tomo=False):
     grp = place(grp,"fn_fliplabel", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups, "do_center_mask", "Do center substracted images on mask?", type="switch")
-    # grp = place(grp,"do_center_mask", TOGGLE_DEACTIVATE, group3, True)
+    grp =Fieldset(groups, "do_center_mask_fs", "Do center substracted images on mask")
+    grp = place(grp,"do_center_mask", TOGGLE_DEACTIVATE, group3, True)
     grp.end()
     
-    grp =Fieldset(groups, "do_center_xyz", "Do center on my coordinates?", type="switch")
+    grp =Fieldset(groups, "do_center_xyz_fs", "Do center on my coordinates?", type="switch")
     # grp = place(grp,"do_center_xyz", TOGGLE_DEACTIVATE, group4)
     grp = place3(grp, "center_x", "center_y", "center_z", "Center coordinate - X, Y, Z (pix):", TOGGLE_DEACTIVATE)
     grp.end()
@@ -1135,8 +1139,8 @@ def initialiseLocresWindow(is_tomo=False):
     grp = place(grp,"angpix", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups, "do_resmap_locres", "Use ResMap?", type="switch")
-    # grp = place(grp,"do_resmap_locres", TOGGLE_DEACTIVATE, group1)
+    grp =Fieldset(groups, "do_resmap_locres_fs", "ResMap Parameters")
+    grp = place(grp,"do_resmap_locres", TOGGLE_DEACTIVATE, group1)
     grp = place(grp,"fn_resmap", TOGGLE_DEACTIVATE)
     # grp.end()
  
@@ -1146,7 +1150,7 @@ def initialiseLocresWindow(is_tomo=False):
     grp = place(grp,"stepres", TOGGLE_DEACTIVATE)
     grp.end()
     
-    grp =Fieldset(groups, "do_relion_locres", "Use Relion?", type="switch")
+    grp =Fieldset(groups, "do_relion_locres_fs", "Relion Parameters")
     grp = place(grp,"do_relion_locres", TOGGLE_DEACTIVATE, group2)
     # grp = place(grp,"locres_sampling", TOGGLE_DEACTIVATE)
     # grp = place(grp,"randomize_at", TOGGLE_DEACTIVATE)
@@ -1168,29 +1172,28 @@ def initialiseMotionrefineWindow(is_tomo=False):
     grp = place(grp,"fn_data", TOGGLE_DEACTIVATE)
     grp = place(grp,"fn_post", TOGGLE_DEACTIVATE)
     grp.end()
- 
+    
+    grp =Fieldset(groups)
     grp = place(grp,"first_frame", TOGGLE_DEACTIVATE)
     grp = place(grp,"last_frame", TOGGLE_DEACTIVATE)
     grp.end()
- 
-    grp = place(grp,"extract_size", TOGGLE_DEACTIVATE)
-    grp = place(grp,"rescale", TOGGLE_DEACTIVATE)
-    grp.end()
     
     grp =Fieldset(groups)
+    grp = place(grp,"extract_size", TOGGLE_DEACTIVATE)
+    grp = place(grp,"rescale", TOGGLE_DEACTIVATE)
+
     grp = place(grp,"do_float16", TOGGLE_DEACTIVATE)
     grp.end()
     
     grp =Fieldset(groups, "do_param_optim", "Train optimal parameters?", type="switch")
     # grp = place(grp,"do_param_optim", TOGGLE_LEAVE_ACTIVE, group2)
-    grp = place(grp,"opt_params", TOGGLE_DEACTIVATE)
-    
     grp = place(grp,"eval_frac")
     grp = place(grp,"optim_min_part")
     grp.end()
     
-    grp =Fieldset(groups, "do_polish", "Perform particle polishing?", type="switch")
-    # grp = place(grp,"do_polish", TOGGLE_DEACTIVATE, group1)
+    grp =Fieldset(groups, "do_polish_fs", "Perform particle polishing")
+    grp = place(grp,"do_polish", TOGGLE_DEACTIVATE, group1)
+    grp = place(grp,"opt_params", TOGGLE_DEACTIVATE)
     grp = place(grp,"minres", TOGGLE_DEACTIVATE)
     grp = place(grp,"maxres", TOGGLE_DEACTIVATE)
     grp.end()
@@ -1301,7 +1304,6 @@ def initialiseModelAngeloWindow(is_tomo=False):
  
     grp = place(grp,"fn_lib", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"alphabet", TOGGLE_LEAVE_ACTIVE)
-    grp.end()
  
     grp = place(grp,"F1", TOGGLE_LEAVE_ACTIVE)
     grp = place(grp,"F2", TOGGLE_LEAVE_ACTIVE)

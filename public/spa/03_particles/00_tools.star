@@ -28,7 +28,7 @@ manual     'Manual Picking'           bi-hand-index-thumb    fieldset ? particle
 auto       'Auto Picking'             bi-check2-square       fieldset ? particles_tools ?
 auto_topaz 'Auto Picking by Topaz'    bi-robot               fieldset ? particles_tools ?
 extract    'Particle extraction'      bi-crop                fieldset ? particles_tools ?
-class2d    '2D classification'        bi-sort-numeric-down   fieldset ? particles_tools ?
+class2d    '2D classification'        bi-images              fieldset ? particles_tools ?
 #
 loop_
 _auto.id

@@ -25,3 +25,13 @@ _tool_menu.default
 _tool_menu.parent
 _tool_menu.help
 model    'Model Building' ?          fieldset ? model_tools ?
+#
+loop_
+_model.id
+_model.label        
+_model.widget    
+_model.proc_id 
+_model.labelnew
+_model.filename
+_model.help 
+angelo      'ModelAngelo Building'      radio_tool      23      "modelangelo"       01.star         "?"
