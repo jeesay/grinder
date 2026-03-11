@@ -36,7 +36,7 @@ _connect.arg1     # Placeholder
 _connect.arg2     # Node Type
 _connect.toolsetid
 _connect.help
-url        'Server IP Address'   string  '127.0.0.1' ?       ? ? home_dummy 'URL displayed by `grinder-server`'
-port       'Server Port'         string  8000        ?       ? ? home_dummy 'Port displayed by `grinder-server`'
-do_connect 'Connect'             button  true        bi-send ? ? home_dummy 'Send the connection request'
+ws_server_ip  'Server IP Address'   string  '127.0.0.1' ?       ? ? home_dummy 'URL displayed by `grinder-server`'
+ws_port       'Server Port'         string  8000        ?       ? ? home_dummy 'Port displayed by `grinder-server`'
+do_connect    'Connect'             connect true        bi-send ? ? home_dummy 'Send the connection request'
 #
