@@ -4,6 +4,9 @@ import relion_window as rwi
 import relion_spa_gui as rjo
 import relion_spa_commands as rcmd
 
+import pandas as pd
+import io
+
 ################## UTILITIES ##################
 
 def create_tool(toolid,tabs):
@@ -59,7 +62,7 @@ def update_fieldset(tool,   fs,jo,params):
     return tool
 
         
-def update_system_fieldset(tool, has_mpi, has_thread, fs,jo, prog, params):
+def update_system_fieldset(tool, has_mpi, has_thread, fs,jo, prog, keys, params):
     # Create fieldset `outdata`
     # fout = rwi.Fieldset(fs.parent,"outdata","Output Data",icon="bi-box-arrow-down")
     # fout.display = 'hidden'
@@ -73,7 +76,6 @@ def update_system_fieldset(tool, has_mpi, has_thread, fs,jo, prog, params):
     fnod.current_group = rwi.group6
     tool.append_fieldset(fnod,'io')
     for nod in prog.commands[0].innodes:
-        print("CONTENU DE INNODES : ", nod)
         wdgt = rwi.Widget(fnod,'?',fnod)
         wdgt.id = nod.id
         wdgt.widget = 'innode'
@@ -82,7 +84,7 @@ def update_system_fieldset(tool, has_mpi, has_thread, fs,jo, prog, params):
         wdgt.value = nod.name
         fnod.append(wdgt,force=True)
     for nod in prog.commands[0].outnodes:
-        print("CONTENU DE OUTNODES : ", nod)
+        # print("CONTENU DE OUTNODES : ", nod.nodetype)
         wdgt = rwi.Widget(fnod,'?',fnod)
         wdgt.id = nod.id
         wdgt.widget = 'outnode'
@@ -111,8 +113,12 @@ def update_system_fieldset(tool, has_mpi, has_thread, fs,jo, prog, params):
     fcli.current_group = rwi.group8
     tool.append_fieldset(fcli,'io')
     for p in prog.commands[0].progs:
-        print("ICI LE PROGRAMME : ", p)
         fcli.append(p)
+    tab_data = str(fcli.to_star())
+    df_filtered = get_filtered_table(tab_data, keys)
+    print(df_filtered)
+    fcli = update_fieldset_from_df(fcli, df_filtered)
+    print(type(fcli))
     # Create fieldset `cli`
     fcli = rwi.Fieldset(fs.parent,f'{tool.toolid}_cmd',"Check command",type="cli")
     fcli.group = rwi.group9
@@ -140,6 +146,72 @@ def update_system_fieldset(tool, has_mpi, has_thread, fs,jo, prog, params):
         fs_compute.append(wthread)
     return tool
 
+def get_filtered_table(tab_data, keys):
+    lines = tab_data.strip().split('\n')
+    star_header = [l for l in lines if l.strip().startswith(('_', 'loop_'))]
+    
+    # Extraction des colonnes (on enlève le prefixe '_' pour Pandas)
+    col_names = [l.split('.')[-1] for l in star_header if l.startswith('_')]
+    
+    # Extraction des données
+    valid_prefixes = ('prog', 'flag', 'param')
+    data_lines = [l for l in lines if l.strip().startswith(valid_prefixes)]
+    
+    # Chargement dans Pandas
+    df = pd.read_csv(io.StringIO("\n".join(data_lines)), sep=r'\s+', names=col_names)
+
+    # Définition des paramètres obligatoires à NE PAS supprimer
+    mandatory_args = ['--i', '--odir', '--ofile', '--pipeline-control']
+    
+    # Filtrage
+    # On garde si : c'est le programme OU c'est un argument obligatoire 
+    # OU si l'ID/Flag est dans la sélection utilisateur
+    mask = (
+        (df['type'] == 'prog') | 
+        (df['arg'].isin(mandatory_args)) |
+        (df['param_id'].isin(keys)) | 
+        (df['flag'].isin(keys))
+    )
+    df_filtered = df[mask].copy()
+    # Reconstruction du fichier au format STAR
+    final_output = "\n".join(star_header) + "\n"
+    # to_string sans index ni header pour coller au format loop_
+    final_output += df_filtered.to_string(header=False, index=False, justify='left')
+
+    return final_output
+
+def update_fieldset_from_df(fieldset, star_text):
+    lines = star_text.strip().split('\n')
+    valid_prefixes = ('prog', 'flag', 'param')
+    data_lines = [l.strip() for l in lines if l.strip().startswith(valid_prefixes)]
+    
+    # On crée un DataFrame pour faciliter la recherche
+    # On splitte par espaces et on ne prend que les deux premières colonnes (type et arg)
+    rows = []
+    for l in data_lines:
+        parts = l.split()
+        if len(parts) >= 2:
+            arg = parts[1]
+            rows.append(arg)
+    
+    valid_args_set = set(rows)
+
+    # On filtre les widgets de l'objet fieldset
+    # On garde le widget si son argument est dans notre set de lignes valides
+    filtered_widgets = []
+    for w in fieldset.widgets:
+        # Nettoyage de l'argument du widget pour la comparaison
+        w_arg = getattr(w, 'arg', None)
+        if w_arg:
+            w_arg = w_arg.strip()
+            
+        if getattr(w, 'type', None) == 'prog' or w_arg in valid_args_set:
+            filtered_widgets.append(w)
+            
+    # On met à jour la liste des widgets de l'objet original
+    fieldset.widgets = filtered_widgets
+
+    return fieldset
 
 ################## RELION SPA FUNCTIONS ##################
 
@@ -171,13 +243,12 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     # 3. Read the commands
     outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/${RELION_NEW_JOB}/'
     prog = rcmd.getCommandsImportJob(jo,outputname)
-    print(f"SCRIPT ===== '\n' {prog} '\n' ===================")
     # 4. Build
     groups = rwi.initialiseImportWindow()
     for fs_params in groups:
         tool = update_fieldset(tool, fs_params, jo, keys_raw)
 
-    tool = update_system_fieldset(tool, has_mpi, has_thread, groups.groups[0], jo, prog, system_raw)
+    tool = update_system_fieldset(tool, has_mpi, has_thread, groups.groups[0], jo, prog, keys_raw, system_raw)
 
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/01_import/0199.star',has_mpi, has_thread)
@@ -196,7 +267,7 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     for fs_params in groups:
         tool = update_fieldset(tool,   fs_params,jo,keys_ptcls)
 
-    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, system_other)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, keys_ptcls, system_other)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -220,7 +291,7 @@ def initialiseImportJob(has_mpi = False, has_thread = False):
     for fs_params in groups:
         tool = update_fieldset(tool,   fs_params,jo,keys_other)
 
-    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, system_other)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, keys_other, system_other)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -238,20 +309,20 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
               "eer_grouping", "do_float16", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
               "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip", "do_own_motioncor", 
               "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args", "do_dose_weighting", "do_save_noDW",
-              "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
+              "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps"]
 
     keys_rln = ["input_star_mics", "first_frame_sum", "last_frame_sum", 
               "eer_grouping", "do_float16", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
               "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip", "do_dose_weighting", "do_save_noDW",
-              "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
+              "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps"]
     keys_ucsf = ["input_star_mics","first_frame_sum", "last_frame_sum", 
-              "eer_grouping", "do_float16", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
+              "eer_grouping", "do_even_odd_split", "bfactor", "patch_x", "patch_y", 
               "group_frames", "bin_factor", "fn_gain_ref", "gain_rot", "gain_flip",
               "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args", "do_dose_weighting", "do_save_noDW",
-              "dose_per_frame", "pre_exposure", "do_save_ps", "group_for_ps", "group_for_ps"]
+              "dose_per_frame", "pre_exposure"]
     
     unused_rln = ["do_own_motioncor", "fn_motioncor2_exe", "fn_defect", "gpu_ids", "other_motioncor2_args"]
-    unused_ucsf = ["do_own_motioncor"]
+    unused_ucsf = ["do_own_motioncor", "do_float16", "do_save_ps", "group_for_ps", ]
 
     system_rln = [("do_own_motioncor",True)]
     system_ucsf = [("do_own_motioncor",False)]
@@ -269,7 +340,7 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     for fs_params in groups:
         tool = update_fieldset(tool,   fs_params,jo,keys_rln)
 
-    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, system_rln)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, keys_rln, system_rln)
 
     # 7. Write the file `xx.star`
     write_starfile(tool,'./public/spa/02_preprocess/0199.star',has_mpi, has_thread)
@@ -287,7 +358,7 @@ def initialiseMotioncorrJob(has_mpi = True, has_thread = True):
     for fs_params in groups:
         tool = update_fieldset(tool,   fs_params,jo,keys_ucsf)
 
-    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, system_ucsf)
+    tool = update_system_fieldset(tool, has_mpi, has_thread,  groups.groups[0], jo, prog, keys_ucsf, system_ucsf)
 
     # 4. Read the commands
     # outputname =  rh.proc_type2dirname(rh.PROC_MOTIONCORR) + '/RELION_NEW_JOB'
@@ -1489,7 +1560,7 @@ def initialiseTomoReconPartJob(has_mpi = True, has_thread = True):
 
 if __name__ == '__main__' :
     initialiseImportJob()
-    # initialiseMotioncorrJob()
+    initialiseMotioncorrJob()
     # initialiseCtffindJob()
     # # initialiseManualpickJob()
     # initialiseAutopickJob()
