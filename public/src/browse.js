@@ -1,7 +1,9 @@
+import {get_file_tree} from "./main.js";
+
 let currentPath = []; 
 let selectedFile = null;
 
-function init() {
+function init(rootData) {
     navigateTo(rootData, "Project");
 }
 
@@ -27,7 +29,7 @@ function navigateTo(folderData, folderName) {
 }
 
 // Change this number to control how many folders show before collapsing
-const MAX_VISIBLE_BREADCRUMBS = 3;
+const MAX_VISIBLE_BREADCRUMBS = 4;
 
 function renderBreadcrumbs() {
     const container = document.getElementById('breadcrumb-container');
@@ -88,13 +90,21 @@ function renderFileList(data) {
     const container = document.getElementById('file-list');
     container.innerHTML = '';
 
-    data.forEach(item => {
+    data.sort((a, b) => a.name.localeCompare(b.name)).forEach(item => {
+        const file_icons= {
+            file:'bi bi-file-earmark me-2',
+            folder:'bi bi-folder-fill me-2',
+            mrc:'bi bi-file-earmark-image',
+            pdf:'bi bi-file-earmark-pdf',
+            star:'bi bi-file-earmark-medical'
+        }
         const row = document.createElement('div');
         row.className = 'tree-node';
         row.title = item.name; // Tooltip on hover
 
         const icon = document.createElement('i');
-        icon.className = item.type === 'folder' ? 'bi bi-folder-fill me-2' : 'bi bi-file-earmark me-2';
+        const nodetype = item.label?.split('.')[1] || item.type;
+        icon.className = file_icons[nodetype]; // === 'folder' ? 'bi bi-folder-fill me-2' : 'bi bi-];file-earmark me-2';
         icon.style.color = item.type === 'folder' ? '#E95420' : '#6c757d';
         icon.style.marginRight = "10px";
 
@@ -201,10 +211,73 @@ export function handleOpen() {
     }
 }
 
-export function togglePopup() {
+export async function togglePopup() {
+    function requestTree(path, depth) {
+        const payload = {
+            path: path,
+            depth: depth
+        };
+        socket.send(JSON.stringify(payload));
+    }
+
     const popup = document.getElementById('file-popup');
     const isVisible = popup.style.display === 'flex';
     popup.style.display = isVisible ? 'none' : 'flex';
-    if (!isVisible) init(); // Load root on open
+    //
+   const socket = await new WebSocket("ws://localhost:20000/ws/file-tree");
+   await requestTree(".",2);
+
+    // Update the UI when the server responds
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.info('DAAAAAATTTTTTTTAAAAAAAAAAAAAAAAAA',data);
+        if (!isVisible) init(data); // Load root on open
+
+        // treeDisplay.textContent = JSON.stringify(data, null, 2);
+    }
 }
+
+export async function fetchFileTree(targetPath, treeDepth) {
+
+    const popup = document.getElementById('file-popup');
+    const isVisible = popup.style.display === 'flex';
+    popup.style.display = isVisible ? 'none' : 'flex';
+
+    return new Promise((resolve, reject) => {
+        // 1. Create the connection
+        const socket = new WebSocket("ws://localhost:20000/ws/file-tree");
+
+        // 2. Handle connection open
+        socket.onopen = () => {
+            const payload = { path: targetPath, depth: treeDepth };
+            socket.send(JSON.stringify(payload));
+        };
+
+        // 3. Handle the result
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (!isVisible) init(JSON.parse(data).children); // Load root on open
+            socket.close(); // Close connection after getting the data
+            resolve(data);
+        };
+
+        // 4. Handle errors
+        socket.onerror = (error) => reject(error);
+    });
+}
+
+// Example usage with your Browse button
+// document.getElementById("browseBtn").addEventListener("click", async () => {
+//     try {
+//         console.log("Fetching tree...");
+//         const tree = await fetchFileTree(".", 2);
+        
+//         console.log("Result received:", tree);
+//         // Now you can display your file dialog or render the tree
+//         displayCustomFileDialog(tree);
+        
+//     } catch (err) {
+//         console.error("WebSocket failed:", err);
+//     }
+// });
 

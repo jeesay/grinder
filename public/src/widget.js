@@ -20,7 +20,7 @@
 'use strict';
 
 import {h} from "./dom.js";
-import {togglePopup} from "./browse.js";
+import {togglePopup,fetchFileTree} from "./browse.js";
 import {connect_to_ws_server} from "./main.js"
 
 const get_parent = (desc,parent_id,level=0) => {
@@ -199,7 +199,7 @@ const w_file = (desc) => {
           },
           dataset: ds,
           on: {
-            click: togglePopup
+            click: fetchFileTree
           }
         }
       )
@@ -282,7 +282,7 @@ const w_paragraph = (desc) => h('div.row',
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h(
       `span#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
-      desc.content
+      desc.default
     )
   ]
 );

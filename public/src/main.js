@@ -265,6 +265,28 @@ export const connect_to_ws_server = async () => {
   else {
       alert(`[Fail] Unable to connect to the server ws://${ip_address}:${port}/`);
   }
+}
+
+/*
+ * Run the WebSocket Client and try to connect to the python WebSocket server
+*/
+export const get_file_tree = async () => {
+ 
+  const socket = new WebSocket("ws://localhost:20000/ws/file-tree");
+
+  function requestTree(path, depth) {
+      const payload = {
+          path: path,
+          depth: depth
+      };
+      socket.send(JSON.stringify(payload));
+  }
+
+  // Example: Trigger with depth 2 on button click
+  refreshBtn.addEventListener("click", () => {
+      requestTree(".", 2); 
+  });
+};
 
 /*
 //  GRINDER.websocket.onmessage = (event) => {};
@@ -296,7 +318,7 @@ export const connect_to_ws_server = async () => {
 
   receive(GRINDER.websocket);
 */
-};
+
 
  const fetchFile = async filename => {
     const file = await fetch(filename);
