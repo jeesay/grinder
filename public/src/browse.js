@@ -1,9 +1,9 @@
-import {get_file_tree} from "./main.js";
+// import {get_file_tree} from "./main.js";
 
 let currentPath = []; 
 let selectedFile = null;
 
-function init(rootData) {
+export function init(rootData) {
     navigateTo(rootData, "Project");
 }
 
@@ -221,11 +221,14 @@ export async function togglePopup() {
     }
 
     const popup = document.getElementById('file-popup');
+    const ip_address = document.getElementById('connect').dataset.ip;
+    const port = document.getElementById('connect').dataset.port;
     const isVisible = popup.style.display === 'flex';
     popup.style.display = isVisible ? 'none' : 'flex';
     //
-   const socket = await new WebSocket("ws://localhost:20000/ws/file-tree");
-   await requestTree(".",2);
+   const socket = new WebSocket(`ws://${ip_address}:${port}/ws/file-tree`);
+
+   socket.onopen = () => requestTree(".",2);
 
     // Update the UI when the server responds
     socket.onmessage = (event) => {
@@ -237,17 +240,23 @@ export async function togglePopup() {
     }
 }
 
-export async function fetchFileTree(targetPath, treeDepth) {
+export async function fetchFileTree(ev) {
 
     const popup = document.getElementById('file-popup');
-    const isVisible = popup.style.display === 'flex';
-    popup.style.display = isVisible ? 'none' : 'flex';
+    const ip_address = document.getElementById('connect').dataset.ip;
+    const port = document.getElementById('connect').dataset.port;
+    const targetPath = '.';
+    const treeDepth = 2;
+    console.info(`websocket: ws://${ip_address}:${port}/ws/file-tree`);
+    // const isVisible = popup.style.display === 'flex';
+    // popup.style.display = isVisible ? 'none' : 'flex';
 
     return new Promise((resolve, reject) => {
-        // 1. Create the connection
-        const socket = new WebSocket("ws://localhost:20000/ws/file-tree");
 
-        // 2. Handle connection open
+    // 1. Create the connection
+    const socket = new WebSocket(`ws://${ip_address}:${port}/ws/file-tree`);
+    
+    // 2. Handle connection open
         socket.onopen = () => {
             const payload = { path: targetPath, depth: treeDepth };
             socket.send(JSON.stringify(payload));
@@ -256,7 +265,6 @@ export async function fetchFileTree(targetPath, treeDepth) {
         // 3. Handle the result
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            if (!isVisible) init(JSON.parse(data).children); // Load root on open
             socket.close(); // Close connection after getting the data
             resolve(data);
         };
@@ -266,18 +274,4 @@ export async function fetchFileTree(targetPath, treeDepth) {
     });
 }
 
-// Example usage with your Browse button
-// document.getElementById("browseBtn").addEventListener("click", async () => {
-//     try {
-//         console.log("Fetching tree...");
-//         const tree = await fetchFileTree(".", 2);
-        
-//         console.log("Result received:", tree);
-//         // Now you can display your file dialog or render the tree
-//         displayCustomFileDialog(tree);
-        
-//     } catch (err) {
-//         console.error("WebSocket failed:", err);
-//     }
-// });
 

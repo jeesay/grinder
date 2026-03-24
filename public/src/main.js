@@ -247,46 +247,76 @@ const receive = function() {
 /*
  * Run the WebSocket Client and try to connect to the python WebSocket server
 */
-export const connect_to_ws_server = async () => {
+export  const connect_to_ws_server = async () => {
   const ip_address = document.querySelector('input.param[data-param=ws_server_ip]').value;
   const port = document.querySelector('input.param[data-param=ws_port]').value;
-  console.info('WS',ip_address,port);
+  console.info('WS',`ws://${ip_address}:${port}/welcome`);
   // Open the WebSocket connection and register event handlers.
-  await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
-  
-  if (GRINDER.server.connected) {
-      alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`);
-      document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
-      document.getElementById('connect').style.color = 'lightgreen';
+  // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
+ 
+  return new Promise((resolve, reject) => {
+        // 1. Create the connection
+        const socket = new WebSocket(`ws://${ip_address}:${port}/welcome`);
 
-      const data = await GRINDER.server.receive();
-      document.getElementById('project').innerHTML = data;
-  }
-  else {
-      alert(`[Fail] Unable to connect to the server ws://${ip_address}:${port}/`);
-  }
+        // 2. Handle connection open
+        socket.onopen = () => {
+          // Update the UI when the server responds
+            alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`);
+            document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
+            document.getElementById('connect').style.color = 'lightgreen';
+            document.getElementById('connect').dataset.ip = ip_address;
+            document.getElementById('connect').dataset.port = port;
+        };
+
+        // 3. Handle the result
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            socket.close(); // Close connection after getting the data
+            resolve(data);
+        };
+
+        // 4. Handle errors
+        socket.onerror = (error) => reject(error);
+    });
 }
+
+//   if (GRINDER.server.connected) {
+//     // Update the UI when the server responds
+//       alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`);
+//       document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
+//       document.getElementById('connect').style.color = 'lightgreen';
+//       document.getElementById('connect').dataset.ip = ip_address;
+//       document.getElementById('connect').dataset.port = port;
+      
+
+//       const data = await GRINDER.server.receive();
+//       document.getElementById('project').innerHTML = data;
+//   }
+//   else {
+//       alert(`[Fail] Unable to connect to the server ws://${ip_address}:${port}/`);
+//   }
+// }
 
 /*
  * Run the WebSocket Client and try to connect to the python WebSocket server
 */
-export const get_file_tree = async () => {
+// export const get_file_tree = async () => {
  
-  const socket = new WebSocket("ws://localhost:20000/ws/file-tree");
+//   const socket = new WebSocket("ws://localhost:20000/ws/file-tree");
 
-  function requestTree(path, depth) {
-      const payload = {
-          path: path,
-          depth: depth
-      };
-      socket.send(JSON.stringify(payload));
-  }
+//   function requestTree(path, depth) {
+//       const payload = {
+//           path: path,
+//           depth: depth
+//       };
+//       socket.send(JSON.stringify(payload));
+//   }
 
-  // Example: Trigger with depth 2 on button click
-  refreshBtn.addEventListener("click", () => {
-      requestTree(".", 2); 
-  });
-};
+//   // Example: Trigger with depth 2 on button click
+//   refreshBtn.addEventListener("click", () => {
+//       requestTree(".", 2); 
+//   });
+// };
 
 /*
 //  GRINDER.websocket.onmessage = (event) => {};

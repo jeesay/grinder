@@ -20,7 +20,7 @@
 'use strict';
 
 import {h} from "./dom.js";
-import {togglePopup,fetchFileTree} from "./browse.js";
+import {togglePopup,fetchFileTree, init} from "./browse.js";
 import {connect_to_ws_server} from "./main.js"
 
 const get_parent = (desc,parent_id,level=0) => {
@@ -77,7 +77,11 @@ const w_button = (desc) => {
 
 // Specialized button
 const w_connect = (desc) => {
-  desc.on_click = connect_to_ws_server;
+  desc.on_click = async (ev) => {
+    ev.preventDefault(); // Stop the page from refreshing/redirecting
+    const data_env = await connect_to_ws_server();
+    document.getElementById('project').innerHTML = JSON.stringify(data_env,null,2);
+  }
   return w_button(desc);
 }
 
@@ -199,7 +203,14 @@ const w_file = (desc) => {
           },
           dataset: ds,
           on: {
-            click: fetchFileTree
+            click: async (ev) => {
+              ev.preventDefault(); // Stop the page from refreshing/redirecting
+              const data_tree = await fetchFileTree();
+              const popup = document.getElementById('file-popup');
+              const isVisible = popup.style.display === 'flex';
+              popup.style.display = isVisible ? 'none' : 'flex';
+              if (!isVisible) init(JSON.parse(data_tree).children); // Load root on open
+            }
           }
         }
       )
