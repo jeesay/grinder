@@ -253,10 +253,10 @@ export async function fetchFileTree(ev) {
 
     return new Promise((resolve, reject) => {
 
-    // 1. Create the connection
-    const socket = new WebSocket(`ws://${ip_address}:${port}/ws/file-tree`);
-    
-    // 2. Handle connection open
+        // 1. Create the connection
+        const socket = new WebSocket(`ws://${ip_address}:${port}/ws/file-tree`);
+        
+        // 2. Handle connection open
         socket.onopen = () => {
             const payload = { path: targetPath, depth: treeDepth };
             socket.send(JSON.stringify(payload));
