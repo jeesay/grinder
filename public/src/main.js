@@ -1,5 +1,6 @@
 import {StarGate} from "./stargate.js";
 import {w_leftpanel, w_tab_tools} from "./widget.js";
+import {h} from "./dom.js";
 import {WSClient} from "./ws_client.js";
 //import {*} from "./dom.js";
 //import {*} from "./job.js";
@@ -498,4 +499,51 @@ export  const connect_to_ws_server = async () => {
       all_of_them.push(root);
     }
     return all_of_them;
+  }
+
+  export const buildSidebar = async filename => {
+    // Load and parse `grinder_spa.star`
+    const file = await fetch(filename);
+    const text = await file.text();
+    const all_of_them = [{dummy: '?'}];
+    
+    const obj = new StarGate();
+    obj.parseSTAR(text);
+    const left_panel = obj.datablock('grinder_spa').table('tool_panel');
+    console.info('PANEL',left_panel);
+    // Create items in left panel
+    w_leftpanel(document.querySelector('aside.tools nav ul'),left_panel);
+    // Create Tools panel
+    let tools = [];
+    let tab_count = 1;
+    for (let tab of left_panel) {
+      console.info('Tab Data',tab);
+      // tab.path = 'spa/'+ tab.starfile.split('/')[0] + '/' //HACK
+      const _tmp = await fetchFile(tab.path + tab.starfile);
+      let db = _tmp.datablocks.default;
+      console.log('SUBMENU',db);
+      // Get all tables and build hierarchy
+      let tables = get_tables(db);
+      let flat_table = flat_tables(tables);
+      flat_table.forEach(async wdgt => {
+        console.log('WIDGET',wdgt);
+        if (wdgt.widget === 'submenu') {
+          const parent = document.getElementById(tab.id);
+          let ul = parent.querySelector('ul');
+          if ( ul === null) {
+            ul = h('ul.submenu');
+            parent.appendChild(ul);
+          }
+          // Create child
+          const w = h('li',[
+                h('a',[
+                  h(`i.nav-icon.bi.${wdgt.icon}`),
+                  h('span.nav-text',wdgt.label)
+                ]),
+                h('ul.sub-submenu')
+              ]);
+          ul.appendChild(w);
+        }
+      });
+    }
   }

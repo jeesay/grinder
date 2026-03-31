@@ -77,10 +77,24 @@ const w_button = (desc) => {
 
 // Specialized button
 const w_connect = (desc) => {
+
+  const new_item = (item,parent) => {
+      const w = h('li.file-item',
+        {
+          dataset: {job: item[0], procid: item[2]}
+        },
+        item[0]
+      );
+      parent.appendChild(w)
+  }
   desc.on_click = async (ev) => {
     ev.preventDefault(); // Stop the page from refreshing/redirecting
     const data_env = await connect_to_ws_server();
     document.getElementById('project').innerHTML = JSON.stringify(data_env,null,2);
+    console.log(data_env);
+    const parent = document.querySelector('aside.jobs ul');
+    data_env.environment.processes.data.forEach(job => new_item(job,parent));
+    jobs.appendChild(h('li.file-item',))
   }
   return w_button(desc);
 }
@@ -493,7 +507,7 @@ const w_radio = (desc) => h('div.row',
           checked: (desc.default === true) ? true : false
         },
         dataset: {
-          toolset: desc.toolsetid,
+          toolset: desc.labelnew,
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
@@ -508,7 +522,17 @@ const w_radio = (desc) => h('div.row',
 const w_leftpanel = (parent,desc) => {
   console.log('leftpanel',desc.label);
   desc.forEach( (child,i) => {
-    const el = h(`li#${child.id}`,[h(`i.bi.${child.icon}`),child.label]);
+    const el = h(
+      `li#${child.id}`,
+      [
+        h('a',
+          [
+            h(`i.nav-icon.bi.${child.icon}`),
+            h('span.nav-text',child.label)
+          ]
+        )
+      ],
+    );
     parent.appendChild(el);
   });
 }
@@ -526,7 +550,24 @@ const w_import = (desc) => {
 }
 
 const w_navtab = (desc) => {
-   console.error(`Has children in ${desc.id}?`,('children' in desc) && (desc.children.length > 0));
+  // Event function
+  const get_logfile = (ev) => {
+    // Connect to ws
+    console.info(ev.target.dataset.parent, ev.target.dataset.label);
+  };
+
+  const get_dataviz = (ev) => {
+    // Connect to ws
+    console.info(ev.target.dataset.parent, ev.target.dataset.label);
+  }
+
+  const nothing = (ev) => {
+    console.info('Do nothing');
+  }
+  
+  const funcs = {'I/O': nothing,'Settings': nothing,'Log': get_logfile,'DataViz': get_dataviz};
+
+  console.error(`Has children in ${desc.id}?`,('children' in desc) && (desc.children.length > 0));
   // Remove all the previous children
   // parent.innerHTML = '';
   let i = desc.index + 1; // HACK
@@ -539,10 +580,14 @@ const w_navtab = (desc) => {
             type:'radio',
             name:'css-tabs'
           },
+          dataset: {
+            parent: desc.parent,
+            label: desc.label
+          },
           props: {
             checked: (i==0) ? true : false
           },
-          on: ('on_click' in desc) ? {click: desc.on_click} : {}
+          on: ('on_click' in desc) ? {click: desc.on_click} : {click: funcs[desc.label]}
         }
       ),
       h('label.tab-label',{attrs: {'for': `tab-${i}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),

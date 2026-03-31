@@ -1,32 +1,13 @@
 data_
 #
-_id       prep_tools
-_label    Tools
-_icon     bi-tools
-_index    2
-_parent   prep
-#
 loop_
-_prep_tools.id
-_prep_tools.label 
-_prep_tools.icon
-_prep_tools.widget 
-_prep_tools.default
-_prep_tools.parent_id
-_prep_tools.help
-tool_menu      'Tools'   bi-tools toolmenu  ? ?
-#
-loop_
-_tool_menu.id
-_tool_menu.label 
-_tool_menu.icon
-_tool_menu.widget 
-_tool_menu.default
-_tool_menu.parent
-_tool_menu.help
-motion 'Motion Correction'  bi-graph-up  fieldset ? prep_tools ?
-ctffind 'CTF Estimation'    bi-bullseye  fieldset ? prep_tools ?
-curation 'Micrograph Curation' bi-check2-square  fieldset ? prep_tools ?
+_prep.id
+_prep.label 
+_prep.icon
+_prep.widget 
+motion 'Motion Correction'  bi-graph-up  submenu
+ctffind 'CTF Estimation'    bi-bullseye  submenu
+curation 'Mgraph Curation'  bi-check2-square  submenu
 #
 loop_
 _motion.id

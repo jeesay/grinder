@@ -1,32 +1,13 @@
 data_
 #
-_id       enhance_tools
-_label    Tools
-_icon     bi-tools
-_index    6
-_parent   enhance
-#
 loop_
-_enhance_tools.id
-_enhance_tools.label 
-_enhance_tools.icon
-_enhance_tools.widget 
-_enhance_tools.default
-_enhance_tools.parent_id
-_enhance_tools.help
-tool_menu      'Tools'   bi-tools toolmenu  ? ?
-#
-loop_
-_tool_menu.id
-_tool_menu.label 
-_tool_menu.icon
-_tool_menu.widget 
-_tool_menu.default
-_tool_menu.parent
-_tool_menu.help
-mask_making     'Making a Mask'         bi-1-circle-fill    fieldset ? enhance_tools ?
-locres          'Local Resolution'      bi-trophy           fieldset ? enhance_tools ?
-subpart         'Particle Substraction' ?                   fieldset ? enhance_tools ?
+_enhance.id
+_enhance.label 
+_enhance.icon
+_enhance.widget 
+mask_making     'Making a Mask'         bi-mask             submenu
+locres          'Local Resolution'      bi-trophy           submenu
+subpart         'Ptcls Substraction'    bi-dash-circle      submenu
 #
 loop_
 _mask_making.id

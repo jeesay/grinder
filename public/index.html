@@ -18,6 +18,7 @@
   <header>
   <nav>
         <ul>
+          <li id="connect"><a href="#"><i class="nav-icon bi bi-wifi-off"></i><span>Unconnected</span></a></li>
           <li class="top_menu"><a href="#">File</a>
             <ul>
               <li><a  id="new_project"href="#">Re-read pipeline</a></li>
@@ -54,15 +55,30 @@
   </nav>
   </header>
   <div class="wrapper">
-  <aside class="tools">
-    <ul>
-      <li id="connect"><i class="bi bi-wifi-off"></i>Unconnected</li>
-<!--      <li id="home"><i class="bi bi-house-door"></i> Home</li> -->
-    </ul>
-  </aside>
-  
-  <main>
-  </main>
+    <aside class="tools">
+      <nav class="main-menu">
+      <ul>
+      <nav class="main-menu">
+      </nav>
+    </aside>
+    
+    <main>
+    </main>
+    <div class="resizer" id="dragMe"></div>
+    <aside class="jobs" id="joblist">
+      <button class="toggle-btn" onclick="toggleSidebar()" id="toggleBtn">
+        <span id="toggleIcon">&gt;&gt;&gt;</span>
+      </button>
+
+      <div class="sidebar-content">
+        <div class="file-list">
+          <ul>
+            <li class="file-item">Jobs</li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
   </div>
   <footer>
   </footer>
@@ -116,7 +132,7 @@
 </dialog>
 
 <script type="module">
-  import {GRINDER,fetchRootFile} from "./src/main.js";
+  import {GRINDER,buildSidebar} from "./src/main.js";
   import {w_tab_tools} from "./src/widget.js";
   import {filterFiles,togglePopup,handleOpen} from "./src/browse.js";
   
@@ -124,15 +140,15 @@
   
     /********************* MAIN *********************/
     
-    const widgets = await fetchRootFile('./spa/grinder_spa.star');
+    const widgets = await buildSidebar('./spa/grinder_spa.star');
     
     // Add events
-    document.querySelectorAll('aside ul li')
+    document.querySelectorAll('aside.tools ul li')
       .forEach( (w,i) => {
         if (i !== 0) {
           w.addEventListener('click', (ev) => {
             // Reset
-            document.querySelectorAll('aside ul li').forEach(ww => ww.classList.remove("active"));
+            document.querySelectorAll('aside.tools ul li').forEach(ww => ww.classList.remove("active"));
             document.querySelectorAll('section').forEach(ww => ww.style.display = 'none');
             w.classList.add("active");
             // Section
@@ -165,6 +181,50 @@
 
   // Go to Home, first
   document.querySelector('aside #home').click();
+
+// Jobs panel
+function toggleSidebar() {
+  const sidebar = document.getElementById('joblist');
+  const icon = document.getElementById('toggleIcon');
+  
+  sidebar.classList.toggle('collapsed');
+
+  // Change the symbol based on state
+  if (sidebar.classList.contains('collapsed')) {
+    icon.innerText = '<<<'; // Pointing to the main content
+  } else {
+    icon.innerText = '>>>'; // Pointing to the border
+  }
+}
+
+const resizer = document.getElementById('dragMe');
+const sidebar = document.getElementById('joblist');
+
+resizer.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  
+  // Add global listeners so the drag doesn't "snap" if you move too fast
+  document.addEventListener('mousemove', resize);
+  document.addEventListener('mouseup', stopResize);
+  
+  // Visual feedback
+  document.body.style.cursor = 'col-resize';
+});
+
+function resize(e) {
+  // Calculate the new width based on mouse position relative to the right edge
+  const newWidth = window.innerWidth - e.clientX;
+  
+  if (newWidth > 100 && newWidth < 600) {
+    sidebar.style.width = `${newWidth}px`;
+  }
+}
+
+function stopResize() {
+  document.removeEventListener('mousemove', resize);
+  document.removeEventListener('mouseup', stopResize);
+  document.body.style.cursor = 'default';
+}
 
 
 </script>
