@@ -38,6 +38,7 @@ _ab_initio.labelnew
 _ab_initio.filename
 _ab_initio.help   
 inimodel        '3D initial référence'      radio_tool      18       "relion.initialmodel"     01.star        "?" 
+cryodrgn_abinit 'CryoDRGN Ab Initio'        radio_tool      99       "cryodrgn.abinit"         08.star        "Ab Initio Reconstruction with Generative AI"
 #
 loop_
 _class_3d.id
