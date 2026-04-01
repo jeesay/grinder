@@ -63,6 +63,18 @@
     </aside>
     
     <main>
+      <section id="main-panel" class="tabs">
+          <article id="home_main" class="tab">
+            <input id="tab-1" class="tab-switch"></input>
+            <label class="tab-label" for="tab-1">Home</label>
+            <div class="tab-content"></div>
+          </article>
+          <article id="log_main" class="tab">
+            <input id="tab-2" class="tab-switch"></input>
+            <label class="tab-label" for="tab-1">Log</label>
+            <div class="tab-content"></div>
+          </article>
+      </section>
     </main>
     <div class="resizer" id="dragMe"></div>
     <aside class="jobs" id="joblist">
@@ -143,6 +155,7 @@
     const widgets = await buildSidebar('./spa/grinder_spa.star');
     
     // Add events
+    /*
     document.querySelectorAll('aside.tools ul li')
       .forEach( (w,i) => {
         if (i !== 0) {
@@ -159,12 +172,11 @@
             // Reset display
             section.style.display = 'block';
             section.querySelector('input').checked = true; // First child
-
           });
         }
       }
     );
-
+    */
 
 // Initial call within renderFileList to show folder count even if no file is selected
 // updateFooterStatus(data);

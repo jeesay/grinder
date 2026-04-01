@@ -113,7 +113,7 @@ const w_switch = (desc) => {
 }
 
 const w_switch_button = (desc) => {
-  const unique_id = `${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_on_off`;
+  const unique_id = `${desc.id}_on_off`;
   return [
     h('label',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
@@ -188,7 +188,7 @@ const w_file = (desc) => {
     [
       h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`,{attrs: {'for':desc.id}},desc.label),
       h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-      h(`input#${desc.id}-${desc.toolsetid.slice(-4)}.param${(prop === 'required') ? '.required' : ''}`, 
+      h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`, 
         {
           attrs: {
             type:'text',
@@ -237,7 +237,7 @@ const w_string = (desc) => h('div.row',
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h(
-      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+      `input#${desc.id}.param`, 
       {
         attrs: {
           type:'text',
@@ -259,7 +259,7 @@ const w_string_ro = (desc) => h('div.row',
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h(
-      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+      `input#${desc.id}.param`, 
       {
         attrs: {
           type:'text',
@@ -283,7 +283,7 @@ const w_text = (desc) => h('div.row',
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h(
-      `textarea#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+      `textarea#${desc.id}.param`, 
       {
         attrs: {
           type:'text',
@@ -306,7 +306,7 @@ const w_paragraph = (desc) => h('div.row',
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h(
-      `span#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+      `span#${desc.id}.param`, 
       desc.default
     )
   ]
@@ -318,7 +318,7 @@ const w_int = (desc) => h('div.row',
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h(
-      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+      `input#${desc.id}.param`, 
       {
         attrs: {
           type:'number',
@@ -408,7 +408,7 @@ const w_range = (desc) => h('div.row',
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     // `div#${desc.id.replace('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_container.range-container`,
     h( 
-      `div#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_container.range-container`,
+      `div#${desc.id}_container.range-container`,
       {
         style: {display:'flex'},
         attrs: {value: desc.default}
@@ -433,7 +433,7 @@ const w_range = (desc) => h('div.row',
           }
         ),
         h(
-          `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+          `input#${desc.id}.param`, 
           {
             attrs: {
               type:'number',
@@ -459,7 +459,7 @@ const w_bool = (desc) => h('div.row',
     h('label',{attrs: {'for':desc.id}},desc.label),
     h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
     h(
-      `input#${desc.id.replaceAll('_','')}-${desc.toolsetid.slice(-5).replace('_','')}.param`, 
+      `input#${desc.id}.param`, 
       {
         attrs: {
           type:'checkbox',
@@ -538,9 +538,9 @@ const w_leftpanel = (parent,desc) => {
 }
 
 const w_tab_tools = (parent,desc) => {
-  const g = w_section(desc);
-  console.log(g);
-  parent.appendChild(g);
+  // const g = w_section(desc);
+  // console.log(g);
+  w_group(desc).forEach( child => parent.appendChild(child));
 }
 
 const w_import = (desc) => {

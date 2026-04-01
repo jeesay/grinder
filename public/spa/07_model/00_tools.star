@@ -12,7 +12,7 @@ _build.id
 _build.label        
 _build.widget    
 _build.proc_id 
-_build.labelnew
+_build.proc_label
 _build.filename
 _build.help 
-angelo      'ModelAngelo Building'      radio_tool      23      "modelangelo"       01.star         "?"
+angelo      'ModelAngelo Building'      tool      23      "modelangelo"       01.star         "?"

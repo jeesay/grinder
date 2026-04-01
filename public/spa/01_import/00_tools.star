@@ -17,11 +17,11 @@ _rln_import.id
 _rln_import.label        
 _rln_import.widget    
 _rln_import.proc_id 
-_rln_import.labelnew
-_rln_import.help   
+_rln_import.proc_label
 _rln_import.filename
-import_mov        'Import movies'        radio_tool   0       relion.import.movies                'Import Micrographs or Movies'   01.star                          
-import_ptcls      'Import particles'     radio_tool   0       relion.import.other.particles       'Import Particles'               02.star                          
-import_other      'Import other files'   radio_tool   0       relion.import.other                 'Import Other File'              03.star   
+_rln_import.help   
+import_mov        'Import movies'        tool   0       relion.import.movies                01.star   'Import Micrographs or Movies'                           
+import_ptcls      'Import particles'     tool   0       relion.import.other.particles       02.star   'Import Particles'                                        
+import_other      'Import other files'   tool   0       relion.import.other                 03.star   'Import Other File'              
 
 

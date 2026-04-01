@@ -501,6 +501,34 @@ export  const connect_to_ws_server = async () => {
     return all_of_them;
   }
 
+  const build_widget_tree = (datablock,parent) => {
+    // Get all tables and build hierarchy
+    let tables = get_tables(datablock);
+    let flat_table = flat_tables(tables);
+    let tab_count = 1;
+    flat_table.forEach(wdgt => {
+      console.log('WIDGET',wdgt);
+      // Attach the tab to the `parent`
+      if (wdgt.widget == 'tab') {
+        console.log('ADD TAB',wdgt);
+        // wdgt.parent = db.id;
+        wdgt.index = tab_count;
+        wdgt.toolsetid = parent.id;
+        tab_count++;
+        parent.children.push(wdgt);
+      }
+      else if ('parent' in wdgt) {
+        // Update toolset info
+        wdgt.toolsetid = parent.id;
+        // Attach other widgets depending of their parent.
+        const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+        console.info('FIND PARENT',index,wdgt,flat_table[index]);
+        flat_table[index].children.push(wdgt);
+      }
+    });
+    return parent;
+  }
+
   export const buildSidebar = async filename => {
     // Load and parse `grinder_spa.star`
     const file = await fetch(filename);
@@ -540,9 +568,52 @@ export  const connect_to_ws_server = async () => {
                   h(`i.nav-icon.bi.${wdgt.icon}`),
                   h('span.nav-text',wdgt.label)
                 ]),
-                h('ul.sub-submenu')
+                h(`ul#${wdgt.id}.sub-submenu`)
               ]);
           ul.appendChild(w);
+        }
+        else if (wdgt.widget === 'tool') {
+          // Load radio_tool (radio button + toolset)
+          const source = await fetchFile(tab.path + wdgt.filename);
+          const serialized = JSON.stringify(source);
+          localStorage.setItem(wdgt.proc_label,serialized);
+
+          const parent = document.getElementById(wdgt.parent);
+          // Create child
+          const w = h('li',
+            [
+              h('a',
+                {
+                  dataset: {
+                    proclabel: wdgt.proc_label,
+                  },
+                  on: {
+                    click: (ev) => {
+                      const ui = ev.target.parentElement.dataset.proclabel;
+                      console.info('BUILD TABS',ui);                      
+                      console.info('BUILD TABS',localStorage.getItem(ui));
+                      const db = JSON.parse(localStorage.getItem(ui));
+                      const widgets = build_widget_tree(db.datablocks.default,{children:[]});
+                      // Section
+                      let section = document.getElementById('main-panel');
+                      section.innerHTML = '';
+                      w_tab_tools(section,widgets);
+                      // Reset display
+                      section.style.display = 'block';
+                      section.querySelector('input').checked = true; // First child
+                    }
+                  }
+                },
+                [
+                  h('span.nav-text',wdgt.label),
+                  h('i.nav-icon.bi.bi-question-circle',
+                    {
+                      attrs:{title: wdgt.help}
+                    })
+                ]
+              )
+            ]);
+          parent.appendChild(w);
         }
       });
     }

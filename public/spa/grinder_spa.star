@@ -15,8 +15,8 @@ ptcls    Particles        bi-p-circle-fill     ./spa/03_particles/    00_tools.s
 rec3d    3D               bi-badge-3d          ./spa/04_3d/           00_tools.star
 postp    Post-processing  bi-stars             ./spa/05_postprocess/  00_tools.star
 enhance  Enhancement      bi-badge-hd          ./spa/06_enhance/      00_tools.star
-model    'Model Building' bi-diagram-2         ./spa/07_model/        00_tools.star
-misc     "STAR Utils"     bi-wrench-adjustable ./spa/08_tools/        00_tools.star
+model    'Model'          bi-diagram-2         ./spa/07_model/        00_tools.star
+misc     "Utilities"      bi-wrench-adjustable ./spa/08_tools/        00_tools.star
 #
 #
 
