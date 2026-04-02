@@ -7,7 +7,7 @@ _rln_mc.icon
 _rln_mc.widget
 _rln_mc.value
 _rln_mc.help
-io                   "I/O"                      bi-arrow-down-up    tab              ?        ?
+io                   "I/O"                     bi-arrow-down-up    tab              ?        ?
 settings             "Settings"                bi-tools             tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
 dataviz              "DataViz"                 bi-eye               tab              ?        ?

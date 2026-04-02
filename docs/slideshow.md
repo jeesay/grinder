@@ -7,7 +7,7 @@
 > GRINDER - [G]UI for [R]el[I]o[N] and a [D]atamin[ER]
 > GRINDER &mdash; [G]raphics c[R]yoEM [IN]terface and [D]ata [E]xplore[R]
 > Graphics Renderer for Interoperable Nano-scale Diagnostics and Execution Recipes.
-> Graphical Renderer for Interoperable Node-based Data ExploreR
+> Graphical Renderer for Interoperable Node-based cryo-em Data ExploreR
 
 ---
 Great choice! That acronym feels like it belongs in a high-impact paper. Here is a polished **README** introduction you can use for your project page (GitHub, GitLab, etc.) that highlights the transition from complex tool-chains to your streamlined interface.

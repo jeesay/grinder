@@ -318,4 +318,5 @@ _dataviz.widget
 _dataviz.value
 _dataviz.display
 _dataviz.help
+motion_total  'Plot' ? plot2d|heatmap| rlnColumn rlnMotionTotal@corrected_micrographs.star #ffa002 polyline|bar|dot   
 #

@@ -5,7 +5,7 @@ _rec3d.id
 _rec3d.label 
 _rec3d.icon
 _rec3d.widget 
-ab_initio     'Ab initio'           bi-box       submenu
+ab_initio     'Ab Initio'           bi-box       submenu
 class_3d      '3D Classification'   bi-boxes     submenu
 refine        'Refinement'          bi-crosshair submenu
 #
@@ -28,8 +28,8 @@ _class_3d.proc_id
 _class_3d.proc_label
 _class_3d.filename
 _class_3d.help   
-3d_align        '3D Classification with image alignment'        tool      9       "relion.class3d.align"    02.star     "?"
-3d_skip_align   '3D Classification'                             tool      9       "relion.class3d"          03.star     "?"
+3d_align        'With Alignment'        tool      9       "relion.class3d.align"    02.star     "?"
+3d_skip_align   'No Alignment'          tool      9       "relion.class3d"          03.star     "?"
 #
 loop_
 _refine.id

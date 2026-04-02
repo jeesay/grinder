@@ -1,4 +1,0 @@
- #
-_toolbox.id others
-_toolbox.label 'Other Files'
-_toolbox.icon bi-file-binary
