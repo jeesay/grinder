@@ -4,7 +4,7 @@
 
 body {
   font-family: 'Asap Condensed', sans-serif;
-  background: #2c3e50;
+  background-color: #2c3e50;
   color: #ecf0f1;
   line-height: 1.618em;
 }
@@ -12,9 +12,6 @@ body {
 body, ul, li{
   margin: 0;
   padding: 0;
-}
-body{
-  background: #222;
 }
 
 .wrapper {
@@ -103,7 +100,7 @@ aside {
   font-size: 1.2em;
   /* font-weight: bold; */
   background: #333;
-
+  z-index: 98;
 }
 
 aside ul{
@@ -112,23 +109,28 @@ aside ul{
   min-width: 100px;
   position: fixed;
 */
-  height: 100vh;
+
   box-sizing: border-box;
 
+}
+
+aside nav > ul {
+  height: 100vh;
+  transform: translateY(55px);
 }
 
 aside li{
   list-style-type: none;
   padding: 4px 10px 4px 0px;
-  border-bottom: 1px solid #222;
-  transform: translateY(55px);
+/*  border-bottom: 1px solid #222; */
+
   /* text-align: center; */
   cursor: pointer;
   /* float: left; */
-  margin-left: 10px;
+/*  margin-left: 10px; */
 }
 
-aside #connect {
+aside.tools #connect {
   font-weight: bold;
   font-size: 20px;
   color: red;
@@ -140,14 +142,15 @@ aside a{
   text-decoration: none;
   padding: 10px 10px;
 }
-*/
 
-aside i{
+
+aside.tools i{
   margin-right: 10px;
 }
+*/
 
 aside li.active{
-  background: #fff; /*#ddd; */
+/*  background: #fff; #ddd; */
   opacity: 1;
   color: #222;
 }
@@ -155,7 +158,7 @@ aside li.active{
 aside li:not(.active):hover {
   background: #4c4c4c; /*#2c2c2c;*/
 }
-aside img{
+aside.tools img{
   width: 30px;
   opacity: 0.6;
 }
@@ -163,27 +166,89 @@ aside li:hover img, .active img{
   opacity: 1;
 }
 
+.resizer {
+  width: 5px;
+  cursor: col-resize;
+  background-color: #ddd;
+  transition: background-color 0.2s;
+}
+
+.resizer:hover {
+  background-color: #007bff; /* Highlights when hovering */
+}
+
+aside.jobs {
+  width: 250px; /* Default width */
+  min-width: 100px; /* Prevent it from disappearing */
+  max-width: 600px; /* Prevent it from taking over the screen */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+aside.jobs {
+  border-left: 1px solid #ddd; /* Optional: adds a visual "border" */
+  /* position: sticky; */
+  height: 100vh; /* Keeps the sidebar height fixed to the viewport */
+  border-left: 1px solid #ddd;
+  transition: width 0.3s ease; /* Smooth sliding effect */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* When this class is added via JS, the sidebar shrinks */
+.jobs.collapsed {
+  width: 0;
+  border-left: none;
+}
+
+/* Hide content when collapsed so it doesn't look messy */
+.jobs.collapsed .sidebar-content {
+  display: none;
+}
+
+/* The vertical tab/button */
+.toggle-btn {
+  position: absolute;
+  left: -30px; /* Moves the button to the outside left edge */
+  top: 20px;
+  width: 30px;
+  height: 60px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px 0 0 5px; /* Rounded corners on the left only */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
 aside.jobs label{
   font-size: 1.6em;
 }
 
-aside.jobs ul {
+/* aside ul {
   width: 15%;
   float: right;
   position: unset;
   font-size: 0.8em;
 }
 
-aside.jobs li {
+aside li {
   padding: 0px 0px;
 }
-aside.jobs a {
+aside a {
   padding: 0px 10px;
-}
+} */
 
 main {
   flex: 1 1 auto;
+  margin-left: var(--sidebar-width-collapsed);
 }
+
 /* Tabs */
 
 .tabs {
@@ -256,7 +321,7 @@ main {
 
 }
 .tab-switch:checked + label + .tab-content {
-  z-index: 2;
+  z-index: 2; /* old: 2 */
   opacity: 1;
   transition: all 0.35s;
 }
@@ -637,6 +702,192 @@ output {
 
 #jhistory_body tr:nth-child(2n+1) {background: #eee}
 #jhistory_body tr:nth-child(2n) {background: #fff}
+
+/* Nav sidebar */
+
+:root {
+  font-family: 'Asap Condensed',sans-serif;
+  /* Define widths here */
+  --sidebar-width-collapsed: 60px;
+  --sidebar-width-expanded: 200px;
+  --transition-speed: 0.4s;
+  --bg-color-main: #333;
+  --bg-color-sub: #444;
+}
+
+.tools {
+  position: fixed;
+  box-sizing: inherit;
+  background-color:#333;
+  font-size: 1.0em;
+  line-height: 1.618em;
+  height: 100vh;
+  color: #ecf0f1;
+}
+.tools ul {
+  width: var(--sidebar-width-collapsed);
+  transition: width var(--transition-speed) ease;
+  /* overflow: hidden; */
+  box-sizing: border-box;
+  list-style: none;
+  display: flex;
+  gap: 4px;
+  flex-direction: column;
+  padding: 0;
+}
+.tools ul:hover {
+  width: var(--sidebar-width-expanded);
+}
+.tools li {
+  position: relative;
+  display: block;
+  list-style-type: none;
+}
+.tools i {
+  padding: 0;
+  margin: 0;
+}
+/* 1. Highlighting the "Path": Keep the parent blue when child is hovered */
+.main-menu li:hover > a {
+  background-color: #4a4a4a; /* Lighter background */
+  color: #3498db;            /* Blue text/icon */
+  box-shadow: inset 4px 0 0 0 #3498db; /* The blue border-left (no-shift fix) */
+}
+
+/* 2. Optional: If you want the specific item the mouse is ON to be even brighter */
+.main-menu li a:hover {
+  background-color: #555; 
+  color: #5dade2; /* A slightly lighter blue for the exact target */
+}
+
+/* 3. Maintain the "Nudge" effect for the whole active path */
+.main-menu li:hover > a .nav-text {
+  padding-left: 5px;
+  transition: padding-left 0.2s ease;
+}
+.main-menu li a {
+  padding: 0px 15px;
+  color: #ecf0f1;
+  text-decoration:none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 2. Hover effect for the item background and text */
+.main-menu li > a:hover {
+  background-color: #4a4a4a; /* Lighter grey highlight */
+  color: #3498db;            /* Change text/icon color (e.g., a nice blue) */
+/*  padding-left: 5px;          Slight "nudge" effect to the right */
+/*  border-left: 4px solid #3498db;  Blue accent bar on the left */
+/* Adjust the '4px' to change the thickness of the line */
+  box-shadow: inset 4px 0 0 0 #3498db;
+}
+
+/* 3. Specifically highlighting the text span if you want it distinct */
+.main-menu li > a:hover .nav-text {
+  font-weight: bold;
+}
+
+.main-menu .nav-icon {
+  position:relative;
+  display:table-cell;
+  text-align:center;
+  padding: 0 20px 0 10px;
+  vertical-align:middle;
+  font-size:18px;
+
+}
+.main-menu span {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.main-menu .nav-text {
+  position: relative;
+  display: table-cell;
+  vertical-align: middle;
+  width: 200px;
+  
+  /* The Fix: */
+  white-space: nowrap;  /* Prevents "Pre-processing" from breaking into 2 lines */
+  overflow: hidden;      /* Keeps the text contained during the animation */
+}
+.tools ul:hover span {
+  opacity: 1;
+}
+
+/* 1. Reset and Hide Submenus by default */
+.main-menu ul ul {
+  position: absolute;
+  /* This ensures it pops out exactly where the sidebar ends */
+  left: var(--sidebar-width-expanded); 
+  top: 0;
+  width: var(--sidebar-width-expanded);
+  background-color: var(--bg-color-sub);
+  /* Replace display:none with these */
+  visibility: hidden;
+  opacity: 0;
+  
+  /* Add a delay to the transition */
+  /* This waits 0.3s (slightly less than the sidebar's 0.4s) before showing */
+  transition: opacity 0.2s ease, visibility 0s linear 0.3s;
+  padding: 5px 0px;
+  z-index: 100;
+
+  /* The "Floating" Effect */
+  /* Offset-x | Offset-y | Blur-radius | Spread-radius | Color */
+  box-shadow: 10px 5px 20px rgba(0, 0, 0, 0.5);
+  
+  /* Optional: adds a very faint light border on the top and left 
+    to simulate a light source hitting the edge */
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 2. Show Submenu on Hover */
+.main-menu li:hover > ul {
+  display: flex; /* Using flex to maintain your vertical column layout */
+  visibility: visible;
+  opacity: 1;
+
+  /* When hovering IN, we want the menu to wait */
+  transition-delay: 0.3s;
+}
+
+/* 3. Add the ">" indicator for items with children */
+/* This targets any 'a' tag that has a sibling 'ul' (the submenu) */
+.main-menu li:has(ul) > a::after {
+  content: "\F285"; /* Bootstrap Icon code for chevron-right */
+  font-family: "bootstrap-icons";
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  transition: opacity 0.3s;
+  opacity: 0; /* Hidden when sidebar is collapsed */
+}
+
+/* 4. Show the arrow only when sidebar is expanded */
+.tools ul:hover li:has(ul) > a::after {
+  opacity: 1;
+}
+
+/* 5. Styling for nested levels to keep them clean */
+.submenu li, .sub-submenu li {
+  width: 100%;
+}
+
+/* For the 3rd level (sub-submenu), shift it by the same width again */
+.sub-submenu {
+  left: var(--sidebar-width-expanded);
+  background-color: #555 !important; /* Even lighter for the 3rd level */
+}
+
+/* Ensure long text doesn't wrap in submenus either */
+.main-menu .nav-text {
+  white-space: nowrap;
+  /* overflow: hidden; */
+}
 
 /* File Explorer */
 
