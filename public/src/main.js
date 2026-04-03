@@ -376,17 +376,13 @@ export  const connect_to_ws_server = async () => {
   const get_tables = (star) => Object.keys(star).filter(key => is_table(star[key])).map(key => ({key,table:star[key]}));
 
   const flat_tables = (tables) => {
-    console.info('++++++++++++++ TABLES',tables);
     // Convert each table into object
     let flat_table = tables.map(t => {
-      console.log(t.key);
       let rows = from_startable(t.table);
-      console.info(rows);
       rows.forEach(row => row.parent = t.key );
       return rows // {key: t.key,table: rows}
     }).flat();
     // flat_table = [{id:'tabs',children:[]},...flat_table];
-    console.info('++++++++++++++ TABLES',flat_table);
     return flat_table;
   }
   
@@ -507,10 +503,8 @@ export  const connect_to_ws_server = async () => {
     let flat_table = flat_tables(tables);
     let tab_count = 1;
     flat_table.forEach(wdgt => {
-      console.log('WIDGET',wdgt);
       // Attach the tab to the `parent`
       if (wdgt.widget == 'tab') {
-        console.log('ADD TAB',wdgt);
         // wdgt.parent = db.id;
         wdgt.index = tab_count;
         wdgt.toolsetid = parent.id;
@@ -522,7 +516,6 @@ export  const connect_to_ws_server = async () => {
         wdgt.toolsetid = parent.id;
         // Attach other widgets depending of their parent.
         const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
-        console.info('FIND PARENT',index,wdgt,flat_table[index]);
         flat_table[index].children.push(wdgt);
       }
     });
@@ -579,7 +572,7 @@ export  const connect_to_ws_server = async () => {
           localStorage.setItem(wdgt.proc_label,serialized);
 
           const parent = document.getElementById(wdgt.parent);
-          // Create child
+          // Create child/tab
           const w = h('li',
             [
               h('a',
@@ -609,11 +602,38 @@ export  const connect_to_ws_server = async () => {
                   h('i.nav-icon.bi.bi-question-circle',
                     {
                       attrs:{title: wdgt.help}
-                    })
+                    }
+                  )
                 ]
               )
             ]);
           parent.appendChild(w);
+        }
+        else if (wdgt.widget == 'menu-item') {
+          console.info('MENU-ITEM',wdgt);
+          // Load radio_tool (radio button + toolset)
+          const source = await fetchFile(tab.path + wdgt.filename);
+          const serialized = JSON.stringify(source);
+          localStorage.setItem(wdgt.proc_label,serialized);
+          const parent = document.querySelector(`#${wdgt.ancestor} a`);
+          parent.dataset.proclabel = wdgt.proc_label;
+          console.info('PARENT',parent);
+          parent.addEventListener('click', (ev) => {
+              console.log('CLICK',ev.target);
+              const ui = ev.target.parentElement.dataset.proclabel;
+              console.info('BUILD TABS',ui);                      
+              console.info('BUILD TABS',localStorage.getItem(ui));
+              const db = JSON.parse(localStorage.getItem(ui));
+              const widgets = build_widget_tree(db.datablocks.default,{children:[]});
+              // Section
+              let section = document.getElementById('main-panel');
+              section.innerHTML = '';
+              w_tab_tools(section,widgets);
+              // Reset display
+              section.style.display = 'block';
+              section.querySelector('input').checked = true; // First child
+            }
+          );
         }
       });
     }

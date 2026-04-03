@@ -16,9 +16,29 @@
 </head>
 <body>
   <header>
-  <nav>
-        <ul>
-          <li id="connect"><a href="#"><i class="nav-icon bi bi-wifi-off"></i><span>Unconnected</span></a></li>
+  <nav class="menubar">
+    <div class="status">
+      <a id="connect" href="#"><i class="nav-icon bi bi-wifi-off"></i><span>Unconnected</span></a>
+    </div>
+    <div class="project-name">
+      <ul>
+        <li id="project_id"><a href="#"><i class="nav-icon bi bi-building-gear"></i><span>Project</span></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-gear"></i><span>Job</span></a></li>
+      </ul>
+    </div>
+    <div class="actions">
+      <ul>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-send" title="Run Job"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-arrow-repeat" title="Continue Job"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-calendar2-week" title="Schedule Job"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-pencil-square" title="Overwrite Job"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-trash" title="Remove Job"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-person-walking" title="Running"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-person-standing"  title="Pending"></i></a></li>
+      </ul>
+    </div>
+          <!--
+
           <li class="top_menu"><a href="#">File</a>
             <ul>
               <li><a  id="new_project"href="#">Re-read pipeline</a></li>
@@ -51,44 +71,37 @@
               <li><a id="about" href="#">About...</a></li>
             </ul>
           </li>
-        </ul>
+                    -->
+
   </nav>
   </header>
   <div class="wrapper">
     <aside class="tools">
       <nav class="main-menu">
-      <ul>
-      <nav class="main-menu">
+        <ul></ul>
       </nav>
     </aside>
-    
     <main>
       <section id="main-panel" class="tabs">
-          <article id="home_main" class="tab">
-            <input id="tab-1" class="tab-switch"></input>
-            <label class="tab-label" for="tab-1">Home</label>
-            <div class="tab-content"></div>
-          </article>
-          <article id="log_main" class="tab">
-            <input id="tab-2" class="tab-switch"></input>
-            <label class="tab-label" for="tab-1">Log</label>
-            <div class="tab-content"></div>
-          </article>
       </section>
     </main>
-    <div class="resizer" id="dragMe"></div>
-    <aside class="jobs" id="joblist">
-      <button class="toggle-btn" onclick="toggleSidebar()" id="toggleBtn">
-        <span id="toggleIcon">&gt;&gt;&gt;</span>
-      </button>
-
-      <div class="sidebar-content">
-        <div class="file-list">
-          <ul>
-            <li class="file-item">Jobs</li>
-          </ul>
-        </div>
-      </div>
+    <aside class="jobs">
+      <nav class="main-menu">
+        <ul>
+          <li class="menu-item">
+            <a class="nav-row"><i class="nav-icon bi bi-list-ol"></i><span class="nav-text">Job List</span></a>
+            <ul id="joblist" class="submenu"></ul>
+          </li>
+          <li class="menu-item">
+            <a class="nav-row"><i class="nav-icon bi bi-folder2"></i><span class="nav-text">Job Folders</span></a>
+            <ul id="jobfolder" class="submenu"></ul>
+          </li>
+          <li class="menu-item">
+            <a class="nav-row"><i class="nav-icon bi bi-git"></i><span class="nav-text">Workflow</span></a>
+            <ul id="workflow" class="submenu"></ul>
+          </li>
+        </ul>
+      </nav>
     </aside>
 
   </div>
@@ -153,7 +166,7 @@
     /********************* MAIN *********************/
     
     const widgets = await buildSidebar('./spa/grinder_spa.star');
-    
+    // section.querySelector('li#home').checked = true; // First child
     // Add events
     /*
     document.querySelectorAll('aside.tools ul li')
@@ -238,6 +251,9 @@ function stopResize() {
   document.body.style.cursor = 'default';
 }
 
+/************* MAIN *************/
+
+document.querySelector('#home .nav-text').click();
 
 </script>
 
