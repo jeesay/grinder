@@ -1,5 +1,0 @@
-#
-_main.label    '???'
-_main.widget    radio
-_main.toolbox   others
-_main.help     ''

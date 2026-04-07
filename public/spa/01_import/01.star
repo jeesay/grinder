@@ -7,7 +7,7 @@ _import_mov.icon
 _import_mov.widget
 _import_mov.value
 _import_mov.help
-io                   "I/O"                      bi-arrow-down-up    tab              ?        ?
+io                   "I/O"                     bi-arrow-down-up    tab              ?        ?
 settings             "Settings"                bi-tools             tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
 dataviz              "DataViz"                 bi-eye               tab              ?        ?

@@ -78,23 +78,99 @@ const w_button = (desc) => {
 // Specialized button
 const w_connect = (desc) => {
 
-  const new_item = (item,parent) => {
+  function* chunks(arr, n) {
+    console.log(arr.length);
+    let chunk = [];
+    let index = n;
+    for (let i = 0; i < arr.length; i++) {
+      console.info('index',parseInt(arr[i][0].match(/\d+/)));
+      if (parseInt(arr[i][0].match(/\d+/)) <= index) {
+        chunk.push(arr[i]);
+      }
+      else {
+        yield chunk;
+        index += n;
+        chunk = [arr[i]];
+      }
+    }
+    yield chunk;
+  }
+
+  const new_item = (item,parent,type='list') => {
+    const [job,alias,nodetype,status,path,fn] = item;
       const w = h('li.file-item',
         {
-          dataset: {job: item[0], procid: item[2]}
+          dataset: {job: fn, proclabel: nodetype},
+          on: {click: (ev) => console.info(...item)}
         },
-        item[0]
+        [h('a',
+          [
+            h('i.nav-icon.bi.bi-gear',{style:{color: (status === 'Succeeded') ? '#0f0' : '#f00' }}),
+            h('span.nav-text',(type === 'list') ? fn : job)
+          ])
+        ]
       );
       parent.appendChild(w)
   }
+
+  const new_menu = (arr,parent,index,N) => {
+    const w = h('li.menu-item',{},
+      [
+        h('a',
+          [
+            h(`i.nav-icon.bi.bi-${index % 10}-circle`),
+            h('span.nav-text',`Jobs ${index * N + 1}-${(index + 1) * N}`)
+          ]
+        ),
+        h('ul.sub-submenu')
+      ]);
+      
+    parent.appendChild(w);
+    arr.forEach(job => {
+      const [fn,alias,nodetype,status] = job;
+      const [path,jobi,...dummy] = fn.split('/');
+      new_item([jobi,alias,nodetype,status,path,`${path}/${jobi}`],w.children[1])
+  });
+  }
+
   desc.on_click = async (ev) => {
     ev.preventDefault(); // Stop the page from refreshing/redirecting
     const data_env = await connect_to_ws_server();
+    // Step #1 - Fill the home dashboard
     document.getElementById('project').innerHTML = JSON.stringify(data_env,null,2);
     console.log(data_env);
-    const parent = document.querySelector('aside.jobs ul');
-    data_env.environment.processes.data.forEach(job => new_item(job,parent));
-    jobs.appendChild(h('li.file-item',))
+    // Step #2 - Fill the Job List
+    let parent = document.querySelector('.jobs #joblist');
+    const N = 10;
+    chunks(data_env.environment.processes.data,N).forEach((chunk,i) => new_menu(chunk,parent,i,N));
+    // Step #3 - Fill the Job Folders
+    parent = document.querySelector('.jobs #jobfolder');
+    const folders = data_env.environment.processes.data.reduce((accu, item) => {
+      const [fn,alias,nodetype,status] = item;
+      const [path,job,...dummy] = fn.split('/');
+      if (path in accu) {
+        accu[path].push([job,alias,nodetype,status,path,`${path}/${job}`]);
+      }
+      else {
+        accu[path] = [[job,alias,nodetype,status,path,`${path}/${job}`]];
+      }
+      return accu;
+    },{});
+    Object.entries(folders).forEach(pair => {
+      const [folder,jobs] = pair;
+      const w = h('li.menu-item',{},
+        [
+          h('a',
+            [
+              h(`i.nav-icon.bi.bi-folder2-open`),
+              h('span.nav-text',folder)
+            ]
+          ),
+          h('ul.sub-submenu')
+        ]);        
+      parent.appendChild(w);
+      jobs.forEach(job => new_item(job,w.children[1]));
+    });
   }
   return w_button(desc);
 }
@@ -523,9 +599,9 @@ const w_leftpanel = (parent,desc) => {
   console.log('leftpanel',desc.label);
   desc.forEach( (child,i) => {
     const el = h(
-      `li#${child.id}`,
+      `li#${child.id}.menu-item`,
       [
-        h('a',
+        h('a.nav-row',
           [
             h(`i.nav-icon.bi.${child.icon}`),
             h('span.nav-text',child.label)

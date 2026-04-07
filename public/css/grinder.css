@@ -2,6 +2,17 @@
   box-sizing: border-box;
 }
 
+:root {
+  font-family: 'Asap Condensed',sans-serif;
+  /* Define widths here */
+  --menubar-height: 40px;
+  --sidebar-width-collapsed: 60px;
+  --sidebar-width-expanded: 200px;
+  --transition-speed: 0.4s;
+  --bg-color-main: #333;
+  --bg-color-sub: #444;
+}
+
 body {
   font-family: 'Asap Condensed', sans-serif;
   background-color: #2c3e50;
@@ -26,6 +37,58 @@ body, ul, li{
 
 /* Menubar */
 
+.menubar {
+  display: flex;
+  justify-content: space-between; /* This creates the three-part split */
+  align-items: center;            /* Vertically centers everything */
+  padding: 0 20px;
+  height: 50px;
+  background-color: #333;
+  color: white;
+}
+
+.menubar ul {
+  list-style: none;
+  background-color: #444;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.menubar a {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  padding-left: 10px;
+  border-bottom: 1px solid #888;
+  transition: .3s background-color;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  height: 10px;
+  width: 10px;
+  background-color: #2ecc71; /* Green for connected */
+  border-radius: 50%;
+}
+
+.project-name {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.actions {
+  display: flex;
+  gap: 15px;
+}
+
+/*
 header,.inner,footer {
   display : table-row;
 }
@@ -71,7 +134,7 @@ header nav a.active {
   color: #444;
   cursor: default;
 }
-
+*/
 /* Sub Menus */
 header nav > ul > li > ul > li {
   font-size: 0.9em;
@@ -116,7 +179,7 @@ aside ul{
 
 aside nav > ul {
   height: 100vh;
-  transform: translateY(55px);
+  /* transform: translateY(55px); */
 }
 
 aside li{
@@ -177,76 +240,9 @@ aside li:hover img, .active img{
   background-color: #007bff; /* Highlights when hovering */
 }
 
-aside.jobs {
-  width: 250px; /* Default width */
-  min-width: 100px; /* Prevent it from disappearing */
-  max-width: 600px; /* Prevent it from taking over the screen */
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-aside.jobs {
-  border-left: 1px solid #ddd; /* Optional: adds a visual "border" */
-  /* position: sticky; */
-  height: 100vh; /* Keeps the sidebar height fixed to the viewport */
-  border-left: 1px solid #ddd;
-  transition: width 0.3s ease; /* Smooth sliding effect */
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-/* When this class is added via JS, the sidebar shrinks */
-.jobs.collapsed {
-  width: 0;
-  border-left: none;
-}
-
-/* Hide content when collapsed so it doesn't look messy */
-.jobs.collapsed .sidebar-content {
-  display: none;
-}
-
-/* The vertical tab/button */
-.toggle-btn {
-  position: absolute;
-  left: -30px; /* Moves the button to the outside left edge */
-  top: 20px;
-  width: 30px;
-  height: 60px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px 0 0 5px; /* Rounded corners on the left only */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-aside.jobs label{
-  font-size: 1.6em;
-}
-
-/* aside ul {
-  width: 15%;
-  float: right;
-  position: unset;
-  font-size: 0.8em;
-}
-
-aside li {
-  padding: 0px 0px;
-}
-aside a {
-  padding: 0px 10px;
-} */
-
 main {
   flex: 1 1 auto;
-  margin-left: var(--sidebar-width-collapsed);
+  /* margin-left: var(--sidebar-width-collapsed); */
 }
 
 /* Tabs */
@@ -254,7 +250,7 @@ main {
 .tabs {
   height: 100vh;
   position: relative;
-  margin: 3rem 0;
+  margin: 0; /* var(--menubar-height) 0; */
   background: #acacac;; /* #1abc9c; */
 }
 .tabs::before,
@@ -421,14 +417,13 @@ details[open] summary {
     margin-right: 10px;
 }
 
-/* Menubar */
+/* Menubar 
 
 @media screen and (min-width: 650px) {
   header nav li {
     width: 160px;
     border-bottom: none;
-    height: 40px;
-    /*line-height: 50px;*/
+    height: var(--menubar-height);
     font-size: 1.2em;
     display: inline-block;
     margin-right: -4px;
@@ -437,7 +432,7 @@ details[open] summary {
   header nav a {
     border-bottom: none;
   }
-
+*/
   .helpmenu {
     float:right;
     list-style-type:none;
@@ -705,18 +700,8 @@ output {
 
 /* Nav sidebar */
 
-:root {
-  font-family: 'Asap Condensed',sans-serif;
-  /* Define widths here */
-  --sidebar-width-collapsed: 60px;
-  --sidebar-width-expanded: 200px;
-  --transition-speed: 0.4s;
-  --bg-color-main: #333;
-  --bg-color-sub: #444;
-}
-
-.tools {
-  position: fixed;
+.tools, .jobs {
+  position: sticky; /* fixed */;
   box-sizing: inherit;
   background-color:#333;
   font-size: 1.0em;
@@ -724,7 +709,19 @@ output {
   height: 100vh;
   color: #ecf0f1;
 }
-.tools ul {
+
+.jobs {
+  right:0;
+  /* overflow-y:scroll; : Incompatible with submenu of sidebar */
+}
+
+
+aside {
+  top: var(--menubar-height); /* Height of menu|statusbar */ 
+}
+
+
+aside nav ul  {
   width: var(--sidebar-width-collapsed);
   transition: width var(--transition-speed) ease;
   /* overflow: hidden; */
@@ -735,18 +732,23 @@ output {
   flex-direction: column;
   padding: 0;
 }
-.tools ul:hover {
+aside nav ul:hover {
   width: var(--sidebar-width-expanded);
 }
-.tools li {
+aside nav li {
   position: relative;
   display: block;
   list-style-type: none;
 }
-.tools i {
+aside nav i {
   padding: 0;
   margin: 0;
 }
+
+aside nav ul:hover span {
+  opacity: 1;
+}
+
 /* 1. Highlighting the "Path": Keep the parent blue when child is hovered */
 .main-menu li:hover > a {
   background-color: #4a4a4a; /* Lighter background */
@@ -794,7 +796,7 @@ output {
   position:relative;
   display:table-cell;
   text-align:center;
-  padding: 0 20px 0 10px;
+  padding: 0 10px 0 10px;
   vertical-align:middle;
   font-size:18px;
 
@@ -812,9 +814,6 @@ output {
   /* The Fix: */
   white-space: nowrap;  /* Prevents "Pre-processing" from breaking into 2 lines */
   overflow: hidden;      /* Keeps the text contained during the animation */
-}
-.tools ul:hover span {
-  opacity: 1;
 }
 
 /* 1. Reset and Hide Submenus by default */
@@ -845,6 +844,19 @@ output {
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.jobs .main-menu ul ul {
+  left: unset;
+  right: var(--sidebar-width-expanded); 
+
+  /* The "Floating" Effect */
+  /* Offset-x | Offset-y | Blur-radius | Spread-radius | Color */
+  box-shadow: -10px -5px 20px rgba(0, 0, 0, 0.5);
+  
+  /* Optional: adds a very faint light border on the top and left 
+    to simulate a light source hitting the edge */
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
 /* 2. Show Submenu on Hover */
 .main-menu li:hover > ul {
   display: flex; /* Using flex to maintain your vertical column layout */
