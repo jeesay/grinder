@@ -318,4 +318,5 @@ _dataviz.widget
 _dataviz.value
 _dataviz.display
 _dataviz.help
+totalmotion     'Total motion per micrographs'   ?   plot2d      rlnAccumMotionTotal        rlnAccumMotionTotal@corrected_micrograph.star    dots    #00f
 #
