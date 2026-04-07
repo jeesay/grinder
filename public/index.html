@@ -23,6 +23,7 @@
     <div class="project-name">
       <ul>
         <li id="project_id"><a href="#"><i class="nav-icon bi bi-building-gear"></i><span>Project</span></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-usb-symbol"></i><span>Branch</span></a></li>
         <li id="job_id"><a href="#"><i class="nav-icon bi bi-gear"></i><span>Job</span></a></li>
       </ul>
     </div>
@@ -162,12 +163,12 @@
   import {filterFiles,togglePopup,handleOpen} from "./src/browse.js";
   
  
+  /********************* MAIN *********************/
   
-    /********************* MAIN *********************/
-    
-    const widgets = await buildSidebar('./spa/grinder_spa.star');
-    // section.querySelector('li#home').checked = true; // First child
-    // Add events
+  const widgets = await buildSidebar('./spa/grinder_spa.star');
+
+  // section.querySelector('li#home').checked = true; // First child
+  // Add events
     /*
     document.querySelectorAll('aside.tools ul li')
       .forEach( (w,i) => {
@@ -191,10 +192,10 @@
     );
     */
 
-// Initial call within renderFileList to show folder count even if no file is selected
-// updateFooterStatus(data);
+  // Initial call within renderFileList to show folder count even if no file is selected
+  // updateFooterStatus(data);
 
-// Bind the search input
+  // Bind the search input
   document.getElementById('file-search').addEventListener('input', filterFiles);
 
   // Bind the toggle/cancel buttons
@@ -207,53 +208,55 @@
   // Go to Home, first
   document.querySelector('aside #home').click();
 
-// Jobs panel
-function toggleSidebar() {
+  // Jobs panel
+  function toggleSidebar() {
+    const sidebar = document.getElementById('joblist');
+    const icon = document.getElementById('toggleIcon');
+    
+    sidebar.classList.toggle('collapsed');
+
+    // Change the symbol based on state
+    if (sidebar.classList.contains('collapsed')) {
+      icon.innerText = '<<<'; // Pointing to the main content
+    } else {
+      icon.innerText = '>>>'; // Pointing to the border
+    }
+  }
+
+  /*
+  const resizer = document.getElementById('dragMe');
   const sidebar = document.getElementById('joblist');
-  const icon = document.getElementById('toggleIcon');
-  
-  sidebar.classList.toggle('collapsed');
 
-  // Change the symbol based on state
-  if (sidebar.classList.contains('collapsed')) {
-    icon.innerText = '<<<'; // Pointing to the main content
-  } else {
-    icon.innerText = '>>>'; // Pointing to the border
+  resizer.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    
+    // Add global listeners so the drag doesn't "snap" if you move too fast
+    document.addEventListener('mousemove', resize);
+    document.addEventListener('mouseup', stopResize);
+    
+    // Visual feedback
+    document.body.style.cursor = 'col-resize';
+  });
+
+  function resize(e) {
+    // Calculate the new width based on mouse position relative to the right edge
+    const newWidth = window.innerWidth - e.clientX;
+    
+    if (newWidth > 100 && newWidth < 600) {
+      sidebar.style.width = `${newWidth}px`;
+    }
   }
-}
 
-const resizer = document.getElementById('dragMe');
-const sidebar = document.getElementById('joblist');
-
-resizer.addEventListener('mousedown', function(e) {
-  e.preventDefault();
-  
-  // Add global listeners so the drag doesn't "snap" if you move too fast
-  document.addEventListener('mousemove', resize);
-  document.addEventListener('mouseup', stopResize);
-  
-  // Visual feedback
-  document.body.style.cursor = 'col-resize';
-});
-
-function resize(e) {
-  // Calculate the new width based on mouse position relative to the right edge
-  const newWidth = window.innerWidth - e.clientX;
-  
-  if (newWidth > 100 && newWidth < 600) {
-    sidebar.style.width = `${newWidth}px`;
+  function stopResize() {
+    document.removeEventListener('mousemove', resize);
+    document.removeEventListener('mouseup', stopResize);
+    document.body.style.cursor = 'default';
   }
-}
+*/
 
-function stopResize() {
-  document.removeEventListener('mousemove', resize);
-  document.removeEventListener('mouseup', stopResize);
-  document.body.style.cursor = 'default';
-}
-
-/************* MAIN *************/
-
-document.querySelector('#home .nav-text').click();
+  /************* MAIN *************/
+  console.info('HHHHHHHHHHHHHOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMEEEEEEEEEEEEEEEEEEEEE', document.querySelector('#home .nav-text'));
+  document.querySelector('#home .nav-text').click();
 
 </script>
 
