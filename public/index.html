@@ -22,16 +22,45 @@
     </div>
     <div class="project-name">
       <ul>
-        <li id="project_id"><a href="#"><i class="nav-icon bi bi-building-gear"></i><span>Project</span></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-usb-symbol"></i><span>Branch</span></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-gear"></i><span>Job</span></a></li>
+        <li id="project_id"><a href="#"><i class="nav-icon bi bi-building-gear" title="Project Name"></i><span>Project</span></a></li>
+        <li id="job_id">
+          <div class="dropdown">
+            <button class="btn-branch">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M11.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5zm-2.25.75a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.492 2.492 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25zM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5zM3.5 3.25a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0z"></path>
+              </svg>
+              <span>main</span>
+              <span class="dropdown-caret"></span>
+            </button>
+
+            <div id="branchDropdown" class="dropdown-menu">
+              <div class="dropdown-header">
+                Switch branches/tags
+                <span class="close-btn">&times;</span>
+              </div>
+              <div class="dropdown-input-container">
+                <input type="text" placeholder="Filter branches/tags" id="branchInput">
+              </div>
+              <div class="dropdown-list">
+                <a href="#" class="branch-item selected">main</a>
+                <a href="#" class="branch-item">develop</a>
+                <a href="#" class="branch-item">feature/ui-update</a>
+                <a href="#" class="branch-item">v1.0-release</a>
+                <a href="#" class="branch-item">hotfix-patch</a>
+              </div>
+            </div>
+          </div>
+<!-- i class="nav-icon bi bi-usb-symbol" title="Current Branch"></i><span>master</span></a -->
+        </li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-gear" title="Current Job"></i><span>Job</span></a></li>
       </ul>
     </div>
     <div class="actions">
       <ul>
         <li id="job_id"><a href="#"><i class="nav-icon bi bi-send" title="Run Job"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-sign-stop" title="Stop Job"></i></a></li>
         <li id="job_id"><a href="#"><i class="nav-icon bi bi-arrow-repeat" title="Continue Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-calendar2-week" title="Schedule Job"></i></a></li>
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-clock" title="Schedule Job"></i></a></li>
         <li id="job_id"><a href="#"><i class="nav-icon bi bi-pencil-square" title="Overwrite Job"></i></a></li>
         <li id="job_id"><a href="#"><i class="nav-icon bi bi-trash" title="Remove Job"></i></a></li>
         <li id="job_id"><a href="#"><i class="nav-icon bi bi-person-walking" title="Running"></i></a></li>
@@ -223,42 +252,36 @@
     }
   }
 
-  /*
-  const resizer = document.getElementById('dragMe');
-  const sidebar = document.getElementById('joblist');
 
-  resizer.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    
-    // Add global listeners so the drag doesn't "snap" if you move too fast
-    document.addEventListener('mousemove', resize);
-    document.addEventListener('mouseup', stopResize);
-    
-    // Visual feedback
-    document.body.style.cursor = 'col-resize';
-  });
+  function toggleDropdown() {
+    document.getElementById("branchDropdown").classList.toggle("show");
+  }
 
-  function resize(e) {
-    // Calculate the new width based on mouse position relative to the right edge
-    const newWidth = window.innerWidth - e.clientX;
-    
-    if (newWidth > 100 && newWidth < 600) {
-      sidebar.style.width = `${newWidth}px`;
+  document.querySelector(".dropdown .btn-branch").addEventListener('click',toggleDropdown);
+  document.querySelector(".dropdown .close-btn").addEventListener('click',toggleDropdown);
+
+  // Close the dropdown if the user clicks outside of it
+  window.onclick = function(event) {
+    if (!event.target.closest('.dropdown')) {
+      var dropdowns = document.getElementsByClassName("dropdown-menu");
+      for (var i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+          openDropdown.classList.remove('show');
+        }
+      }
     }
   }
 
-  function stopResize() {
-    document.removeEventListener('mousemove', resize);
-    document.removeEventListener('mouseup', stopResize);
-    document.body.style.cursor = 'default';
-  }
-*/
-
-  /************* MAIN *************/
-  console.info('HHHHHHHHHHHHHOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMEEEEEEEEEEEEEEEEEEEEE', document.querySelector('#home .nav-text'));
-  document.querySelector('#home .nav-text').click();
+  /************* HOMEPAGE *************/
+   document.querySelector('#home .nav-text').click();
 
 </script>
 
 </body>
 </html>
+
+<!-- Custom Dropdown Structure 
+ https://blog.logrocket.com/creating-custom-select-dropdown-css/ 
+ https://freefrontend.com/css-select-boxes/
+ -->

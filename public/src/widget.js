@@ -46,13 +46,14 @@ const w_label = (desc) => {
 
 const w_option = (desc) => {
   // TODO
-  return h(`option#${desc.id}`,{
+  // console.info('OPTION',desc);
+  return h('option',{
       props: {
-        selected: desc.default,
         value: desc.default
       }
     },
-    desc.label);
+    desc.label
+  );
 }
 
 const w_h3 = (desc) => {
@@ -77,6 +78,44 @@ const w_button = (desc) => {
 
 // Specialized button
 const w_connect = (desc) => {
+
+  const set_project = (ev) => {
+    const project_path = ev.target.value;
+    // Step #1 - Update project
+    document.querySelector('#project_id span').textContent = project_path;
+    // Step #2 - Fill the Job List
+    parent = document.querySelector('.jobs #joblist');
+    const N = 10;
+    chunks(data_env.environment.processes.data,N).forEach((chunk,i) => new_menu(chunk,parent,i,N));
+    // Step #3 - Fill the Job Folders
+    parent = document.querySelector('.jobs #jobfolder');
+    const folders = data_env.environment.processes.data.reduce((accu, item) => {
+      const [fn,alias,nodetype,status] = item;
+      const [path,job,...dummy] = fn.split('/');
+      if (path in accu) {
+        accu[path].push([job,alias,nodetype,status,path,`${path}/${job}`]);
+      }
+      else {
+        accu[path] = [[job,alias,nodetype,status,path,`${path}/${job}`]];
+      }
+      return accu;
+    },{});
+    Object.entries(folders).forEach(pair => {
+      const [folder,jobs] = pair;
+      const w = h('li.menu-item',{},
+        [
+          h('a',
+            [
+              h(`i.nav-icon.bi.bi-folder2-open`),
+              h('span.nav-text',folder)
+            ]
+          ),
+          h('ul.sub-submenu')
+        ]);        
+      parent.appendChild(w);
+      jobs.forEach(job => new_item(job,w.children[1]));
+    });
+  }
 
   function* chunks(arr, n) {
     console.log(arr.length);
@@ -137,40 +176,22 @@ const w_connect = (desc) => {
     ev.preventDefault(); // Stop the page from refreshing/redirecting
     const data_env = await connect_to_ws_server();
     // Step #1 - Fill the home dashboard
-    document.getElementById('project').innerHTML = JSON.stringify(data_env,null,2);
+    const dropdown = document.querySelector('#project #proj_list');
+    dropdown.addEventListener('change', set_project);
+    for (let path of data_env.project_list) {
+      dropdown.appendChild(
+        h('option',
+          {
+            attrs:{value:path}
+          },
+          path)
+      );
+    }
+    document.getElementById('project').classList.toggle('hidden');
     console.log(data_env);
-    // Step #2 - Fill the Job List
-    let parent = document.querySelector('.jobs #joblist');
-    const N = 10;
-    chunks(data_env.environment.processes.data,N).forEach((chunk,i) => new_menu(chunk,parent,i,N));
-    // Step #3 - Fill the Job Folders
-    parent = document.querySelector('.jobs #jobfolder');
-    const folders = data_env.environment.processes.data.reduce((accu, item) => {
-      const [fn,alias,nodetype,status] = item;
-      const [path,job,...dummy] = fn.split('/');
-      if (path in accu) {
-        accu[path].push([job,alias,nodetype,status,path,`${path}/${job}`]);
-      }
-      else {
-        accu[path] = [[job,alias,nodetype,status,path,`${path}/${job}`]];
-      }
-      return accu;
-    },{});
-    Object.entries(folders).forEach(pair => {
-      const [folder,jobs] = pair;
-      const w = h('li.menu-item',{},
-        [
-          h('a',
-            [
-              h(`i.nav-icon.bi.bi-folder2-open`),
-              h('span.nav-text',folder)
-            ]
-          ),
-          h('ul.sub-submenu')
-        ]);        
-      parent.appendChild(w);
-      jobs.forEach(job => new_item(job,w.children[1]));
-    });
+    /*
+
+    */
   }
   return w_button(desc);
 }
@@ -696,12 +717,56 @@ const w_select = (desc) => {
     h('div.select-dropdown',[
       h(`select#${desc.id}`,
         {
+          props: {
+            value: desc.default
+          },
           on: ('on_change' in desc) ? {click: desc.on_change} : {}
         },
         w_group(desc),
        )
     ])
   ]);
+}
+
+const w_dropdown = (desc) => {
+  return h('div.row',
+  [
+    h('label',{attrs: {'for': desc.id}},desc.label + ' '),
+    h('i.bi.bi-question-circle',{attrs: {title: desc.help}}),
+    h(`div#${desc.id}.grinder-dropdown`,
+      [
+        h('button.dropdown-trigger',
+          {
+            on: {
+              click: (ev) => {
+                console.info('DROPDOWN',ev.target.nextSibling);
+                ev.target.classList.toggle('active');  
+                ev.target.nextSibling.classList.toggle('show');
+              }
+          }
+          },
+          'Select...',
+        ),
+        h('ul.dropdown-menu', w_group(desc))
+      ]
+    )
+  ]);
+}
+
+const w_dropdown_option = (desc) => {
+  return h('li',
+    {
+      attrs:{value:desc.default}
+    },
+    [
+      h('a',
+        {
+          attrs:{href:'#'}
+        },
+        desc.label
+      )
+    ]
+  )
 }
 
 const w_toolbar = (desc) => {
@@ -720,7 +785,7 @@ const w_toolbar = (desc) => {
 
 const w_fieldset = (desc) => {
   console.log('fieldset',desc.label);
-  return h(`fieldset#${desc.id}`,
+  return h(`fieldset#${desc.id}.${desc.state}`,
     [
       h('legend',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),...w_group(desc)
     ]
@@ -894,11 +959,14 @@ const w_group = (desc) => {
   console.info('group',desc);
   // Primitive Widgets
   const types = [
-    'label','h3','button','bool','cli','connect','import','int','float','file','toolset','string','string_ro','text','range',
-    'radio','radio_tool','select','option','section','switch','fieldset','details',
-    'tab','table','thead','tbody','trow','tcell','toolbar','toolmenu','paragraph'];
+    'label','h3','button','bool','cli','connect','dropdown','dropdown_option',
+    'import','int','float','file','toolset','string','string_ro','text','range',
+    'radio','radio_tool','select','option','section','switch',
+    'fieldset','details','tab',
+    'table','thead','tbody','trow','tcell','toolbar','toolmenu','paragraph'];
   const creators = [
-    w_label,w_h3,w_button,w_bool,w_cli,w_connect,w_import,w_int,w_float,w_file,w_toolset,w_string,w_string_ro,w_text,w_range,
+    w_label,w_h3,w_button,w_bool,w_cli,w_connect,w_dropdown,w_dropdown_option,
+    w_import,w_int,w_float,w_file,w_toolset,w_string,w_string_ro,w_text,w_range,
     w_radio,w_radiotool,w_select,w_option,w_section,w_switch,
     w_fieldset,w_details,w_navtab,
     w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_toolmenu,w_paragraph
@@ -913,7 +981,7 @@ const w_group = (desc) => {
     els =  desc.children.map( child => {
       console.info(child);
       if (types.indexOf(child.widget) !== -1) {
-        console.info('group child',child);
+        console.info('group child',child,types.indexOf(child.widget));
         return creators[types.indexOf(child.widget)](child);
       }
     });

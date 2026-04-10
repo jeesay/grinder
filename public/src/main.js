@@ -1,3 +1,4 @@
+// import { tableFromIPC } from 'apache-arrow';
 import {StarGate} from "./stargate.js";
 import {w_leftpanel, w_tab_tools} from "./widget.js";
 import {h} from "./dom.js";
@@ -281,6 +282,24 @@ export  const connect_to_ws_server = async () => {
     });
 }
 
+
+
+async function fetchParticleStream() {
+    const response = await fetch('http://localhost:8000/stream-particles');
+    
+    // tableFromIPC handles the stream directly from the response body
+    const table = await tableFromIPC(response.body);
+
+    // Now you can access the columns with zero-copy speed
+    const xCoords = table.getChild('rlnCoordinateX');
+    
+    console.log(`Loaded ${table.numRows} particles!`);
+    
+    for (let i = 0; i < table.numRows; i++) {
+        // Access coordinates for your visualization
+        const x = xCoords.get(i);
+    }
+}
 //   if (GRINDER.server.connected) {
 //     // Update the UI when the server responds
 //       alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`);
@@ -365,7 +384,7 @@ export  const connect_to_ws_server = async () => {
       for (let h in data.header) {
         obj[data.header[h]] = row[h];
       }
-      if (['program','toolmenu','tabgroup','radio_tool','tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(obj.widget)) {
+      if (['program','toolmenu','tabgroup','radio_tool','tab','fieldset','switch','details','dropdown', 'cli', 'toolbar','select'].includes(obj.widget)) {
         obj.children = [];
       }
       return obj;
@@ -507,13 +526,22 @@ export  const connect_to_ws_server = async () => {
       if (wdgt.widget == 'tab') {
         // wdgt.parent = db.id;
         wdgt.index = tab_count;
-        wdgt.toolsetid = parent.id;
+        // wdgt.toolsetid = parent.id;
         tab_count++;
         parent.children.push(wdgt);
       }
+      else if (wdgt.widget == 'option') {
+
+        const [parent,child] = wdgt.id.split('::');
+        wdgt.id = child;
+        wdgt.parent = parent;
+        const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+                console.info('OOOPPPPTION',index,flat_table[index]);
+        flat_table[index].children.push(wdgt);
+      }
       else if ('parent' in wdgt) {
         // Update toolset info
-        wdgt.toolsetid = parent.id;
+        // wdgt.toolsetid = parent.id;
         // Attach other widgets depending of their parent.
         const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
         flat_table[index].children.push(wdgt);
@@ -566,7 +594,7 @@ export  const connect_to_ws_server = async () => {
           ul.appendChild(w);
         }
         else if (wdgt.widget === 'tool') {
-          // Load radio_tool (radio button + toolset)
+          // Load tool
           const source = await fetchFile(tab.path + wdgt.filename);
           const serialized = JSON.stringify(source);
           localStorage.setItem(wdgt.proc_label,serialized);
