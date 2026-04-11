@@ -1,12 +1,12 @@
 data_
 #
 loop_
-_grr_import_mov.id
-_grr_import_mov.label
-_grr_import_mov.icon
-_grr_import_mov.widget
-_grr_import_mov.value
-_grr_import_mov.help
+_grr_import_all.id
+_grr_import_all.label
+_grr_import_all.icon
+_grr_import_all.widget
+_grr_import_all.value
+_grr_import_all.help
 io                   "I/O"                     bi-arrow-down-up     tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
 dataviz              "DataViz"                 bi-eye               tab              ?        ?
@@ -19,12 +19,20 @@ _io.widget
 _io.value
 _io.state
 _io.help
-indata           "Data Type"      bi-box-arrow-in-down fieldset   ?  show       ?
-datatypes        "Group"          ?                    group_x    ?  ?          ?
-outdata          "Output Data"    bi-box-arrow-down    fieldset   ?  hidden     ?
-nodes            "Nodes"          bi-controller        fieldset   ?  hidden     ?
-system           "System"         bi-incognito         fieldset   ?  hiddden    ?
-import_mov_cmd   "Check command"  bi-chat-right-text   cli        ?  show       ?
+indata               "Data Type"      bi-box-arrow-in-down fieldset  ?                                           show    ?
+dtype                "Fielset Group"  bi-incognito         g_select  ?                                           nod     ?
+dtype::moviedata     ?                ?                    g_option  "MicrographMovieGroupMetadata.star.relion"  ?       ?
+dtype::micdata       ?                ?                    g_option  "MicrographGroupMetadata.star.relion"       ?       ?
+dtype::coordsdata    ?                ?                    g_option  "MicrographCoordsGroup.star.relion"         ?       ?
+dtype::partsdata     ?                ?                    g_option  "ParticleGroupMetadata.star.relion"         ?       ?
+dtype::img2ddata     ?                ?                    g_option  "Image2DGroupMetadata.star.relion"          ?       ? 
+dtype::mapdata       ?                ?                    g_option  "DensityMap.mrc"                            ?       ?
+dtype::maskdata      ?                ?                    g_option  "Mask3D.mrc"                                ?       ?
+dtype::halfmapdata   ?                ?                    g_option  "DensityMap.mrc.halfmap"                    ?       ?
+outdata              "Output Data"    bi-box-arrow-down    fieldset  ?                                           hidden  ?
+nodes                "Nodes"          bi-controller        fieldset  ?                                           hidden  ?
+system               "System"         bi-incognito         fieldset  ?                                           hiddden ?
+import_all_cmd       "Check command"  bi-chat-right-text   cli       ?                                           show    ?
 #
 loop_
 _indata.id
@@ -32,38 +40,85 @@ _indata.label
 _indata.icon
 _indata.widget
 _indata.default
-_indata.action
 _indata.help
-node_type                 'Choose Data Type'   ?                 select  ?  ? ?
-node_type::dtype_movies   'Movies'             bi-film           option "MicrographMovieGroupMetadata.star.relion" moviedata.show ?
-node_type::dtype_mics     'Micrographs'        bi-images         option "MicrographGroupMetadata.star.relion"      micdata.show ?
-node_type::dtype_coords   'Coordinates'        bi-dice-5         option "MicrographCoordsGroup.star.relion"        coordsdata.show ?
-node_type::dtype_parts    'Particles (*.star)' bi-star           option "ParticleGroupMetadata.star.relion"        partsdata.show ?
-node_type::dtype_2dimg    '2D/3D References'   bi-transparency   option "Image2DGroupMetadata.star.relion"         img2ddata.show ?
-node_type::dtype_map      'Density Map'        bi-box            option "DensityMap.mrc"                           mapdata.show ?
-node_type::dtype_mask     'Mask'               bi-mask           option "Mask3D.mrc"                               maskdata.show ?
-node_type::dtype_halfmap  'Half-map(s)'        bi-building-add   option "DensityMap.mrc.halfmap"                   halfmapdata.show ?
-#
-loop_
-_datatypes.id
-_datatypes.widget
-_datatypes.state
-moviedata       group   hidden
-micdata         group   hidden
-coordsdata      group   hidden
-partsdata       group   hidden
-img2ddata       group   hidden
-mapdata         group   hidden
-maskdata        group   hidden
-halfmapdata     group   hidden
+nod                 'Choose Data Type'   ?                 select ?                                          ?
+nod::dtype_movies   'Movies'             bi-film           option "MicrographMovieGroupMetadata.star.relion" ?
+nod::dtype_mics     'Micrographs'        bi-images         option "MicrographGroupMetadata.star.relion"      ?
+nod::dtype_coords   'Coordinates'        bi-dice-5         option "MicrographCoordsGroup.star.relion"        ?
+nod::dtype_parts    'Particles (*.star)' bi-star           option "ParticleGroupMetadata.star.relion"        ?
+nod::dtype_2dimg    '2D/3D References'   bi-transparency   option "Image2DGroupMetadata.star.relion"         ?
+nod::dtype_map      'Density Map'        bi-box            option "DensityMap.mrc"                           ?
+nod::dtype_mask     'Mask'               bi-mask           option "Mask3D.mrc"                               ?
+nod::dtype_halfmap  'Half-map(s)'        bi-building-add   option "DensityMap.mrc.halfmap"                   ?
 #
 loop_
 _moviedata.id
 _moviedata.label
+_moviedata.icon
 _moviedata.widget
+_moviedata.default
 _moviedata.help
-mov_indata       ? fieldset ?
-mov_opticsgroup ? fieldset ?
+mov_indata      "Movies"       bi-box-arrow-in-down fieldset "MicrographMovieGroupMetadata.star.relion" "Import Movies"
+mov_opticsgroup "Optics Group" bi-eyeglasses        fieldset "MicrographMovieGroupMetadata.star.relion" ?
+#
+loop_
+_micdata.id
+_micdata.label
+_micdata.icon
+_micdata.widget
+_micdata.default
+_micdata.help
+mic_indata      "Micrographs"  bi-box-arrow-in-down fieldset  "MicrographGroupMetadata.star.relion" "Import Micrographs"
+mic_opticsgroup "Optics Group" bi-eyeglasses        fieldset  "MicrographGroupMetadata.star.relion"  ?
+#
+loop_
+_coordsdata.id
+_coordsdata.label
+_coordsdata.icon
+_coordsdata.widget
+_coordsdata.default
+_coordsdata.help
+box_indata     "Particle Coordinates/Boxes"  bi-box-arrow-in-down fieldset "MicrographCoordsGroup.star.relion" "Import Particle Coordinates"
+loop_
+_partsdata.id
+_partsdata.label
+_partsdata.icon
+_partsdata.widget
+_partsdata.default
+_partsdata.help
+ptcls_data     "Particle Star File"  bi-box-arrow-in-down fieldset "ParticleGroupMetadata.star.relion" "Import Particle Star File"
+#
+loop_
+_img2ddata.id
+_img2ddata.label
+_img2ddata.icon
+_img2ddata.widget
+_img2ddata.help
+refs_indata      "2D/3D References"       bi-box-arrow-in-down fieldset "Import Movies"
+#
+loop_
+_mapdata.id
+_mapdata.label
+_mapdata.icon
+_mapdata.widget
+_mapdata.help
+map_indata      "Density Map"       bi-box-arrow-in-down fieldset "Import Movies"
+#
+loop_
+_maskdata.id
+_maskdata.label
+_maskdata.icon
+_maskdata.widget
+_maskdata.help
+mask_indata      "Mask"       bi-box-arrow-in-down fieldset "Import Mask"
+#
+loop_
+_halfmapdata.id
+_halfmapdata.label
+_halfmapdata.icon
+_halfmapdata.widget
+_halfmapdata.help
+halfmap_indata      "Half-maps"       bi-box-arrow-in-down fieldset "Import Movies"
 #
 loop_
 _mov_indata.id
@@ -75,12 +130,31 @@ _mov_indata.arg1     # Placeholder
 _mov_indata.arg2     # Node Type
 _mov_indata.state
 _mov_indata.help
-fn_in_raw            "Raw input files:"                  file       Micrographs/*.tif "Movie or Image (*.{mrc,mrcs,tif,tiff,eer,mrc.bz2,mrcs.bz2,mrc.zst,mrcs.zst,mrc.xz,mrcs.xz})" "."             "?"             required        
-; Provide a Linux wildcard that selects all raw movies or micrographs to be imported.
-The path must be a relative path from the project directory.
-To import files outside the project directory, first make a symbolic link by an absolute path and then specify the link by a relative path.
-See the FAQ page on RELION wiki (https://www3.mrc-lmb.cam.ac.uk/relion/index.php/FAQs#What_is_the_right_way_to_import_files_outside_the_project_directory.3F) for details.Torh.PROCess compressed MRC movies, you need pbzip2, zstd and xz command in your PATH for bzip2, Zstandard and xzip compression, respectively.
+dir_in_raw       "Raw input directory:"     string       /path/of/movies/ ?  "."             "?"             required        
+; Copy and paste the directory of your raw data. It is best if you set the absolute path rather than the relative one.
+In contrary of RELION, the symbolic links will be generated and the output directory will be PROJECT_DIR/Movies/. 
+All the imported files will be renamed as <prefix>0001.ext.
 ;
+pattern_in         "Common Pattern"            string movie ? ? ? ? 
+; Common pattern to all the input files. All the files corresponding to the regular expression `*pattern*.ext` will be searched.
+Be careful when using extra regular expression.
+;
+img_ext           "Input Image Extension"       select ?          ? ? ? ? ?
+img_ext::mrc      "mrc"                         option "mrc"      ? ? ? ? ?
+img_ext::mrcs     "mrcs"                        option "mrcs"     ? ? ? ? ?
+img_ext::tif      "tif"                         option "tif"      ? ? ? ? ?
+img_ext::tiff     "tiff"                        option "tiff"     ? ? ? ? ?
+img_ext::eer      "eer"                         option "eer"      ? ? ? ? ?
+img_ext::mrc.bz2  "mrc.bz2"                     option "mrc.bz2"  ? ? ? ? ?
+img_ext::mrcs.bz2 "mrcs.bz2"                    option "mrcs.bz2" ? ? ? ? ?
+img_ext::mrc.zst  "mrc.zst"                     option "mrc.zst"  ? ? ? ? ?
+img_ext::mrcs.zst "mrcs.zst"                    option "mrcs.zst" ? ? ? ? ?
+img_ext::mrc.xz   "mrc.xz"                      option "mrc.xz"   ? ? ? ? ?
+img_ext::mrcs.xz  "mrcs.xz"                     option "mrcs.xz"  ? ? ? ? ?
+keep_name         "Keep the original filenames" bool   False      ? ? ? ? 
+; By default, the output files are renamed `prefix000001.ext`, `prefix000002.ext`, etc. where `ext` is the image extension.
+;
+pattern_out       "Output Prefix"    string   mov ? ? ? ? "Common pattern to all the imported output files"
 #
 loop_
 _mov_opticsgroup.id
@@ -114,3 +188,14 @@ beamtilt_y           "Beamtilt in Y (mrad):"             range      0.0         
 ; Known beamtilt in the Y-direction (in mrad). Set to zero if unknown.
 ;
 #
+loop_
+_box_indata.id
+_box_indata.label
+_box_indata.widget
+_box_indata.default
+_box_indata.arg0
+_box_indata.arg1
+_box_indata.arg2
+_box_indata.state
+_box_indata.help
+ptcls_fn_in_raw     "Particles Directory" string "/path/of/particles_box/" ? ? ? ? "Copy and paste the input file path"

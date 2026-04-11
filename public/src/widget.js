@@ -792,6 +792,16 @@ const w_fieldset = (desc) => {
   );
 }
 
+const w_gselect = (desc) => {
+  console.log('g_select',desc.label);
+  return h(`div#${desc.id}.g_select.${desc.state}`,w_group(desc)  );
+}
+
+const w_goption = (desc) => {
+  console.log('fieldset',desc.label);
+  return h(`div#${desc.id}.g_option.${desc.state}`,w_group(desc)  );
+}
+
 const w_tool = (desc) => {
   // // Step #1 - Create the radio button
   // const el = w_radio(desc);
@@ -961,13 +971,15 @@ const w_group = (desc) => {
   const types = [
     'label','h3','button','bool','cli','connect','dropdown','dropdown_option',
     'import','int','float','file','toolset','string','string_ro','text','range',
-    'radio','radio_tool','select','option','section','switch',
+    'radio','radio_tool','select','option','section',
+    'switch', 'g_select','g_option',
     'fieldset','details','tab',
     'table','thead','tbody','trow','tcell','toolbar','toolmenu','paragraph'];
   const creators = [
     w_label,w_h3,w_button,w_bool,w_cli,w_connect,w_dropdown,w_dropdown_option,
     w_import,w_int,w_float,w_file,w_toolset,w_string,w_string_ro,w_text,w_range,
-    w_radio,w_radiotool,w_select,w_option,w_section,w_switch,
+    w_radio,w_radiotool,w_select,w_option,w_section,
+    w_switch, w_gselect,w_goption,
     w_fieldset,w_details,w_navtab,
     w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_toolmenu,w_paragraph
   ];

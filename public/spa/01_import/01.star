@@ -7,7 +7,7 @@ _import_mov.icon
 _import_mov.widget
 _import_mov.value
 _import_mov.help
-io                   "I/O"                     bi-arrow-down-up    tab              ?        ?
+io                   "I/O"                     bi-arrow-down-up     tab              ?        ?
 settings             "Settings"                bi-tools             tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
 dataviz              "DataViz"                 bi-eye               tab              ?        ?
@@ -18,13 +18,13 @@ _io.label
 _io.icon
 _io.widget
 _io.value
-_io.display
+_io.state
 _io.help
-indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          show       ?
-outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          hidden     ?
-nodes                "Nodes"                                  bi-controller        fieldset   ?          hidden     ?
-system               "System"                                 bi-incognito         fieldset   ?          hiddden    ?
-import_mov_cmd       "Check command"                          bi-chat-right-text   cli        ?          show       ?
+indata               "Input Data"              bi-box-arrow-in-down fieldset   ?          show       ?
+outdata              "Output Data"             bi-box-arrow-down    fieldset   ?          hidden     ?
+nodes                "Nodes"                   bi-controller        fieldset   ?          hidden     ?
+system               "System"                  bi-incognito         fieldset   ?          hiddden    ?
+import_mov_cmd       "Check command"           bi-chat-right-text   cli        ?          show       ?
 #
 loop_
 _indata.id

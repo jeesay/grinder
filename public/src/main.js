@@ -380,11 +380,15 @@ async function fetchParticleStream() {
   }
 
   const from_startable = (data) => data.rows.map( (row) => {
+      const gs = ['program','toolmenu','tabgroup','tab',
+        'g_select', 'g_option', 'fieldset',
+        'switch','details','dropdown','cli', 'toolbar','select'
+      ];
       let obj = {};
       for (let h in data.header) {
         obj[data.header[h]] = row[h];
       }
-      if (['program','toolmenu','tabgroup','radio_tool','tab','fieldset','switch','details','dropdown', 'cli', 'toolbar','select'].includes(obj.widget)) {
+      if (gs.includes(obj.widget)) {
         obj.children = [];
       }
       return obj;
@@ -530,13 +534,13 @@ async function fetchParticleStream() {
         tab_count++;
         parent.children.push(wdgt);
       }
-      else if (wdgt.widget == 'option') {
+      else if (['option','g_option'].includes(wdgt.widget) ) {
 
         const [parent,child] = wdgt.id.split('::');
         wdgt.id = child;
         wdgt.parent = parent;
         const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
-                console.info('OOOPPPPTION',index,flat_table[index]);
+        console.info('OOOPPPPTION',index,flat_table[index]);
         flat_table[index].children.push(wdgt);
       }
       else if ('parent' in wdgt) {
@@ -544,6 +548,7 @@ async function fetchParticleStream() {
         // wdgt.toolsetid = parent.id;
         // Attach other widgets depending of their parent.
         const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+        console.info(wdgt);
         flat_table[index].children.push(wdgt);
       }
     });
