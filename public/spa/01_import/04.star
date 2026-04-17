@@ -16,19 +16,19 @@ _io.id
 _io.label
 _io.icon
 _io.widget
-_io.value
+_io.default
 _io.state
 _io.help
 indata               "Data Type"      bi-box-arrow-in-down fieldset  ?                                           show    ?
-dtype                "Fielset Group"  bi-incognito         g_select  ?                                           nod     ?
-dtype::moviedata     ?                ?                    g_option  "MicrographMovieGroupMetadata.star.relion"  ?       ?
-dtype::micdata       ?                ?                    g_option  "MicrographGroupMetadata.star.relion"       ?       ?
-dtype::coordsdata    ?                ?                    g_option  "MicrographCoordsGroup.star.relion"         ?       ?
-dtype::partsdata     ?                ?                    g_option  "ParticleGroupMetadata.star.relion"         ?       ?
-dtype::img2ddata     ?                ?                    g_option  "Image2DGroupMetadata.star.relion"          ?       ? 
-dtype::mapdata       ?                ?                    g_option  "DensityMap.mrc"                            ?       ?
-dtype::maskdata      ?                ?                    g_option  "Mask3D.mrc"                                ?       ?
-dtype::halfmapdata   ?                ?                    g_option  "DensityMap.mrc.halfmap"                    ?       ?
+dtype                "Fielset Group"  bi-incognito         g_select  ?                                           ?       ?
+dtype::moviedata     ?                ?                    g_option  "MicrographMovieGroupMetadata.star.relion"  hidden  ?
+dtype::micdata       ?                ?                    g_option  "MicrographGroupMetadata.star.relion"       hidden  ?
+dtype::coordsdata    ?                ?                    g_option  "MicrographCoordsGroup.star.relion"         hidden  ?
+dtype::partsdata     ?                ?                    g_option  "ParticleGroupMetadata.star.relion"         hidden  ?
+dtype::img2ddata     ?                ?                    g_option  "Image2DGroupMetadata.star.relion"          hidden  ? 
+dtype::mapdata       ?                ?                    g_option  "DensityMap.mrc"                            hidden  ?
+dtype::maskdata      ?                ?                    g_option  "Mask3D.mrc"                                hidden  ?
+dtype::halfmapdata   ?                ?                    g_option  "DensityMap.mrc.halfmap"                    hidden  ?
 outdata              "Output Data"    bi-box-arrow-down    fieldset  ?                                           hidden  ?
 nodes                "Nodes"          bi-controller        fieldset  ?                                           hidden  ?
 system               "System"         bi-incognito         fieldset  ?                                           hiddden ?
@@ -41,15 +41,16 @@ _indata.icon
 _indata.widget
 _indata.default
 _indata.help
-nod                 'Choose Data Type'   ?                 select ?                                          ?
-nod::dtype_movies   'Movies'             bi-film           option "MicrographMovieGroupMetadata.star.relion" ?
-nod::dtype_mics     'Micrographs'        bi-images         option "MicrographGroupMetadata.star.relion"      ?
-nod::dtype_coords   'Coordinates'        bi-dice-5         option "MicrographCoordsGroup.star.relion"        ?
-nod::dtype_parts    'Particles (*.star)' bi-star           option "ParticleGroupMetadata.star.relion"        ?
-nod::dtype_2dimg    '2D/3D References'   bi-transparency   option "Image2DGroupMetadata.star.relion"         ?
-nod::dtype_map      'Density Map'        bi-box            option "DensityMap.mrc"                           ?
-nod::dtype_mask     'Mask'               bi-mask           option "Mask3D.mrc"                               ?
-nod::dtype_halfmap  'Half-map(s)'        bi-building-add   option "DensityMap.mrc.halfmap"                   ?
+nod>dtype          'Choose Data Type'   ?                 select ?                                          ?
+nod::dtyp_choose   'Choose a file type' bi-file           option "Choose_File_Type"                         ?
+nod::dtyp_movies   'Movies'             bi-film           option "MicrographMovieGroupMetadata.star.relion" ?
+nod::dtyp_mics     'Micrographs'        bi-images         option "MicrographGroupMetadata.star.relion"      ?
+nod::dtyp_coords   'Coordinates'        bi-dice-5         option "MicrographCoordsGroup.star.relion"        ?
+nod::dtyp_parts    'Particles (*.star)' bi-star           option "ParticleGroupMetadata.star.relion"        ?
+nod::dtyp_2dimg    '2D/3D References'   bi-transparency   option "Image2DGroupMetadata.star.relion"         ?
+nod::dtyp_map      'Density Map'        bi-box            option "DensityMap.mrc"                           ?
+nod::dtyp_mask     'Mask'               bi-mask           option "Mask3D.mrc"                               ?
+nod::dtyp_halfmap  'Half-map(s)'        bi-building-add   option "DensityMap.mrc.halfmap"                   ?
 #
 loop_
 _moviedata.id

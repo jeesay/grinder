@@ -274,6 +274,44 @@ export  const connect_to_ws_server = async () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             socket.close(); // Close connection after getting the data
+            const info = {ip:ip_address,port: port};
+            localStorage.setItem('connection',JSON.stringify(info));
+            resolve(data);
+        };
+
+        // 4. Handle errors
+        socket.onerror = (error) => reject(error);
+    });
+}
+
+
+/*
+ * Run the WebSocket Client and try to connect to the python WebSocket server
+*/
+export  const load_project = async (project_path) => {
+  const connect = JSON.parse(localStorage.getItem('connection'));
+  console.log(connect);
+  const ip_address = connect.ip;
+  const port = connect.port;
+  console.info('WS',`ws://${ip_address}:${port}/project`);
+  // Open the WebSocket connection and register event handlers.
+  // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
+ 
+  return new Promise((resolve, reject) => {
+        // 1. Create the connection
+        const socket = new WebSocket(`ws://${ip_address}:${port}/project`);
+
+        // 2. Handle connection open
+        socket.onopen = () => {
+          // Update the UI when the server responds
+          socket.send(project_path);
+        };
+
+        // 3. Handle the result
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            socket.close(); // Close connection after getting the data
+            localStorage.setItem('project_path',project_path);
             resolve(data);
         };
 
@@ -526,6 +564,10 @@ async function fetchParticleStream() {
     let flat_table = flat_tables(tables);
     let tab_count = 1;
     flat_table.forEach(wdgt => {
+      console.info(wdgt.id);
+      if (wdgt.id.includes('>')) {
+        [wdgt.id,wdgt.on_change] = wdgt.id.split('>');
+      }
       // Attach the tab to the `parent`
       if (wdgt.widget == 'tab') {
         // wdgt.parent = db.id;

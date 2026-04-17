@@ -17,11 +17,11 @@ _home_dash.default
 _home_dash.parent
 _home_dash.state
 _home_dash.help
-connect         'Server Connection'    bi-wifi            fieldset ? ? ?        ?
-project         'Projects'             bi-newspaper       fieldset ? ? hidden   ?
-project_new     'Create New Project'   bi-folder-plus     fieldset ? ? hidden   ?
-project_summary 'Project Summary'      bi-clipboard-data  fieldset ? ? hidden   ?
-software        'Available Softwares'  bi-plugin          fieldset ? ? hidden   ?
+connect               'Server Connection'    bi-wifi            fieldset ?                  ? ?        ?
+project               'Projects'             bi-newspaper       fieldset ?                  ? hidden   ?
+proj_select           'Project Selection'    bi-building        g_select ?                  ? ?        ?
+proj_select::projnew  'New Project'          bi-building-add    g_option RELION_NEW_PROJECT ? hidden   ?
+software              'Available Softwares'  bi-plugin          fieldset ? ? hidden   ?
 #
 loop_
 _connect.id
@@ -41,39 +41,26 @@ _project.id
 _project.label
 _project.icon
 _project.widget
-_project.default  # None
+_project.default 
 _project.state
 _project.help
-proj_list            'Choose a Project Directory'    ?               select  ?                  required 'Create or choose one existing RELION Project'
-proj_list::proj_new  'New...'                        bi-building-add option  RELION_NEW_PROJECT ?        ?
+proj_list>proj_select 'Project'       ?               select  ?                   required 'Create or choose one existing RELION Project'
+proj_list::proj_none  '-- Choose --'  bi-building-add option  RELION_NONE         ?        ?
+proj_list::proj_new   'New...'        bi-building-add option  RELION_NEW_PROJECT  ?        ?
 #
 loop_
-_project_new.id
-_project_new.label
-_project_new.widget
-_project_new.default  # None
-_project_new.arg0     # Filter
-_project_new.arg1     # Placeholder
-_project_new.arg2     # Node Type
-_project_new.state
-_project_new.help
-current_dir   'Project Directory'  file       '?'   GrinderFolderAndCreate  ? ?  required 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
-proj_name     'RELION Project'     string     '?'   ?       ? ?  ? ?
-proj_apply    'Apply'              button     '?'   ?       ? ?  ? 'Create a RELION Project'
-#
-loop_
-_project_summary.id
-_project_summary.label
-_project_summary.widget
-_project_summary.default  # None
-_project_summary.arg0     # Filter
-_project_summary.arg1     # Placeholder
-_project_summary.arg2     # Node Type
-_project_summary.help
-current_dir    'Project Directory'  string      ?   ? ?  ? 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
-relion_project 'RELION Project'     string      ?   ? ?  ? ?
-last_job       'Last Job'           paragraph   ?   ? ?  ? ?
-proj_apply     'Apply'              button      ?   ? ?  ? 'Set or Create a RELION Project'
+_projnew.id
+_projnew.label
+_projnew.widget
+_projnew.default  # None
+_projnew.arg0     # Filter
+_projnew.arg1     # Placeholder
+_projnew.arg2     # Node Type
+_projnew.state
+_projnew.help
+current_dir   'Root Directory'  string     '?'   GrinderFolderAndCreate  ? ?  required 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
+proj_name     'New Directory'   string     '?'   ?       ? ?  ? ?
+proj_apply    'Apply'           button     '?'   ?       ? ?  ? 'Create a RELION Project'
 #
 loop_
 _software.id
