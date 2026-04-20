@@ -23,6 +23,9 @@ import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
 import { connect_to_ws_server, load_project } from "./main.js"
 
+import { initDataviz } from './dataviz.js';
+import { getDatavizConfig } from "./jobloader.js";
+
 const spin = () => document.getElementById('spinner').classList.toggle('hidden');
 
 const get_parent = (desc, parent_id, level = 0) => {

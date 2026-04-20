@@ -9,6 +9,8 @@ import {WSClient} from "./ws_client.js";
 //import {*} from "./browse.js";
 //import {*} from "./widget.js";
 
+import { initExplore } from './explore.js'
+
 export const GRINDER = {
   version: '0.1',
   authors: ["Jean-Christophe Taveau"],
@@ -268,6 +270,9 @@ export  const connect_to_ws_server = async () => {
             document.getElementById('connect').style.color = 'lightgreen';
             document.getElementById('connect').dataset.ip = ip_address;
             document.getElementById('connect').dataset.port = port;
+
+            // After connection to server
+            initExplore();
         };
 
         // 3. Handle the result
