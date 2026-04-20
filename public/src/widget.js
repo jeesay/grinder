@@ -23,6 +23,9 @@ import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
 import { connect_to_ws_server, load_project, read_job } from "./main.js"
 
+import { initDataviz } from './dataviz.js';
+import { getDatavizConfig } from "./jobloader.js";
+
 const spin = () => document.getElementById('spinner').classList.toggle('hidden');
 
 const get_parent = (desc, parent_id, level = 0) => {
@@ -679,9 +682,16 @@ const w_navtab = (desc) => {
   };
 
   const get_dataviz = (ev) => {
-    // Connect to ws
-    console.info(ev.target.dataset.parent, ev.target.dataset.label);
-  }
+    const section  = document.getElementById('main-panel');
+    const jobId    = section.dataset.jobId;
+    const tabContent = ev.target.closest('article.tab')?.querySelector('.tab-content');
+
+    // config = { cardId, cardLabel, children: [histogram configs...] }
+    const configs = getDatavizConfig();   // retourne les cards + leurs enfants
+    for (const card of configs) {
+        initDataviz(jobId, card.children, tabContent);
+    }
+  };
 
   const nothing = (ev) => {
     console.info('Do nothing');
