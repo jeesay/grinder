@@ -27,7 +27,7 @@
  */
 
 import {  w_tab_tools } from './widget.js';
-import { build_widget_tree } from './main.js'
+// import { build_widget_tree } from './main.js'
 
 
 // ─── 1. Parser le job.star ────────────────────────────────────────────────────

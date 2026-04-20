@@ -602,14 +602,14 @@ async function fetchParticleStream() {
     return all_of_them;
   }
 
-  export const build_widget_tree = (datablock,parent) => {
+  const build_widget_tree = (datablock,parent) => {
     // Get all tables and build hierarchy
     let tables = get_tables(datablock);
     let flat_table = flat_tables(tables);
     let tab_count = 1;
     flat_table.forEach(wdgt => {
-      console.info(wdgt.id);
-      if (wdgt.id != null && wdgt.id.includes('>')) {
+      console.info(wdgt);
+      if (wdgt.id !== undefined && wdgt.id.includes('>')) {
         [wdgt.id,wdgt.on_change] = wdgt.id.split('>');
       }
       // Attach the tab to the `parent`
