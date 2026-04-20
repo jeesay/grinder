@@ -563,7 +563,7 @@ async function fetchParticleStream() {
     return all_of_them;
   }
 
-  const build_widget_tree = (datablock,parent) => {
+  export const build_widget_tree = (datablock,parent) => {
     // Get all tables and build hierarchy
     let tables = get_tables(datablock);
     let flat_table = flat_tables(tables);
