@@ -61,7 +61,7 @@ body, ul, li{
   color: #fff;
   display: block;
   padding-left: 10px;
-  border-bottom: 1px solid #888;
+/*  border-bottom: 1px solid #888; */
   transition: .3s background-color;
 }
 
@@ -525,6 +525,17 @@ input[type=text] {
   margin-left: 4px;
 }
 
+/* Fieldset */
+
+fieldset.inactive > *:not(:first-child)  {
+  font-style: italic;
+  color: #aaa;
+}
+
+fieldset.hidden {
+  display: none;
+}
+
 /* Switch */
 
 .switch {
@@ -638,7 +649,88 @@ i {
   border-left: 5px solid transparent;
 }
 
-/* range */
+/* Dropdown version 2.0 */
+
+.grinder-dropdown {
+  position: relative;
+  display: inline-block;
+  font-family: sans-serif;
+}
+
+/* Add padding to the right of the button to make room for the arrow */
+.grinder-dropdown .dropdown-trigger {
+  background: #3498db;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+  position: relative;
+  padding-right: 40px; 
+}
+
+/* Create the triangle */
+.grinder-dropdown .dropdown-trigger::after {
+  content: "";
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+  /* Triangle shape */
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid white; /* The "down" arrow color */
+  
+  transition: transform 0.3s ease;
+}
+
+/* Rotate the triangle when the menu is open */
+/* This assumes you add an 'active' class to the trigger button via JS */
+.dropdown-trigger.active::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.grinder-dropdown .dropdown-trigger:hover {
+  background: #2980b9;
+}
+
+/* The Menu */
+.grinder-dropdown .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 160px;
+  background: white;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.1);
+  padding: 0;
+  margin: 5px 0 0 0;
+  list-style: none;
+  border-radius: 4px;
+  
+  /* Hidden by default */
+  display: none; 
+  z-index: 10;
+}
+
+/* Show class to be toggled by JS */
+.grinder-dropdown .dropdown-menu.show {
+  display: block;
+}
+
+.grinder-dropdown .dropdown-menu li a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #333;
+}
+
+.grinder-dropdown .dropdown-menu li a:hover {
+  background: #f1f1f1;
+}
+
+/* Range widget*/
 input[type=range] {
 }
 
@@ -1214,4 +1306,159 @@ p {
   margin: 8px auto;
 }
 
+/* Git-like branch */
 
+:root {
+  --color-border: #d0d7de;
+  --color-bg-subtle: #f6f8fa;
+  --color-text: #1f2328;
+  --color-accent: #0969da;
+}
+
+/* body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; } */
+
+/* The Toggle Button */
+.btn-branch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+/*
+  font-weight: 600;
+  font-size: 14px;
+*/
+}
+
+.dropdown-caret {
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid var(--color-text);
+}
+
+/* The Menu Container */
+.dropdown { position: relative; display: inline-block; }
+
+.dropdown-menu {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 300px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(140,149,159,0.2);
+  z-index: 100;
+}
+
+/* Header & Input */
+.dropdown-header {
+  padding: 8px 10px;
+  font-weight: 600;
+  font-size: 12px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+}
+
+.dropdown-input-container { padding: 8px; }
+#branchInput {
+  width: 100%;
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* Branch List */
+.dropdown-list { max-height: 240px; overflow-y: auto; }
+.branch-item {
+  display: block;
+  padding: 8px 30px; /* Space for a checkmark if needed */
+  font-size: 14px;
+  color: var(--color-text);
+  text-decoration: none;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.branch-item:hover { background-color: #f3f4f6; }
+.branch-item.selected { font-weight: 600; }
+
+/* Utility class to show the menu */
+.show { display: block; }
+
+/* Spinner */
+#spinner {
+  z-index: 999;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+}
+
+#spinner .loader {
+  display: inline-block;
+  color: #333;
+  font-size: 10px;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  position: relative;
+  text-indent: -9999em;
+  animation: mulShdSpin 1.3s infinite linear;
+  transform: translateZ(0);
+}
+
+@keyframes mulShdSpin {
+  0%,
+  100% {
+    box-shadow: 0 -3em 0 0.2em, 
+    2em -2em 0 0em, 3em 0 0 -1em, 
+    2em 2em 0 -1em, 0 3em 0 -1em, 
+    -2em 2em 0 -1em, -3em 0 0 -1em, 
+    -2em -2em 0 0;
+  }
+  12.5% {
+    box-shadow: 0 -3em 0 0, 2em -2em 0 0.2em, 
+    3em 0 0 0, 2em 2em 0 -1em, 0 3em 0 -1em, 
+    -2em 2em 0 -1em, -3em 0 0 -1em, 
+    -2em -2em 0 -1em;
+  }
+  25% {
+    box-shadow: 0 -3em 0 -0.5em, 
+    2em -2em 0 0, 3em 0 0 0.2em, 
+    2em 2em 0 0, 0 3em 0 -1em, 
+    -2em 2em 0 -1em, -3em 0 0 -1em, 
+    -2em -2em 0 -1em;
+  }
+  37.5% {
+    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em,
+     3em 0em 0 0, 2em 2em 0 0.2em, 0 3em 0 0em, 
+     -2em 2em 0 -1em, -3em 0em 0 -1em, -2em -2em 0 -1em;
+  }
+  50% {
+    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em,
+     3em 0 0 -1em, 2em 2em 0 0em, 0 3em 0 0.2em, 
+     -2em 2em 0 0, -3em 0em 0 -1em, -2em -2em 0 -1em;
+  }
+  62.5% {
+    box-shadow: 0 -3em 0 -1em, 2em -2em 0 -1em,
+     3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 0, 
+     -2em 2em 0 0.2em, -3em 0 0 0, -2em -2em 0 -1em;
+  }
+  75% {
+    box-shadow: 0em -3em 0 -1em, 2em -2em 0 -1em, 
+    3em 0em 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, 
+    -2em 2em 0 0, -3em 0em 0 0.2em, -2em -2em 0 0;
+  }
+  87.5% {
+    box-shadow: 0em -3em 0 0, 2em -2em 0 -1em, 
+    3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, 
+    -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
+  }
+}

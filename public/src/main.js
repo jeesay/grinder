@@ -1,3 +1,4 @@
+// import { tableFromIPC } from 'apache-arrow';
 import {StarGate} from "./stargate.js";
 import {w_leftpanel, w_tab_tools} from "./widget.js";
 import {h} from "./dom.js";
@@ -273,6 +274,8 @@ export  const connect_to_ws_server = async () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             socket.close(); // Close connection after getting the data
+            const info = {ip:ip_address,port: port};
+            localStorage.setItem('connection',JSON.stringify(info));
             resolve(data);
         };
 
@@ -281,6 +284,60 @@ export  const connect_to_ws_server = async () => {
     });
 }
 
+
+/*
+ * Run the WebSocket Client and try to connect to the python WebSocket server
+*/
+export  const load_project = async (project_path) => {
+  const connect = JSON.parse(localStorage.getItem('connection'));
+  console.log(connect);
+  const ip_address = connect.ip;
+  const port = connect.port;
+  console.info('WS',`ws://${ip_address}:${port}/project`);
+  // Open the WebSocket connection and register event handlers.
+  // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
+ 
+  return new Promise((resolve, reject) => {
+        // 1. Create the connection
+        const socket = new WebSocket(`ws://${ip_address}:${port}/project`);
+
+        // 2. Handle connection open
+        socket.onopen = () => {
+          // Update the UI when the server responds
+          socket.send(project_path);
+        };
+
+        // 3. Handle the result
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            socket.close(); // Close connection after getting the data
+            localStorage.setItem('project_path',project_path);
+            resolve(data);
+        };
+
+        // 4. Handle errors
+        socket.onerror = (error) => reject(error);
+    });
+}
+
+
+
+async function fetchParticleStream() {
+    const response = await fetch('http://localhost:8000/stream-particles');
+    
+    // tableFromIPC handles the stream directly from the response body
+    const table = await tableFromIPC(response.body);
+
+    // Now you can access the columns with zero-copy speed
+    const xCoords = table.getChild('rlnCoordinateX');
+    
+    console.log(`Loaded ${table.numRows} particles!`);
+    
+    for (let i = 0; i < table.numRows; i++) {
+        // Access coordinates for your visualization
+        const x = xCoords.get(i);
+    }
+}
 //   if (GRINDER.server.connected) {
 //     // Update the UI when the server responds
 //       alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`);
@@ -361,11 +418,15 @@ export  const connect_to_ws_server = async () => {
   }
 
   const from_startable = (data) => data.rows.map( (row) => {
+      const gs = ['program','toolmenu','tabgroup','tab',
+        'g_select', 'g_option', 'fieldset',
+        'switch','details','dropdown','cli', 'toolbar','select'
+      ];
       let obj = {};
       for (let h in data.header) {
         obj[data.header[h]] = row[h];
       }
-      if (['program','toolmenu','tabgroup','radio_tool','tab','fieldset','switch','details', 'cli', 'toolbar','select'].includes(obj.widget)) {
+      if (gs.includes(obj.widget)) {
         obj.children = [];
       }
       return obj;
@@ -503,19 +564,33 @@ export  const connect_to_ws_server = async () => {
     let flat_table = flat_tables(tables);
     let tab_count = 1;
     flat_table.forEach(wdgt => {
+      console.info(wdgt.id);
+      if (wdgt.id.includes('>')) {
+        [wdgt.id,wdgt.on_change] = wdgt.id.split('>');
+      }
       // Attach the tab to the `parent`
       if (wdgt.widget == 'tab') {
         // wdgt.parent = db.id;
         wdgt.index = tab_count;
-        wdgt.toolsetid = parent.id;
+        // wdgt.toolsetid = parent.id;
         tab_count++;
         parent.children.push(wdgt);
       }
+      else if (['option','g_option'].includes(wdgt.widget) ) {
+
+        const [parent,child] = wdgt.id.split('::');
+        wdgt.id = child;
+        wdgt.parent = parent;
+        const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+        console.info('OOOPPPPTION',index,flat_table[index]);
+        flat_table[index].children.push(wdgt);
+      }
       else if ('parent' in wdgt) {
         // Update toolset info
-        wdgt.toolsetid = parent.id;
+        // wdgt.toolsetid = parent.id;
         // Attach other widgets depending of their parent.
         const index = flat_table.map(e => e.id).indexOf(wdgt.parent);
+        console.info(wdgt);
         flat_table[index].children.push(wdgt);
       }
     });
@@ -566,7 +641,7 @@ export  const connect_to_ws_server = async () => {
           ul.appendChild(w);
         }
         else if (wdgt.widget === 'tool') {
-          // Load radio_tool (radio button + toolset)
+          // Load tool
           const source = await fetchFile(tab.path + wdgt.filename);
           const serialized = JSON.stringify(source);
           localStorage.setItem(wdgt.proc_label,serialized);

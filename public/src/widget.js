@@ -19,56 +19,59 @@
 
 'use strict';
 
-import {h} from "./dom.js";
-import {togglePopup,fetchFileTree, init} from "./browse.js";
-import {connect_to_ws_server} from "./main.js"
+import { h } from "./dom.js";
+import { togglePopup, fetchFileTree, init } from "./browse.js";
+import { connect_to_ws_server, load_project } from "./main.js"
 
-const get_parent = (desc,parent_id,level=0) => {
+const spin = () => document.getElementById('spinner').classList.toggle('hidden');
+
+const get_parent = (desc, parent_id, level = 0) => {
   console.info(desc);
   if (desc.parent.id === parent_id || level == 10) {
     return desc.parent;
   }
-  return get_parent(desc.parent,parent_id,level++);
+  return get_parent(desc.parent, parent_id, level++);
 }
 
-const get_parent_from_class = (desc,parent_widget,level=0) => {
+const get_parent_from_class = (desc, parent_widget, level = 0) => {
   console.info(desc);
   if (!desc.hasOwnProperty(parent) || desc.parent.widget === parent_widget || level == 10) {
     return desc.parent;
   }
-  return get_parent_from_class(desc.parent,parent_widget,level++);
+  return get_parent_from_class(desc.parent, parent_widget, level++);
 }
 
 const w_label = (desc) => {
   // TODO
-  return h('label',desc.label);
+  return h('label', desc.label);
 }
 
 const w_option = (desc) => {
   // TODO
-  return h(`option#${desc.id}`,{
-      props: {
-        selected: desc.default,
-        value: desc.default
-      }
-    },
-    desc.label);
+  // console.info('OPTION',desc);
+  return h('option', {
+    props: {
+      value: desc.default
+    }
+  },
+    desc.label
+  );
 }
 
 const w_h3 = (desc) => {
   // TODO
-  return h('h3',desc.label);
+  return h('h3', desc.label);
 }
 
 const w_button = (desc) => {
   // TODO
   return h('div.row',
     [
-      h('label',{attrs: {'for':desc.id}},desc.label),
-      h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+      h('label', { attrs: { 'for': desc.id } }, desc.label),
+      h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
       h(`button#${desc.id}`,
         {
-          on: ('on_click' in desc) ? {click: desc.on_click} : {}
+          on: ('on_click' in desc) ? { click: desc.on_click } : {}
         },
         desc.label
       )
@@ -78,12 +81,69 @@ const w_button = (desc) => {
 // Specialized button
 const w_connect = (desc) => {
 
+  const set_project = async (ev) => {
+    console.log(ev.target.value,ev.target.dataset);
+    const project_path = ev.target.value;
+    if (project_path === 'RELION_NEW_PROJECT') {
+      const target = ev.target.dataset.dispatch;
+      document.querySelector(`#${target} > fieldset[value=${project_path}]`).classList.toggle('hidden');
+    }
+    else {
+      console.log('LOAD',project_path);
+      spin();
+      const data_proj = await load_project(project_path);
+      spin();
+      update_project(project_path,data_proj)
+    }
+  }
+
+  const update_project = (project_path,data_proj) => {
+    // Step #1 - Update project
+    document.querySelector('#project_id span').textContent = project_path;
+    // Step #2 - Fill the Job List
+    let parent = document.querySelector('.jobs #joblist');
+    // Reset
+    parent.innerHTML='';
+    const N = 10;
+    chunks(data_proj.processes.data, N).forEach((chunk, i) => new_menu(chunk, parent, i, N));
+    // Step #3 - Fill the Job Folders
+    parent = document.querySelector('.jobs #jobfolder');
+    // Reset
+    parent.innerHTML='';
+    const folders = data_proj.processes.data.reduce((accu, item) => {
+      const [fn, alias, nodetype, status] = item;
+      const [path, job, ...dummy] = fn.split('/');
+      if (path in accu) {
+        accu[path].push([job, alias, nodetype, status, path, `${path}/${job}`]);
+      }
+      else {
+        accu[path] = [[job, alias, nodetype, status, path, `${path}/${job}`]];
+      }
+      return accu;
+    }, {});
+    Object.entries(folders).forEach(pair => {
+      const [folder, jobs] = pair;
+      const w = h('li.menu-item', {},
+        [
+          h('a',
+            [
+              h(`i.nav-icon.bi.bi-folder2-open`),
+              h('span.nav-text', folder)
+            ]
+          ),
+          h('ul.sub-submenu')
+        ]);
+      parent.appendChild(w);
+      jobs.forEach(job => new_item(job, w.children[1]));
+    });
+  }
+
   function* chunks(arr, n) {
     console.log(arr.length);
     let chunk = [];
     let index = n;
     for (let i = 0; i < arr.length; i++) {
-      console.info('index',parseInt(arr[i][0].match(/\d+/)));
+      console.info('index', parseInt(arr[i][0].match(/\d+/)));
       if (parseInt(arr[i][0].match(/\d+/)) <= index) {
         chunk.push(arr[i]);
       }
@@ -96,81 +156,64 @@ const w_connect = (desc) => {
     yield chunk;
   }
 
-  const new_item = (item,parent,type='list') => {
-    const [job,alias,nodetype,status,path,fn] = item;
-      const w = h('li.file-item',
-        {
-          dataset: {job: fn, proclabel: nodetype},
-          on: {click: (ev) => console.info(...item)}
-        },
-        [h('a',
-          [
-            h('i.nav-icon.bi.bi-gear',{style:{color: (status === 'Succeeded') ? '#0f0' : '#f00' }}),
-            h('span.nav-text',(type === 'list') ? fn : job)
-          ])
-        ]
-      );
-      parent.appendChild(w)
+  const new_item = (item, parent, type = 'list') => {
+    const [job, alias, nodetype, status, path, fn] = item;
+    const w = h('li.file-item',
+      {
+        dataset: { job: fn, proclabel: nodetype },
+        on: { click: (ev) => console.info(...item) }
+      },
+      [h('a',
+        [
+          h('i.nav-icon.bi.bi-gear', { style: { color: (status === 'Succeeded') ? '#0f0' : '#f00' } }),
+          h('span.nav-text', (type === 'list') ? fn : job)
+        ])
+      ]
+    );
+    parent.appendChild(w)
   }
 
-  const new_menu = (arr,parent,index,N) => {
-    const w = h('li.menu-item',{},
+  const new_menu = (arr, parent, index, N) => {
+    const w = h('li.menu-item', {},
       [
         h('a',
           [
             h(`i.nav-icon.bi.bi-${index % 10}-circle`),
-            h('span.nav-text',`Jobs ${index * N + 1}-${(index + 1) * N}`)
+            h('span.nav-text', `Jobs ${index * N + 1}-${(index + 1) * N}`)
           ]
         ),
         h('ul.sub-submenu')
       ]);
-      
+
     parent.appendChild(w);
     arr.forEach(job => {
-      const [fn,alias,nodetype,status] = job;
-      const [path,jobi,...dummy] = fn.split('/');
-      new_item([jobi,alias,nodetype,status,path,`${path}/${jobi}`],w.children[1])
-  });
+      const [fn, alias, nodetype, status] = job;
+      const [path, jobi, ...dummy] = fn.split('/');
+      new_item([jobi, alias, nodetype, status, path, `${path}/${jobi}`], w.children[1])
+    });
   }
 
   desc.on_click = async (ev) => {
     ev.preventDefault(); // Stop the page from refreshing/redirecting
     const data_env = await connect_to_ws_server();
     // Step #1 - Fill the home dashboard
-    document.getElementById('project').innerHTML = JSON.stringify(data_env,null,2);
+    const dropdown = document.querySelector('#project #proj_list');
+    dropdown.addEventListener('change', set_project);
+    for (let path of data_env.project_list) {
+      dropdown.appendChild(
+        h('option',
+          {
+            attrs: {value: path}
+          },
+          path)
+      );
+    }
+    // Show the `project` fieldset
+    document.getElementById('project').classList.toggle('hidden');
     console.log(data_env);
-    // Step #2 - Fill the Job List
-    let parent = document.querySelector('.jobs #joblist');
-    const N = 10;
-    chunks(data_env.environment.processes.data,N).forEach((chunk,i) => new_menu(chunk,parent,i,N));
-    // Step #3 - Fill the Job Folders
-    parent = document.querySelector('.jobs #jobfolder');
-    const folders = data_env.environment.processes.data.reduce((accu, item) => {
-      const [fn,alias,nodetype,status] = item;
-      const [path,job,...dummy] = fn.split('/');
-      if (path in accu) {
-        accu[path].push([job,alias,nodetype,status,path,`${path}/${job}`]);
-      }
-      else {
-        accu[path] = [[job,alias,nodetype,status,path,`${path}/${job}`]];
-      }
-      return accu;
-    },{});
-    Object.entries(folders).forEach(pair => {
-      const [folder,jobs] = pair;
-      const w = h('li.menu-item',{},
-        [
-          h('a',
-            [
-              h(`i.nav-icon.bi.bi-folder2-open`),
-              h('span.nav-text',folder)
-            ]
-          ),
-          h('ul.sub-submenu')
-        ]);        
-      parent.appendChild(w);
-      jobs.forEach(job => new_item(job,w.children[1]));
-    });
+    /*
+
+    */
   }
   return w_button(desc);
 }
@@ -179,10 +222,10 @@ const w_switch = (desc) => {
   // TODO
   return h(`fieldset.switch${(desc.default === "true") ? '' : '.inactive'}`,
     {
-      attrs: {disabled: (desc.default === "true") ? true : false},
+      attrs: { disabled: (desc.default === "true") ? true : false },
     },
     [
-      h('legend',w_switch_button(desc)),
+      h('legend', w_switch_button(desc)),
       ...w_group(desc)
     ]
   );
@@ -191,40 +234,41 @@ const w_switch = (desc) => {
 const w_switch_button = (desc) => {
   const unique_id = `${desc.id}_on_off`;
   return [
-    h('label',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', (desc.icon) ? [h(`i.bi.${desc.icon}`), desc.label] : desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     h('div.switch_button',
       [
-        h(`input#${unique_id}.param.switch-input`, 
+        h(`input#${unique_id}.param.switch-input`,
           {
             attrs: {
-              type:'checkbox',
-              name:desc.label
+              type: 'checkbox',
+              name: desc.label
             },
-            dataset: {toolset: desc.toolsetid,param: desc.id},
+            dataset: { toolset: desc.toolsetid, param: desc.id },
             props: {
               checked: (desc.default === "true") ? true : false
             },
-            on: 
-              { click: (ev) => {
+            on:
+            {
+              click: (ev) => {
                 console.log("Clicked element:", ev.target);
-                ev.target.checked ? false : true; 
+                ev.target.checked ? false : true;
                 if (ev.target.checked) {
                   ev.target.closest('fieldset').classList.remove('inactive');
                   ev.target.closest('fieldset').disabled = false;
                 }
-                else { 
+                else {
                   ev.target.closest('fieldset').classList.add('inactive');
                   ev.target.closest('fieldset').disabled = true;
-                } 
+                }
               }
             }
           }
         ),
         h('label',
           {
-            attrs: {'for':`${unique_id}`},
-/*            on: {changed: (ev) => {console.log(ev.target); ev.target.disabled = !ev.target.disabled} } */
+            attrs: { 'for': `${unique_id}` },
+            /*            on: {changed: (ev) => {console.log(ev.target); ev.target.disabled = !ev.target.disabled} } */
           },
           'Toggle'
         )
@@ -236,45 +280,45 @@ const w_switch_button = (desc) => {
 ///////////////////// FILE ///////////////////////
 
 const w_file = (desc) => {
-  console.info('file',desc);
+  console.info('file', desc);
   const prop = (desc.arg0 !== "?") ? desc.arg0 : '';
   const nodetype = desc.arg0;
   const tree_depth = desc.arg1;
   const placeholder = desc.arg2;
-  
 
-  let ds = {inputfile: desc.id};
+
+  let ds = { inputfile: desc.id };
   if ('filetype' in desc) {
     ds.title = GRINDER.filetypes[filetype].dialog_title;
     ds.filter = GRINDER.filetypes[filetype].filter;
   }
   else {
     if ('dialog_title' in desc) {
-      ds.title =  desc.dialog_title;
+      ds.title = desc.dialog_title;
     }
     if ('filter' in desc) {
       ds.filter = desc.filter;
     }
   }
-  
+
   return h('div.row',
     {
-      style: (desc.status === 'hidden') ? {display: 'none'} : {display:'flex'}
+      style: (desc.status === 'hidden') ? { display: 'none' } : { display: 'flex' }
     },
     [
-      h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`,{attrs: {'for':desc.id}},desc.label),
-      h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
-      h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`, 
+      h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`, { attrs: { 'for': desc.id } }, desc.label),
+      h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
+      h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`,
         {
           attrs: {
-            type:'text',
+            type: 'text',
             value: (desc.default === '?' || desc.default === '') ? '' : desc.default,
             placeholder: placeholder || '',
-            name:desc.id
+            name: desc.id
           },
           props: {
-              required: (desc.constraint === "required") ? true : false
-            },
+            required: (desc.constraint === "required") ? true : false
+          },
           dataset: {
             toolset: desc.toolsetid,
             param: desc.id,
@@ -287,7 +331,7 @@ const w_file = (desc) => {
       h('input#open_dialog.browse.open-trigger',
         {
           attrs: {
-            type:'button',
+            type: 'button',
             value: 'Browse...',
             title: nodetype
           },
@@ -310,15 +354,15 @@ const w_file = (desc) => {
 
 const w_string = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', { attrs: { 'for': desc.id } }, desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     h(
-      `input#${desc.id}.param`, 
+      `input#${desc.id}.param`,
       {
         attrs: {
-          type:'text',
+          type: 'text',
           value: desc.default,
-          name:desc.id
+          name: desc.id
         },
         dataset: {
           toolset: desc.toolsetid,
@@ -332,16 +376,16 @@ const w_string = (desc) => h('div.row',
 
 const w_string_ro = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', { attrs: { 'for': desc.id } }, desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     h(
-      `input#${desc.id}.param`, 
+      `input#${desc.id}.param`,
       {
         attrs: {
-          type:'text',
+          type: 'text',
           value: desc.default,
-          name:desc.id,
-          readOnly:true
+          name: desc.id,
+          readOnly: true
         },
         dataset: {
           toolset: desc.toolsetid,
@@ -356,15 +400,15 @@ const w_string_ro = (desc) => h('div.row',
 
 const w_text = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', { attrs: { 'for': desc.id } }, desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     h(
-      `textarea#${desc.id}.param`, 
+      `textarea#${desc.id}.param`,
       {
         attrs: {
-          type:'text',
+          type: 'text',
           value: desc.default,
-          name:desc.id
+          name: desc.id
         },
         dataset: {
           toolset: desc.toolsetid,
@@ -379,10 +423,10 @@ const w_text = (desc) => h('div.row',
 
 const w_paragraph = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', { attrs: { 'for': desc.id } }, desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     h(
-      `span#${desc.id}.param`, 
+      `span#${desc.id}.param`,
       desc.default
     )
   ]
@@ -391,16 +435,16 @@ const w_paragraph = (desc) => h('div.row',
 
 const w_int = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', { attrs: { 'for': desc.id } }, desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     h(
-      `input#${desc.id}.param`, 
+      `input#${desc.id}.param`,
       {
         attrs: {
-          type:'number',
+          type: 'number',
           value: desc.default,
-          lang:'en',
-          name:desc.id
+          lang: 'en',
+          name: desc.id
         },
         dataset: {
           toolset: desc.toolsetid,
@@ -410,7 +454,7 @@ const w_int = (desc) => h('div.row',
       }
     )
   ]
-  );
+);
 
 
 const w_float = (desc) => {
@@ -458,15 +502,15 @@ const w_float = (desc) => {
   }
 */
 
-function check_bounds(val,widget) {
+function check_bounds(val, widget) {
   console.log(widget);
-  let range  = (widget.type === 'range') ? widget : widget.previousElementSibling;
+  let range = (widget.type === 'range') ? widget : widget.previousElementSibling;
   let number = (widget.type === 'number') ? widget : widget.nextElementSibling
   // Update values
   widget.parentElement.value = val;
   range.value = val;
   number.value = val;
-  console.log(range,number);
+  console.log(range, number);
   const min = parseInt(range.min);;
   const max = parseInt(range.max);
 
@@ -480,66 +524,66 @@ function check_bounds(val,widget) {
 
 const w_range = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', { attrs: { 'for': desc.id } }, desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     // `div#${desc.id.replace('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_container.range-container`,
-    h( 
+    h(
       `div#${desc.id}_container.range-container`,
       {
-        style: {display:'flex'},
-        attrs: {value: desc.default}
+        style: { display: 'flex' },
+        attrs: { value: desc.default }
       },
       [
-        h(`input#${desc.id}_range`, 
+        h(`input#${desc.id}_range`,
           {
             attrs: {
-              type:'range',
+              type: 'range',
               min: desc.arg0,
               max: desc.arg1,
               step: desc.arg2,
               value: desc.default,
-              name:desc.id + '_range'
+              name: desc.id + '_range'
             },
             dataset: {
               toolset: desc.toolsetid,
               param: desc.id,
               option: ('option' in desc) ? desc.option : 0
             },
-            on: {input: (ev) => check_bounds(ev.target.value,ev.target) }
+            on: { input: (ev) => check_bounds(ev.target.value, ev.target) }
           }
         ),
         h(
-          `input#${desc.id}.param`, 
+          `input#${desc.id}.param`,
           {
             attrs: {
-              type:'number',
+              type: 'number',
               value: desc.default,
               step: desc.arg2,
-              lang:'en',
-              name:desc.id
+              lang: 'en',
+              name: desc.id
             },
             dataset: {
               toolset: desc.toolsetid,
               param: desc.id,
               option: ('option' in desc) ? desc.option : 0
             },
-            on: {input: (ev) => check_bounds(ev.target.value,ev.target)}
+            on: { input: (ev) => check_bounds(ev.target.value, ev.target) }
           }
         )
       ])
-    ]
-  );
+  ]
+);
 
 const w_bool = (desc) => h('div.row',
   [
-    h('label',{attrs: {'for':desc.id}},desc.label),
-    h('i.bi.bi-question-circle',{attrs:{title:desc.help}}),
+    h('label', { attrs: { 'for': desc.id } }, desc.label),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
     h(
-      `input#${desc.id}.param`, 
+      `input#${desc.id}.param`,
       {
         attrs: {
-          type:'checkbox',
-          name:desc.id
+          type: 'checkbox',
+          name: desc.id
         },
         props: {
           checked: (desc.default === 'true') ? true : false,
@@ -552,7 +596,7 @@ const w_bool = (desc) => h('div.row',
       }
     ),
   ]
-  );
+);
 
 /*
   {
@@ -572,12 +616,12 @@ const w_radio = (desc) => h('div.row',
   [
     h(
       // Unique ID
-      `input#${desc.id}.param`, 
+      `input#${desc.id}.param`,
       {
         attrs: {
-          type:'radio',
-          name:desc.group,
-          value:desc.id
+          type: 'radio',
+          name: desc.group,
+          value: desc.id
         },
         props: {
           checked: (desc.default === true) ? true : false
@@ -587,24 +631,24 @@ const w_radio = (desc) => h('div.row',
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
-        on: ('on_click' in desc) ? {click: desc.on_click} : {}
+        on: ('on_click' in desc) ? { click: desc.on_click } : {}
       }
     ),
-    h('label',{attrs: {'for': desc.id}},desc.label + ' '),
-    h('i.bi.bi-question-circle',{attrs: {title: desc.help}})
+    h('label', { attrs: { 'for': desc.id } }, desc.label + ' '),
+    h('i.bi.bi-question-circle', { attrs: { title: desc.help } })
   ]
-  );
+);
 
-const w_leftpanel = (parent,desc) => {
-  console.log('leftpanel',desc.label);
-  desc.forEach( (child,i) => {
+const w_leftpanel = (parent, desc) => {
+  console.log('leftpanel', desc.label);
+  desc.forEach((child, i) => {
     const el = h(
       `li#${child.id}.menu-item`,
       [
         h('a.nav-row',
           [
             h(`i.nav-icon.bi.${child.icon}`),
-            h('span.nav-text',child.label)
+            h('span.nav-text', child.label)
           ]
         )
       ],
@@ -613,15 +657,15 @@ const w_leftpanel = (parent,desc) => {
   });
 }
 
-const w_tab_tools = (parent,desc) => {
+const w_tab_tools = (parent, desc) => {
   // const g = w_section(desc);
   // console.log(g);
-  w_group(desc).forEach( child => parent.appendChild(child));
+  w_group(desc).forEach(child => parent.appendChild(child));
 }
 
 const w_import = (desc) => {
-  console.log('import',desc);
-  return h('span',desc.default);
+  console.log('import', desc);
+  return h('span', desc.default);
   // TODO
 }
 
@@ -640,39 +684,39 @@ const w_navtab = (desc) => {
   const nothing = (ev) => {
     console.info('Do nothing');
   }
-  
-  const funcs = {'I/O': nothing,'Settings': nothing,'Log': get_logfile,'DataViz': get_dataviz};
 
-  console.error(`Has children in ${desc.id}?`,('children' in desc) && (desc.children.length > 0));
+  const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': get_logfile, 'DataViz': get_dataviz };
+
+  console.error(`Has children in ${desc.id}?`, ('children' in desc) && (desc.children.length > 0));
   // Remove all the previous children
   // parent.innerHTML = '';
   let i = desc.index + 1; // HACK
   // Step #1 Header
   const el = h(`article#${desc.label}.tab`,
     [
-      h(`input#tab-${i}.tab-switch`, 
+      h(`input#tab-${i}.tab-switch`,
         {
-          attrs: { 
-            type:'radio',
-            name:'css-tabs'
+          attrs: {
+            type: 'radio',
+            name: 'css-tabs'
           },
           dataset: {
             parent: desc.parent,
             label: desc.label
           },
           props: {
-            checked: (i==0) ? true : false
+            checked: (i == 0) ? true : false
           },
-          on: ('on_click' in desc) ? {click: desc.on_click} : {click: funcs[desc.label]}
+          on: ('on_click' in desc) ? { click: desc.on_click } : { click: funcs[desc.label] }
         }
       ),
-      h('label.tab-label',{attrs: {'for': `tab-${i}`}},[h(`i.bi.${desc.icon}`),' ',desc.label]),
-      h('div.tab-content', 
-        (('children' in desc) && (desc.children.length > 0)) ? w_group(desc): []
+      h('label.tab-label', { attrs: { 'for': `tab-${i}` } }, [h(`i.bi.${desc.icon}`), ' ', desc.label]),
+      h('div.tab-content',
+        (('children' in desc) && (desc.children.length > 0)) ? w_group(desc) : []
       )
     ]
   );
-  console.info('navtab',desc, desc.index, el);
+  console.info('navtab', desc, desc.index, el);
 
   return el;
 }
@@ -680,49 +724,135 @@ const w_navtab = (desc) => {
 const w_toolmenu = w_navtab;
 
 const w_radiotool = (desc) => {
-//  // Create radio button linked to the `toolmenu`
-//  const el = w_radio(desc);
-//  // Create tabs and attach to `section`
-//  const tabs= w_tabgroup(desc);
-//  return tabs;
+  //  // Create radio button linked to the `toolmenu`
+  //  const el = w_radio(desc);
+  //  // Create tabs and attach to `section`
+  //  const tabs= w_tabgroup(desc);
+  //  return tabs;
 }
 
 const w_select = (desc) => {
-  console.info('>>>> CREATE SELECT',desc)
+  console.info('>>>> CREATE SELECT', desc);
+  const dispatch = (ev) => {
+    const t = ev.target.dataset.dispatch;
+    console.log(t,document.getElementById(t));
+    const w = document.getElementById(t);
+    w.value = ev.target.value;
+    w.dispatchEvent(new Event('change',  { bubbles: true }));
+  }
   return h('div.row',
-  [
-    h('label',{attrs: {'for': desc.id}},desc.label + ' '),
-    h('i.bi.bi-question-circle',{attrs: {title: desc.help}}),
-    h('div.select-dropdown',[
-      h(`select#${desc.id}`,
+    [
+      h('label', { attrs: { 'for': desc.id } }, desc.label + ' '),
+      h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
+      h('div.select-dropdown', [
+        h(`select#${desc.id}`,
+          {
+            props: {
+              value: desc.default
+            },
+            dataset: {dispatch: desc.on_change},
+            on: ('on_change' in desc) ? { change: (ev) => dispatch(ev) } : {}
+          },
+          w_group(desc),
+        )
+      ])
+    ]);
+}
+
+// TODO
+const w_dropdown = (desc) => {
+  return h('div.row',
+    [
+      h('label', { attrs: { 'for': desc.id } }, desc.label + ' '),
+      h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
+      h(`div#${desc.id}.grinder-dropdown`,
+        [
+          h('button.dropdown-trigger',
+            {
+              on: {
+                click: (ev) => {
+                  console.info('DROPDOWN', ev.target.nextSibling);
+                  ev.target.classList.toggle('active');
+                  ev.target.nextSibling.classList.toggle('show');
+                }
+              }
+            },
+            'Select...',
+          ),
+          h('ul.dropdown-menu', w_group(desc))
+        ]
+      )
+    ]);
+}
+
+const w_dropdown_option = (desc) => {
+  return h('li',
+    {
+      attrs: { value: desc.default }
+    },
+    [
+      h('a',
         {
-          on: ('on_change' in desc) ? {click: desc.on_change} : {}
+          attrs: { href: '#' }
         },
-        w_group(desc),
-       )
-    ])
-  ]);
+        desc.label
+      )
+    ]
+  )
 }
 
 const w_toolbar = (desc) => {
-  console.log('toolbar',desc.label);
+  console.log('toolbar', desc.label);
   return h('div.toolbar',
-    desc.children.map( wdg => {
+    desc.children.map(wdg => {
       if (wdg.arg1 != "?") {
-        return h('a.button',{attrs: {title: wdg.label}},[h(`i.bi.${wdg.arg1}`), h('span','')]);
+        return h('a.button', { attrs: { title: wdg.label } }, [h(`i.bi.${wdg.arg1}`), h('span', '')]);
       }
       else {
-        return h('a.button',wdg.label);
+        return h('a.button', wdg.label);
       }
     }
-  ));
+    ));
 }
 
 const w_fieldset = (desc) => {
-  console.log('fieldset',desc.label);
-  return h(`fieldset#${desc.id}`,
+  console.log('fieldset', desc.label);
+  return h(`fieldset#${desc.id}.${desc.state}`,
     [
-      h('legend',(desc.icon) ? [h(`i.bi.${desc.icon}`),desc.label] : desc.label),...w_group(desc)
+      h('legend', (desc.icon) ? [h(`i.bi.${desc.icon}`), desc.label] : desc.label), ...w_group(desc)
+    ]
+  );
+}
+
+const w_gselect = (desc) => {
+  const on_change = (ev) => {
+    console.log('G SELECT',ev.target.value);
+    // Reset
+    [...document.querySelectorAll(`#${ev.target.id} > .g_option`)].forEach(w => w.classList.add('hidden'));
+    document.querySelector(`#${event.target.id} .g_option[value="${ev.target.value}"]`).classList.toggle('hidden');
+  }
+  console.log('g_select', desc.label);
+  return h(
+    `div#${desc.id}.g_select.${desc.state}`, 
+    {
+      on: {
+      change: on_change
+      }
+    },
+    w_group(desc));
+}
+
+const w_goption = (desc) => {
+  console.log('div', desc.label);
+  return h(`div#${desc.id}.g_option.${desc.state}`, 
+    {
+      attrs: {value:desc.default}
+    },
+    [
+      h(
+        'legend', (desc.icon) ? [h(`i.bi.${desc.icon}`), desc.label] : desc.label
+      ),
+      ...w_group(desc)
     ]
   );
 }
@@ -740,54 +870,54 @@ const w_toolset = (desc) => {
   const toolbar = {
     label: desc.label,
     children: [
-      {id: 'h3.title',label: desc.label,arg1: '?'},
-      {id: 'run',label: 'Run job',arg1: 'bi-send'},
-      {id: 'continue',label: 'Continue job',arg1: 'bi-arrow-repeat'},
-      {id: 'schedule',label: 'Schedule job',arg1: 'bi-calendar2-week'},
-      {id: 'overwrite',label: 'Overwrite job',arg1: 'bi-pencil-square'},
-      {id: 'delete',label: 'Remove job',arg1: 'bi-trash'},
-      {id: 'h4.title',label: 'Status',arg1: '?'},
-      {id: 'h4.title',label: 'Pending',arg1: 'bi-person-standing'},       
+      { id: 'h3.title', label: desc.label, arg1: '?' },
+      { id: 'run', label: 'Run job', arg1: 'bi-send' },
+      { id: 'continue', label: 'Continue job', arg1: 'bi-arrow-repeat' },
+      { id: 'schedule', label: 'Schedule job', arg1: 'bi-calendar2-week' },
+      { id: 'overwrite', label: 'Overwrite job', arg1: 'bi-pencil-square' },
+      { id: 'delete', label: 'Remove job', arg1: 'bi-trash' },
+      { id: 'h4.title', label: 'Status', arg1: '?' },
+      { id: 'h4.title', label: 'Pending', arg1: 'bi-person-standing' },
     ]
   }
-  console.log('toolmenu',desc);
+  console.log('toolmenu', desc);
   const args = desc.children;
-  console.log('>>>>>>>>>>>>>>>>>< AARRRRGGGGSSSS: ',args);
+  console.log('>>>>>>>>>>>>>>>>>< AARRRRGGGGSSSS: ', args);
   // Reset
   // document.querySelectorAll('#args.params').forEach(w => w.remove() );
-  const el = h(`div#${desc.id}.toolset`, 
+  const el = h(`div#${desc.id}.toolset`,
     {
-      style: {display: 'none'},
-      dataset: {parent: desc.parent},
-     },
+      style: { display: 'none' },
+      dataset: { parent: desc.parent },
+    },
     w_group(desc)
   );
-  console.log('Done!',el);
+  console.log('Done!', el);
   el.querySelectorAll('.tab-content').forEach(w => w.prepend(w_toolbar(toolbar)));
   // document.querySelector('section').appendChild(el);
   return el;
 }
 
 const w_params_show = (args) => {
-  console.log('param',args.id, args.section);
+  console.log('param', args.id, args.section);
   // Reset all other params tabs
-  document.getElementById(args.section).querySelectorAll('div.params').forEach(w => w.style.display='none');
+  document.getElementById(args.section).querySelectorAll('div.params').forEach(w => w.style.display = 'none');
   document.getElementById(args.id).style.display = 'block';
 }
 
 const w_section = (desc) => {
-  console.log('section',desc.id);
-  return h(`section#${desc.id}.tabs`, 
+  console.log('section', desc.id);
+  return h(`section#${desc.id}.tabs`,
     {
-      style: desc.style, 
-      dataset: {parent: desc.parent}
+      style: desc.style,
+      dataset: { parent: desc.parent }
     },
     w_group(desc) // ,h(`div#args.params`)]
   );
 }
 
 const w_details = (desc) => {
-  console.log('details',desc.label);
+  console.log('details', desc.label);
   return h(`details#${desc.id}`,
     {
       dataset: {
@@ -796,12 +926,12 @@ const w_details = (desc) => {
         option: ('option' in desc) ? desc.option : 0
       }
     },
-    [h('summary',desc.label),...w_group(desc)]
+    [h('summary', desc.label), ...w_group(desc)]
   );
 }
 
 const w_cli = (desc) => {
-  console.log('command-line (cli)',desc);
+  console.log('command-line (cli)', desc);
 
   // Private function
   const gen_cli = (ev) => {
@@ -809,31 +939,31 @@ const w_cli = (desc) => {
     const all_args = document.querySelectorAll(`#${ev.target.dataset.toolset} .param`);
     // Create command-line from all the args set up in the GUI
     let cli = '';
-    all_args.forEach( (w) => cli += (w.id+ ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n') );
-    console.log('CLI ARGS',cli);
+    all_args.forEach((w) => cli += (w.id + ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n'));
+    console.log('CLI ARGS', cli);
     const content = h('table.custom-table',
       [
-        h('caption','Program parameters'),
+        h('caption', 'Program parameters'),
         h('thead',
-          [ h('tr',[
-            h('th',{attrs: {scope: "col"}},'ID'),
-            h('th',{attrs: {scope: "col"}},'Key'),
-            h('th',{attrs: {scope: "col"}},'Value')
+          [h('tr', [
+            h('th', { attrs: { scope: "col" } }, 'ID'),
+            h('th', { attrs: { scope: "col" } }, 'Key'),
+            h('th', { attrs: { scope: "col" } }, 'Value')
           ])]
         ),
         h('tbody',
-          Array.from(all_args).map(wdgt => h('tr',[
-            h('td',{attrs: {scope: "row"}},wdgt.id),
-            h('td',{attrs: {scope: "row"}},wdgt.dataset.param),
-            h('td',{attrs: {scope: "row"}},(wdgt.type === 'checkbox') ? wdgt.checked.toString() : wdgt.value)
+          Array.from(all_args).map(wdgt => h('tr', [
+            h('td', { attrs: { scope: "row" } }, wdgt.id),
+            h('td', { attrs: { scope: "row" } }, wdgt.dataset.param),
+            h('td', { attrs: { scope: "row" } }, (wdgt.type === 'checkbox') ? wdgt.checked.toString() : wdgt.value)
           ])
-      ))
+          ))
       ]
     );
 
     document.querySelector(`#${ev.target.dataset.toolset}_cmd p.source_code`).appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
   }
-  
+
   // Main
   return h(`details#${desc.id}.cli`,
     {
@@ -842,7 +972,7 @@ const w_cli = (desc) => {
         param: desc.id,
         option: ('option' in desc) ? desc.option : 0
       },
-      on: {click: gen_cli }
+      on: { click: gen_cli }
     },
     [
       h('summary',
@@ -855,13 +985,13 @@ const w_cli = (desc) => {
         },
         desc.label
       ),
-      h('p.source_code','')
+      h('p.source_code', '')
     ]
   );
 }
 
 const w_table = (desc) => {
-  console.log('table',desc.label);
+  console.log('table', desc.label);
   let components = [];
   if (desc.children?.[0]) {
     components.push(w_table_head(desc.children[0]));
@@ -869,39 +999,44 @@ const w_table = (desc) => {
   if (desc.children?.[1]) {
     components.push(w_table_body(desc.children[1]));
   }
-  return h(`table#${desc.id}`,components);
+  return h(`table#${desc.id}`, components);
 }
 
 const w_table_head = (desc) => {
-  console.log('table_head',desc.label);
-  return  h(`thead#${desc.id}`,[h('tr',[...w_group(desc)])]);
+  console.log('table_head', desc.label);
+  return h(`thead#${desc.id}`, [h('tr', [...w_group(desc)])]);
 }
 
 const w_table_body = (desc) => {
-  console.log('table_body',desc.label);
-  return h(`tbody#${desc.id}`,[...w_group(desc)]);
+  console.log('table_body', desc.label);
+  return h(`tbody#${desc.id}`, [...w_group(desc)]);
 }
 
 const w_table_row = (desc) => {
-  return h(`tr#${desc.id}`,[...w_group(desc)]);
+  return h(`tr#${desc.id}`, [...w_group(desc)]);
 }
 
 const w_table_cell = (desc) => {
-  return h(`td#${desc.id}`,desc.value);
+  return h(`td#${desc.id}`, desc.value);
 }
 
 const w_group = (desc) => {
-  console.info('group',desc);
+  console.info('group', desc);
   // Primitive Widgets
   const types = [
-    'label','h3','button','bool','cli','connect','import','int','float','file','toolset','string','string_ro','text','range',
-    'radio','radio_tool','select','option','section','switch','fieldset','details',
-    'tab','table','thead','tbody','trow','tcell','toolbar','toolmenu','paragraph'];
+    'label', 'h3', 'button', 'bool', 'cli', 'connect', 'dropdown', 'dropdown_option',
+    'import', 'int', 'float', 'file', 'toolset', 'string', 'string_ro', 'text', 'range',
+    'radio', 'radio_tool', 'select', 'option', 'section',
+    'switch', 'g_select', 'g_option',
+    'fieldset', 'details', 'tab',
+    'table', 'thead', 'tbody', 'trow', 'tcell', 'toolbar', 'toolmenu', 'paragraph'];
   const creators = [
-    w_label,w_h3,w_button,w_bool,w_cli,w_connect,w_import,w_int,w_float,w_file,w_toolset,w_string,w_string_ro,w_text,w_range,
-    w_radio,w_radiotool,w_select,w_option,w_section,w_switch,
-    w_fieldset,w_details,w_navtab,
-    w_table,w_table_head,w_table_body,w_table_row,w_table_cell,w_toolbar,w_toolmenu,w_paragraph
+    w_label, w_h3, w_button, w_bool, w_cli, w_connect, w_dropdown, w_dropdown_option,
+    w_import, w_int, w_float, w_file, w_toolset, w_string, w_string_ro, w_text, w_range,
+    w_radio, w_radiotool, w_select, w_option, w_section,
+    w_switch, w_gselect, w_goption,
+    w_fieldset, w_details, w_navtab,
+    w_table, w_table_head, w_table_body, w_table_row, w_table_cell, w_toolbar, w_toolmenu, w_paragraph
   ];
   if ('children' in desc === false) {
     console.error(desc);
@@ -910,16 +1045,16 @@ const w_group = (desc) => {
   // Build HTML Elements
   let els = [];
   if (desc.children.length > 0) {
-    els =  desc.children.map( child => {
+    els = desc.children.map(child => {
       console.info(child);
       if (types.indexOf(child.widget) !== -1) {
-        console.info('group child',child);
+        console.info('group child', child, types.indexOf(child.widget));
         return creators[types.indexOf(child.widget)](child);
       }
     });
   }
 
-  
+
   // Post-process for `switch` widget
   document.querySelectorAll('.switch').forEach(el => {
     const sbutton = el.querySelector('.switch_button input');
@@ -930,16 +1065,16 @@ const w_group = (desc) => {
     else {
       el.classList.add('inactive');
       el.disabled = true;
-    } 
-  }) ;
-  
+    }
+  });
+
   return els;
 }
 
 ////////////////////: UPDATE :////////////////////
 
 const w_navtab_update = (tab_contents) => {
-  
+
   Object.keys(tab_contents).forEach(parent_id => {
     const content = document.querySelector(`article#${parent_id} .tab-content`);
     const desc = tab_contents[parent_id];
@@ -953,24 +1088,24 @@ const w_navtab_update = (tab_contents) => {
 
 const submit_command = (tool) => (ev) => {
   const els = document.querySelectorAll('section .param');
-  const cli = Array.from(els).reduce( (accu,el) => {
-    console.log(el.name,el.type,el.dataset.option,el.value,el.checked);
+  const cli = Array.from(els).reduce((accu, el) => {
+    console.log(el.name, el.type, el.dataset.option, el.value, el.checked);
     if (el.type === 'radio' || el.type === 'checkbox') {
       return (el.checked) ? accu + ` ${el.dataset.option}` : accu;
     }
     else {
       return accu + ` ${el.dataset.option} ${el.value}`;
     }
-  },tool);
+  }, tool);
   document.querySelector('button#submit').disabled = true;
   console.log(cli);
   const event = {
-    end:0,
+    end: 0,
     action: {
       tool: tool,
-      title:'sleep',
-      args:cli
-    } 
+      title: 'sleep',
+      args: cli
+    }
   };
 
   let field = document.querySelectorAll("article#running > div > fieldset")[1];
@@ -981,4 +1116,4 @@ const submit_command = (tool) => (ev) => {
   GRELION.websocket.send(JSON.stringify(event));
 }
 
-export {w_leftpanel,w_tab_tools, w_toolmenu};
+export { w_leftpanel, w_tab_tools, w_toolmenu };

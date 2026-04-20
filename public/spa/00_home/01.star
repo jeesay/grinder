@@ -15,10 +15,13 @@ _home_dash.icon
 _home_dash.widget 
 _home_dash.default
 _home_dash.parent
+_home_dash.state
 _home_dash.help
-connect    'Server Connection'    bi-wifi            fieldset ? ? ?
-project    'Project Summary'      bi-clipboard-data  fieldset ? ? ?
-software   'Available Softwares'  bi-plugin          fieldset ? ? ?
+connect               'Server Connection'    bi-wifi            fieldset ?                  ? ?        ?
+project               'Projects'             bi-newspaper       fieldset ?                  ? hidden   ?
+proj_select           'Project Selection'    bi-building        g_select ?                  ? ?        ?
+proj_select::projnew  'New Project'          bi-building-add    g_option RELION_NEW_PROJECT ? hidden   ?
+software              'Available Softwares'  bi-plugin          fieldset ? ? hidden   ?
 #
 loop_
 _connect.id
@@ -36,15 +39,28 @@ do_connect    'Connect'             connect true        bi-send ? ?  'Send the c
 loop_
 _project.id
 _project.label
+_project.icon
 _project.widget
-_project.default  # None
-_project.arg0     # Status
-_project.arg1     # Placeholder
-_project.arg2     # Node Type
+_project.default 
+_project.state
 _project.help
-current_dir    'Project Directory'  paragraph  '?'     ?       ? ?  'URL displayed by `grinder-server`'
-relion_project 'RELION Project'     paragraph  '?'     ?       ? ?   ?
-last_job       'Last Job'           paragraph  '?'     ?       ? ?   ?
+proj_list>proj_select 'Project'       ?               select  ?                   required 'Create or choose one existing RELION Project'
+proj_list::proj_none  '-- Choose --'  bi-building-add option  RELION_NONE         ?        ?
+proj_list::proj_new   'New...'        bi-building-add option  RELION_NEW_PROJECT  ?        ?
+#
+loop_
+_projnew.id
+_projnew.label
+_projnew.widget
+_projnew.default  # None
+_projnew.arg0     # Filter
+_projnew.arg1     # Placeholder
+_projnew.arg2     # Node Type
+_projnew.state
+_projnew.help
+current_dir   'Root Directory'  string     '?'   GrinderFolderAndCreate  ? ?  required 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
+proj_name     'New Directory'   string     '?'   ?       ? ?  ? ?
+proj_apply    'Apply'           button     '?'   ?       ? ?  ? 'Create a RELION Project'
 #
 loop_
 _software.id

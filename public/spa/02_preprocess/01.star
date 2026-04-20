@@ -105,8 +105,6 @@ general              "General"                                bi-chat-right-text
 do_dose_weighting    "Dose Weighting"                         bi-chat-right-text   switch     ?          show       ?
 do_save_ps           "Save Power Spectrum"                    bi-chat-right-text   switch     ?          show       ?
 params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          show       ?
-gain_rot             "Options"                                bi-chat-right-text   fieldset   ?          show       ?
-gain_flip            "Options"                                bi-chat-right-text   fieldset   ?          show       ?
 parallel_computing   "Parallel Computing"                     bi-chat-right-text   fieldset   ?          show       ?
 #
 loop_
@@ -204,46 +202,21 @@ fn_gain_ref          "Gain-reference image:"             file       ?           
 ; Location of the gain-reference file to be applied to the input micrographs.
 Leave this empty if the movies are already gain-corrected.
 ;
-gain_rot             "Gain rotation:"                    select     0               0               "?"             "?"             ?               
-; Rotate the gain reference by this number times 90 degrees clockwise in relion_display.
-This is the same as -RotGain in MotionCor2.
-Note that MotionCor2 uses a different convention for rotation so it says 'counter-clockwise'.
-Valid values are 0, 1, 2 and 3.
+gain_rot             "Gain rotation:"                    select     2               0               "?"             "?"             ?               
+; Rotate the gain reference by this number times 90 degrees clockwise in relion_display. This is the same as -RotGain in MotionCor2.
+Note that MotionCor2 uses a different convention for rotation so it says 'counter-clockwise'. Valid values are 0, 1, 2 and 3.
 ;
-gain_flip            "Gain flip:"                        select     0               0               "?"             "?"             ?               
-; Flip the gain reference after rotation.
-This is the same as -FlipGain in MotionCor2.
+gain_rot::rot_opt_00    "No rotation"                    option     0               "?"             "?"             "?"             ? ?
+gain_rot::rot_opt_01    "90 degrees"                     option     1               "?"             "?"             "?"             ? ?
+gain_rot::rot_opt_02    "180 degrees"                    option     2               "?"             "?"             "?"             ? ?     
+gain_rot::rot_opt_03    "270 degrees"                    option     3               "?"             "?"             "?"             ? ?
+gain_flip               "Gain flip:"                     select     0               0               "?"             "?"             ?               
+; Flip the gain reference after rotation. This is the same as -FlipGain in MotionCor2.
 0 means do nothing, 1 means flip Y (upside down) and 2 means flip X (left to right).
 ;
-#
-loop_
-_gain_rot.id
-_gain_rot.label
-_gain_rot.widget
-_gain_rot.default
-_gain_rot.arg0
-_gain_rot.arg1
-_gain_rot.arg2
-_gain_rot.constraint
-_gain_rot.help
-gain_rot_opt_00      "No rotation"                       option     0               "?"             "?"             "?"             ?               "?"
-gain_rot_opt_01      "90 degrees"                        option     1               "?"             "?"             "?"             ?               "?"
-gain_rot_opt_02      "180 degrees"                       option     2               "?"             "?"             "?"             ?               "?"
-gain_rot_opt_03      "270 degrees"                       option     3               "?"             "?"             "?"             ?               "?"
-#
-loop_
-_gain_flip.id
-_gain_flip.label
-_gain_flip.widget
-_gain_flip.default
-_gain_flip.arg0
-_gain_flip.arg1
-_gain_flip.arg2
-_gain_flip.constraint
-_gain_flip.help
-gain_flip_opt_00     "No flipping"                       option     0               "?"             "?"             "?"             ?               "?"
-gain_flip_opt_01     "Flip upside down"                  option     1               "?"             "?"             "?"             ?               "?"
-gain_flip_opt_02     "Flip left to right"                option     2               "?"             "?"             "?"             ?               "?"
+gain_flip::flip_opt_00  "No flipping"                    option     0               "?"             "?"             "?"             ?               "?"
+gain_flip::flip_opt_01  "Flip upside down"               option     1               "?"             "?"             "?"             ?               "?"
+gain_flip::flip_opt_02  "Flip left to right"             option     2               "?"             "?"             "?"             ?               "?"
 #
 loop_
 _parallel_computing.id
@@ -256,13 +229,11 @@ _parallel_computing.arg2
 _parallel_computing.constraint
 _parallel_computing.help
 nr_mpi               "Number of MPI procs:"              range      {QSUB_NRMPI_VAL} 1               "{RELION_MPI_MAX}" 1               ?               
-; Number of MPI nodes to use in parallel.
-When set to 1, MPI will not be used.
+; Number of MPI nodes to use in parallel. When set to 1, MPI will not be used.
 The maximum can be set through the environment variable RELION_MPI_MAX.
 ;
 nr_threads           "Number of threads:"                range      {QSUB_NRTHREADS_VAL} 1               "{RELION_THREAD_MAX}" 1               ?               
-; Number of shared-memory (POSIX) threads to use in parallel.
-When set to 1, no multi-threading will be used.
+; Number of shared-memory (POSIX) threads to use in parallel. When set to 1, no multi-threading will be used.
 The maximum can be set through the environment variable RELION_THREAD_MAX.
 ;
 #
@@ -283,4 +254,5 @@ _dataviz.widget
 _dataviz.value
 _dataviz.display
 _dataviz.help
+motion_total 0 0 histogram 
 #

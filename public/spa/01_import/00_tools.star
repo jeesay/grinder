@@ -5,8 +5,9 @@ _import.id
 _import.label
 _import.icon
 _import.widget
-rln_import  'RELION'       bi-r-circle-fill      submenu
-cs_import   'CryoSparc'    bi-c-circle-fill      submenu
+grr_import  'GRINDER'           bi-cup-hot-fill       submenu
+rln_import  'From RELION'       bi-r-circle-fill      submenu
+cs_import   'From CryoSparc'    bi-c-circle-fill      submenu
 # refs        'References'             bi-r-circle      submenu
 # masks       'Masks'                  bi-mask          submenu
 # others      'Other Files'            bi-file-binary   submenu
@@ -22,6 +23,16 @@ _rln_import.filename
 _rln_import.help   
 import_mov        'Import movies'        tool   0       relion.import.movies                01.star   'Import Micrographs or Movies'                           
 import_ptcls      'Import particles'     tool   0       relion.import.other.particles       02.star   'Import Particles'                                        
-import_other      'Import other files'   tool   0       relion.import.other                 03.star   'Import Other File'              
+import_other      'Import other files'   tool   0       relion.import.other                 03.star   'Import Other Files'              
+# Submenu
+loop_
+_grr_import.id
+_grr_import.label        
+_grr_import.widget    
+_grr_import.proc_id 
+_grr_import.proc_label
+_grr_import.filename
+_grr_import.help   
+grr_import_all        'Import...'        tool   0       grinder.import.movies                04.star   'Import Micrographs or Movies'                           
 
 
