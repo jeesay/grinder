@@ -51,16 +51,26 @@ proj_list::proj_new   'New...'        bi-building-add option  RELION_NEW_PROJECT
 loop_
 _projnew.id
 _projnew.label
+_projnew.icon
 _projnew.widget
 _projnew.default  # None
-_projnew.arg0     # Filter
-_projnew.arg1     # Placeholder
-_projnew.arg2     # Node Type
 _projnew.state
 _projnew.help
-current_dir   'Root Directory'  string     '?'   GrinderFolderAndCreate  ? ?  required 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
-proj_name     'New Directory'   string     '?'   ?       ? ?  ? ?
-proj_apply    'Apply'           button     '?'   ?       ? ?  ? 'Create a RELION Project'
+pnew   'New Project'    bi-building-add    fieldset RELION_NEW_PROJECT ? ?   'Create a new RELION Project'
+#
+loop_
+_pnew.id
+_pnew.label
+_pnew.widget
+_pnew.default  # None
+_pnew.arg0     # Filter
+_pnew.arg1     # Placeholder
+_pnew.arg2     # Node Type
+_pnew.state
+_pnew.help
+current_dir   'Root Directory'  file     './'          GrinderFolder  ? ?  required 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
+proj_name     'New Directory'   string   'my_project'  ?              ? ?  ? ?
+proj_apply    'Apply'           button   '?'           ?              ? ?  ? 'Create a RELION Project'
 #
 loop_
 _software.id

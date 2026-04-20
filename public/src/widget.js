@@ -21,7 +21,7 @@
 
 import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
-import { connect_to_ws_server, load_project } from "./main.js"
+import { connect_to_ws_server, load_project, read_job } from "./main.js"
 
 const spin = () => document.getElementById('spinner').classList.toggle('hidden');
 
@@ -81,6 +81,44 @@ const w_button = (desc) => {
 // Specialized button
 const w_connect = (desc) => {
 
+  const new_item = (item, parent, type = 'list') => {
+    const projpath = document.getElementById('connect').dataset.projpath;
+    const [job, alias, nodetype, status, path, fn] = item;
+    const w = h('li.file-item',
+      {
+        dataset: { job: fn, proclabel: nodetype },
+        on: { click: (ev) => read_job({projpath,path,job}) }
+      },
+      [h('a',
+        [
+          h('i.nav-icon.bi.bi-gear', { style: { color: (status === 'Succeeded') ? '#0f0' : '#f00' } }),
+          h('span.nav-text', (type === 'list') ? fn : job)
+        ])
+      ]
+    );
+    parent.appendChild(w)
+  }
+
+  const new_menu = (arr, parent, index, N) => {
+    const w = h('li.menu-item', {},
+      [
+        h('a',
+          [
+            h(`i.nav-icon.bi.bi-${index % 10}-circle`),
+            h('span.nav-text', `Jobs ${index * N + 1}-${(index + 1) * N}`)
+          ]
+        ),
+        h('ul.sub-submenu')
+      ]);
+
+    parent.appendChild(w);
+    arr.forEach(job => {
+      const [fn, alias, nodetype, status] = job;
+      const [path, jobi, ...dummy] = fn.split('/');
+      new_item([jobi, alias, nodetype, status, path, `${path}/${jobi}`], w.children[1])
+    });
+  }
+
   const set_project = async (ev) => {
     console.log(ev.target.value,ev.target.dataset);
     const project_path = ev.target.value;
@@ -89,6 +127,7 @@ const w_connect = (desc) => {
       document.querySelector(`#${target} > fieldset[value=${project_path}]`).classList.toggle('hidden');
     }
     else {
+      document.getElementById('connect').dataset.projpath = project_path;
       console.log('LOAD',project_path);
       spin();
       const data_proj = await load_project(project_path);
@@ -134,7 +173,7 @@ const w_connect = (desc) => {
           h('ul.sub-submenu')
         ]);
       parent.appendChild(w);
-      jobs.forEach(job => new_item(job, w.children[1]));
+      jobs.forEach(job => new_item(job, w.children[1],'folder'));
     });
   }
 
@@ -154,43 +193,6 @@ const w_connect = (desc) => {
       }
     }
     yield chunk;
-  }
-
-  const new_item = (item, parent, type = 'list') => {
-    const [job, alias, nodetype, status, path, fn] = item;
-    const w = h('li.file-item',
-      {
-        dataset: { job: fn, proclabel: nodetype },
-        on: { click: (ev) => console.info(...item) }
-      },
-      [h('a',
-        [
-          h('i.nav-icon.bi.bi-gear', { style: { color: (status === 'Succeeded') ? '#0f0' : '#f00' } }),
-          h('span.nav-text', (type === 'list') ? fn : job)
-        ])
-      ]
-    );
-    parent.appendChild(w)
-  }
-
-  const new_menu = (arr, parent, index, N) => {
-    const w = h('li.menu-item', {},
-      [
-        h('a',
-          [
-            h(`i.nav-icon.bi.bi-${index % 10}-circle`),
-            h('span.nav-text', `Jobs ${index * N + 1}-${(index + 1) * N}`)
-          ]
-        ),
-        h('ul.sub-submenu')
-      ]);
-
-    parent.appendChild(w);
-    arr.forEach(job => {
-      const [fn, alias, nodetype, status] = job;
-      const [path, jobi, ...dummy] = fn.split('/');
-      new_item([jobi, alias, nodetype, status, path, `${path}/${jobi}`], w.children[1])
-    });
   }
 
   desc.on_click = async (ev) => {
