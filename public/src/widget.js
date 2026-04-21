@@ -146,7 +146,7 @@ const w_connect = (desc) => {
       spin();
       const data_proj = await load_project(project_path);
       spin();
-      update_project(project_path,data_proj)
+      update_project(project_path,data_proj);
     }
   }
 

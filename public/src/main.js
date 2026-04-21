@@ -9,8 +9,6 @@ import {WSClient} from "./ws_client.js";
 //import {*} from "./browse.js";
 //import {*} from "./widget.js";
 
-import { initExplore } from './explore.js'
-
 export const GRINDER = {
   version: '0.1',
   authors: ["Jean-Christophe Taveau"],
@@ -270,9 +268,6 @@ export  const connect_to_ws_server = async () => {
             document.getElementById('connect').style.color = 'lightgreen';
             document.getElementById('connect').dataset.ip = ip_address;
             document.getElementById('connect').dataset.port = port;
-
-            // After connection to server
-            initExplore();
         };
 
         // 3. Handle the result
@@ -352,13 +347,24 @@ export  const read_job = async (obj) => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log(data);
-            // Update: form from obj.nodetype
-            const form = localStorage.getItem(obj.nodetype);
-            console.log(form);
+            const nodetype = data.params_head.rlnJobTypeLabel;
+            // Step #1 - Update: get gui from obj.nodetype
+            const ui = JSON.parse(localStorage.getItem(nodetype));
+            const widgets = build_widget_tree(ui.datablocks.default, {children: []});
+            // Section
+            let section = document.getElementById('main-panel');
+            section.innerHTML = '';
+            // Create tabs...
+            w_tab_tools(section, widgets);
+            // Reset display
+            section.style.display = 'block';
+            section.querySelector('input').checked = true; // First child
+            // Step #2 - Fill Log Tab
+            document.querySelector('#Log.tab .tab-content').innerHTML = '';
+            document.querySelector('#Log.tab .tab-content').appendChild(h('pre',data.log));
             socket.close(); // Close connection after getting the data
             resolve(data);
-        };
-
+          };
         // 4. Handle errors
         socket.onerror = (error) => reject(error);
     });
