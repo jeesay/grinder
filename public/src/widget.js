@@ -21,7 +21,7 @@
 
 import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
-import { connect_to_ws_server, load_project, read_job } from "./main.js"
+import { connect_to_ws_server, load_project, read_job, read_data } from "./main.js"
 
 import { g_graphics } from './dataviz.js';
 import { getDatavizConfig } from "./jobloader.js";
@@ -87,10 +87,21 @@ const w_connect = (desc) => {
   const new_item = (item, parent, type = 'list') => {
     const projpath = document.getElementById('connect').dataset.projpath;
     const [job, alias, nodetype, status, path, fn] = item;
+
+    const _read = (ev) => {
+      const jb = document.getElementById('job_id');
+      jb.dataset.projpath = projpath; 
+      jb.dataset.path = path;
+      jb.dataset.job = job;
+      jb.dataset.nodetype = nodetype;
+      document.querySelector('#job_id span').textContent = `${path}/${job}`;
+      return read_job({projpath,path,job});
+    }
+    
     const w = h('li.file-item',
       {
         dataset: { job: fn, proclabel: nodetype },
-        on: { click: (ev) => read_job({projpath,path,job}) }
+        on: { click: _read }
       },
       [h('a',
         [
@@ -699,7 +710,26 @@ const w_navtab = (desc) => {
     console.info('Do nothing');
   }
 
-  const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': nothing, 'DataViz': nothing };
+  const update_log = (ev) => {
+    console.info("log")
+  }
+
+  const update_viz = async (ev) => {
+    const wdgt = ev.target;
+    const jb = document.getElementById('job_id');
+    const gui = JSON.parse(localStorage.getItem('relion.motioncorr.own')).datablocks.default.dataviz;
+    console.log(gui);
+    const obj = { 
+      projpath : jb.dataset.projpath, 
+      path : jb.dataset.path,
+      job : jb.dataset.job,
+      nodetype : jb.dataset.nodetype,
+      gui : gui
+    };
+    const data = await read_data(obj);
+  }
+
+  const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': update_log, 'DataViz': update_viz };
 
   console.error(`Has children in ${desc.id}?`, ('children' in desc) && (desc.children.length > 0));
   // Remove all the previous children
