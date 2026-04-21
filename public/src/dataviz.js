@@ -17,6 +17,10 @@
 // import { tableFromIPC } from 'apache-arrow';
 // import * as aq           from 'arquero';
 
+'use strict';
+
+import { h } from "./dom.js";
+
 
 // ─── WebSocket /ws/dataviz ────────────────────────────────────────────────────
 
@@ -269,4 +273,17 @@ export function initDataviz(jobId, cards, container) {
             _wireCard(card, config, dt);
         });
     }
+}
+
+export function g_graphics(desc) {
+    // grid: ncols,nrows????
+    console.info("GRAPHIC", desc);
+    const canvas = h(
+        `canvas#${desc.id}`,
+        { 
+            attrs: {width:200,height:100},
+            on: {change: (ev) => console.log('change')}
+        }
+    )
+    return canvas;
 }

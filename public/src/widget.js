@@ -23,7 +23,7 @@ import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
 import { connect_to_ws_server, load_project, read_job } from "./main.js"
 
-import { initDataviz } from './dataviz.js';
+import { g_graphics } from './dataviz.js';
 import { getDatavizConfig } from "./jobloader.js";
 
 const spin = () => document.getElementById('spinner').classList.toggle('hidden');
@@ -527,6 +527,18 @@ function check_bounds(val, widget) {
   }
 }
 
+const w_graphics = (desc) => g_graphics(desc);
+    // const section  = document.getElementById('main-panel');
+    // const jobId    = section.dataset.jobId;
+    // const tabContent = ev.target.closest('article.tab')?.querySelector('.tab-content');
+
+    // // config = { cardId, cardLabel, children: [histogram configs...] }
+    // const configs = getDatavizConfig();   // retourne les cards + leurs enfants
+    // for (const card of configs) {
+    //     initDataviz(jobId, card.children, tabContent);
+    // }
+  // };
+
 const w_range = (desc) => h('div.row',
   [
     h('label', { attrs: { 'for': desc.id } }, desc.label),
@@ -674,6 +686,8 @@ const w_import = (desc) => {
   // TODO
 }
 
+
+
 const w_navtab = (desc) => {
   // Event function
   const get_logfile = (ev) => {
@@ -681,23 +695,11 @@ const w_navtab = (desc) => {
     console.info(ev.target.dataset.parent, ev.target.dataset.label);
   };
 
-  const get_dataviz = (ev) => {
-    const section  = document.getElementById('main-panel');
-    const jobId    = section.dataset.jobId;
-    const tabContent = ev.target.closest('article.tab')?.querySelector('.tab-content');
-
-    // config = { cardId, cardLabel, children: [histogram configs...] }
-    const configs = getDatavizConfig();   // retourne les cards + leurs enfants
-    for (const card of configs) {
-        initDataviz(jobId, card.children, tabContent);
-    }
-  };
-
   const nothing = (ev) => {
     console.info('Do nothing');
   }
 
-  const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': get_logfile, 'DataViz': get_dataviz };
+  const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': nothing, 'DataViz': nothing };
 
   console.error(`Has children in ${desc.id}?`, ('children' in desc) && (desc.children.length > 0));
   // Remove all the previous children
@@ -1039,7 +1041,7 @@ const w_group = (desc) => {
     'label', 'h3', 'button', 'bool', 'cli', 'connect', 'dropdown', 'dropdown_option',
     'import', 'int', 'float', 'file', 'toolset', 'string', 'string_ro', 'text', 'range',
     'radio', 'radio_tool', 'select', 'option', 'section',
-    'switch', 'g_select', 'g_option',
+    'switch', 'select_g', 'option_g',
     'fieldset', 'details', 'tab',
     'table', 'thead', 'tbody', 'trow', 'tcell', 'toolbar', 'toolmenu', 'paragraph'];
   const creators = [
@@ -1059,9 +1061,9 @@ const w_group = (desc) => {
   if (desc.children.length > 0) {
     els = desc.children.map(child => {
       console.info(child);
-      if (types.indexOf(child.widget) !== -1) {
-        console.info('group child', child, types.indexOf(child.widget));
-        return creators[types.indexOf(child.widget)](child);
+      if (child.widget !== undefined && (types.indexOf(child.widget) !== -1 || child.widget.slice(0,2) === 'g_')) {
+        console.info('group child', child, types.indexOf(child.widget),(child.widget.slice(0,2)));
+        return (child.widget.slice(0,2) === 'g_') ? w_graphics(child) : creators[types.indexOf(child.widget)](child);
       }
     });
   }
