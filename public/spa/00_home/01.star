@@ -56,7 +56,7 @@ _projnew.widget
 _projnew.default  # None
 _projnew.state
 _projnew.help
-pnew   'New Project'    bi-building-add    fieldset RELION_NEW_PROJECT ? ?   'Create a new RELION Project'
+pnew   'New Project'    bi-building-add    fieldset RELION_NEW_PROJECT ?   'Create a new RELION Project'
 #
 loop_
 _pnew.id

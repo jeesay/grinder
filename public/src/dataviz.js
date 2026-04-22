@@ -279,7 +279,7 @@ export function g_graphics(desc) {
     // grid: ncols,nrows????
     console.info("GRAPHIC", desc);
     const canvas = h(
-        `canvas#${desc.id}`,
+        `canvas#${desc.id}.${desc.widget}`,
         { 
             attrs: {width:200,height:100},
             on: {change: (ev) => console.log('change')}

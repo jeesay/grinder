@@ -506,7 +506,7 @@ async function fetchParticleStream() {
 
   const from_startable = (data) => data.rows.map( (row) => {
       const gs = ['program','toolmenu','tabgroup','tab',
-        'select_g', 'option_g', 'fieldset',
+        'select_g', 'option_g', 'fieldset', 'grid',
         'switch','details','dropdown','cli', 'toolbar','select'
       ];
       let obj = {};
@@ -663,7 +663,7 @@ async function fetchParticleStream() {
         tab_count++;
         parent.children.push(wdgt);
       }
-      else if (['option','option_g'].includes(wdgt.widget) ) {
+      else if (wdgt.id !== undefined && (['option','option_g'].includes(wdgt.widget) || wdgt.widget.includes('g_'))) {
 
         const [parent,child] = wdgt.id.split('::');
         wdgt.id = child;

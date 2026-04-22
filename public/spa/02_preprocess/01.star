@@ -5,12 +5,12 @@ _rln_mc.id
 _rln_mc.label
 _rln_mc.icon
 _rln_mc.widget
-_rln_mc.value
+_rln_mc.state
 _rln_mc.help
-io                   "I/O"                     bi-arrow-down-up    tab              ?        ?
-settings             "Settings"                bi-tools             tab              ?        ?
-log                  "Log"                     bi-binoculars-fill   tab              ?        ?
-dataviz              "DataViz"                 bi-eye               tab              ?        ?
+io                   "I/O"                     bi-arrow-down-up     tab              ?               ?
+settings             "Settings"                bi-tools             tab              ?               ?
+log                  "Log"                     bi-binoculars-fill   tab              update          ?
+dataviz              "DataViz"                 bi-eye               tab              update          ?
 #
 loop_
 _io.id
@@ -249,10 +249,16 @@ _log.help
 loop_
 _dataviz.id
 _dataviz.label
-_dataviz.icon
 _dataviz.widget
-_dataviz.value
-_dataviz.display
+_dataviz.pos
+_dataviz.size
+_dataviz.data
 _dataviz.help
-motion_total 0 0 histogram 
+grid               ?  grid        ?     (4,4) ? ?  
+grid::motion_total_h ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
+grid::motion_total_p ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
+grid::motion_early_h ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
+grid::motion_early_p ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
+grid::motion_late_h ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
+grid::motion_late_p ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
 #

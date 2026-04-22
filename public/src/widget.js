@@ -538,6 +538,8 @@ function check_bounds(val, widget) {
   }
 }
 
+const w_grid = (desc) => h(`div#${desc.id}.grid`, {dataset:{size:desc.size}}, ('children' in desc) && (desc.children.length > 0) ? w_group(desc) : []);
+
 const w_graphics = (desc) => g_graphics(desc);
     // const section  = document.getElementById('main-panel');
     // const jobId    = section.dataset.jobId;
@@ -1072,14 +1074,14 @@ const w_group = (desc) => {
     'import', 'int', 'float', 'file', 'toolset', 'string', 'string_ro', 'text', 'range',
     'radio', 'radio_tool', 'select', 'option', 'section',
     'switch', 'select_g', 'option_g',
-    'fieldset', 'details', 'tab',
+    'fieldset', 'details', 'tab', 'grid',
     'table', 'thead', 'tbody', 'trow', 'tcell', 'toolbar', 'toolmenu', 'paragraph'];
   const creators = [
     w_label, w_h3, w_button, w_bool, w_cli, w_connect, w_dropdown, w_dropdown_option,
     w_import, w_int, w_float, w_file, w_toolset, w_string, w_string_ro, w_text, w_range,
     w_radio, w_radiotool, w_select, w_option, w_section,
     w_switch, w_gselect, w_goption,
-    w_fieldset, w_details, w_navtab,
+    w_fieldset, w_details, w_navtab, w_grid,
     w_table, w_table_head, w_table_body, w_table_row, w_table_cell, w_toolbar, w_toolmenu, w_paragraph
   ];
   if ('children' in desc === false) {
