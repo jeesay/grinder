@@ -9,7 +9,7 @@ _grr_import_all.value
 _grr_import_all.help
 io                   "I/O"                     bi-arrow-down-up     tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
-dataviz              "DataViz"                 bi-eye               tab              ?        ?
+dataviz              "DataViz"                 bi-columns-gap       tab              ?        ?
 #
 loop_
 _io.id
@@ -20,15 +20,15 @@ _io.default
 _io.state
 _io.help
 indata               "Data Type"      bi-box-arrow-in-down fieldset  ?                                           show    ?
-dtype                "Fielset Group"  bi-incognito         g_select  ?                                           ?       ?
-dtype::moviedata     ?                ?                    g_option  "MicrographMovieGroupMetadata.star.relion"  hidden  ?
-dtype::micdata       ?                ?                    g_option  "MicrographGroupMetadata.star.relion"       hidden  ?
-dtype::coordsdata    ?                ?                    g_option  "MicrographCoordsGroup.star.relion"         hidden  ?
-dtype::partsdata     ?                ?                    g_option  "ParticleGroupMetadata.star.relion"         hidden  ?
-dtype::img2ddata     ?                ?                    g_option  "Image2DGroupMetadata.star.relion"          hidden  ? 
-dtype::mapdata       ?                ?                    g_option  "DensityMap.mrc"                            hidden  ?
-dtype::maskdata      ?                ?                    g_option  "Mask3D.mrc"                                hidden  ?
-dtype::halfmapdata   ?                ?                    g_option  "DensityMap.mrc.halfmap"                    hidden  ?
+dtype                "Fielset Group"  bi-incognito         select_g  ?                                           ?       ?
+dtype::moviedata     ?                ?                    option_g  "MicrographMovieGroupMetadata.star.relion"  hidden  ?
+dtype::micdata       ?                ?                    option_g  "MicrographGroupMetadata.star.relion"       hidden  ?
+dtype::coordsdata    ?                ?                    option_g  "MicrographCoordsGroup.star.relion"         hidden  ?
+dtype::partsdata     ?                ?                    option_g  "ParticleGroupMetadata.star.relion"         hidden  ?
+dtype::img2ddata     ?                ?                    option_g  "Image2DGroupMetadata.star.relion"          hidden  ? 
+dtype::mapdata       ?                ?                    option_g  "DensityMap.mrc"                            hidden  ?
+dtype::maskdata      ?                ?                    option_g  "Mask3D.mrc"                                hidden  ?
+dtype::halfmapdata   ?                ?                    option_g  "DensityMap.mrc.halfmap"                    hidden  ?
 outdata              "Output Data"    bi-box-arrow-down    fieldset  ?                                           hidden  ?
 nodes                "Nodes"          bi-controller        fieldset  ?                                           hidden  ?
 system               "System"         bi-incognito         fieldset  ?                                           hiddden ?
