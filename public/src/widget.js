@@ -873,6 +873,7 @@ const w_gselect = (desc) => {
     console.log('G SELECT',ev.target.value);
     // Reset
     [...document.querySelectorAll(`#${ev.target.id} > .option_g`)].forEach(w => w.classList.add('hidden'));
+    // Select the good one
     document.querySelector(`#${ev.target.id} .option_g[value="${ev.target.value}"]`).classList.toggle('hidden');
   }
   console.log('select_g', desc.label);
@@ -892,12 +893,7 @@ const w_goption = (desc) => {
     {
       attrs: {value:desc.default}
     },
-    [
-      h(
-        'legend', (desc.icon) ? [h(`i.bi.${desc.icon}`), desc.label] : desc.label
-      ),
-      ...w_group(desc)
-    ]
+    w_group(desc)
   );
 }
 
