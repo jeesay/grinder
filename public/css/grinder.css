@@ -1462,3 +1462,16 @@ p {
     -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
   }
 }
+
+/***************** GRAPHICS *****************/
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 2fr);
+  grid-gap: 10px;
+  grid-auto-rows: minmax(100px, auto);
+}
+
+canvas {
+  background-color: rgb(233,171,88);
+}
