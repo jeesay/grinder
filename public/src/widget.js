@@ -791,7 +791,7 @@ const w_select = (desc) => {
       h('label', { attrs: { 'for': desc.id } }, desc.label + ' '),
       h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
       h('div.select-dropdown', [
-        h(`select#${desc.id}`,
+        h(`select#${desc.id}.param`,
           {
             props: {
               value: desc.default
@@ -978,7 +978,7 @@ const w_cli = (desc) => {
   // Private function
   const gen_cli = (ev) => {
     console.info(ev.target.dataset.toolset);
-    const all_args = document.querySelectorAll(`#${ev.target.dataset.toolset} .param`);
+    const all_args = document.querySelectorAll(`section .param`);
     // Create command-line from all the args set up in the GUI
     let cli = '';
     all_args.forEach((w) => cli += (w.id + ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n'));
@@ -1003,14 +1003,13 @@ const w_cli = (desc) => {
       ]
     );
 
-    document.querySelector(`#${ev.target.dataset.toolset}_cmd p.source_code`).appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
+    document.querySelector(`#${ev.target.dataset.param} p.source_code`).appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
   }
 
   // Main
   return h(`details#${desc.id}.cli`,
     {
       dataset: {
-        toolset: desc.toolsetid,
         param: desc.id,
         option: ('option' in desc) ? desc.option : 0
       },

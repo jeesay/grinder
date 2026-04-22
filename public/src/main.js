@@ -663,7 +663,7 @@ async function fetchParticleStream() {
         tab_count++;
         parent.children.push(wdgt);
       }
-      else if (wdgt.id !== undefined && (['option','option_g'].includes(wdgt.widget) || wdgt.widget.includes('g_'))) {
+      else if (wdgt.id !== undefined && (['option','option_g'].includes(wdgt.widget) || wdgt.widget.slice(0,2) === 'g_')) {
 
         const [parent,child] = wdgt.id.split('::');
         wdgt.id = child;
