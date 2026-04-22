@@ -400,6 +400,15 @@ details[open] summary {
     margin-bottom: 0.5em;
 }
 
+details[open] summary::before {
+  content: "";
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  cursor: auto;
+}
 .row {
   display: flex;
   margin: 5px 0px;

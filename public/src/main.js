@@ -688,7 +688,6 @@ async function fetchParticleStream() {
     // Load and parse `grinder_spa.star`
     const file = await fetch(filename);
     const text = await file.text();
-    const all_of_them = [{dummy: '?'}];
     
     const obj = new StarGate();
     obj.parseSTAR(text);
@@ -745,6 +744,7 @@ async function fetchParticleStream() {
                   on: {
                     click: (ev) => {
                       const ui = ev.target.parentElement.dataset.proclabel;
+                      document.getElementById('job_id').dataset.nodetype = ui;
                       console.info('BUILD TABS',ui);                      
                       console.info('BUILD TABS',localStorage.getItem(ui));
                       const db = JSON.parse(localStorage.getItem(ui));
