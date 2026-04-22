@@ -33,6 +33,6 @@ _grr_import.proc_id
 _grr_import.proc_label
 _grr_import.filename
 _grr_import.help   
-grr_import_all        'Import...'        tool   0       grinder.import.movies                04.star   'Import Micrographs or Movies'                           
+grr_import_all        'Import...'        tool   0       grinder.import.relion                04.star   'Import Micrographs or Movies'                           
 
 

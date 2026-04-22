@@ -19,8 +19,8 @@ _home_dash.state
 _home_dash.help
 connect               'Server Connection'    bi-wifi            fieldset ?                  ? ?        ?
 project               'Projects'             bi-newspaper       fieldset ?                  ? hidden   ?
-proj_select           'Project Selection'    bi-building        g_select ?                  ? ?        ?
-proj_select::projnew  'New Project'          bi-building-add    g_option RELION_NEW_PROJECT ? hidden   ?
+proj_select           'Project Selection'    bi-building        select_g ?                  ? ?        ?
+proj_select::projnew  'New Project'          bi-building-add    option_g RELION_NEW_PROJECT ? hidden   ?
 software              'Available Softwares'  bi-plugin          fieldset ? ? hidden   ?
 #
 loop_

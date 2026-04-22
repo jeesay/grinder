@@ -146,7 +146,7 @@ const w_connect = (desc) => {
       spin();
       const data_proj = await load_project(project_path);
       spin();
-      update_project(project_path,data_proj)
+      update_project(project_path,data_proj);
     }
   }
 
@@ -872,12 +872,12 @@ const w_gselect = (desc) => {
   const on_change = (ev) => {
     console.log('G SELECT',ev.target.value);
     // Reset
-    [...document.querySelectorAll(`#${ev.target.id} > .g_option`)].forEach(w => w.classList.add('hidden'));
-    document.querySelector(`#${event.target.id} .g_option[value="${ev.target.value}"]`).classList.toggle('hidden');
+    [...document.querySelectorAll(`#${ev.target.id} > .option_g`)].forEach(w => w.classList.add('hidden'));
+    document.querySelector(`#${ev.target.id} .option_g[value="${ev.target.value}"]`).classList.toggle('hidden');
   }
-  console.log('g_select', desc.label);
+  console.log('select_g', desc.label);
   return h(
-    `div#${desc.id}.g_select.${desc.state}`, 
+    `div#${desc.id}.select_g.${desc.state}`, 
     {
       on: {
       change: on_change
@@ -888,7 +888,7 @@ const w_gselect = (desc) => {
 
 const w_goption = (desc) => {
   console.log('div', desc.label);
-  return h(`div#${desc.id}.g_option.${desc.state}`, 
+  return h(`div#${desc.id}.option_g.${desc.state}`, 
     {
       attrs: {value:desc.default}
     },
