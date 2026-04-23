@@ -695,7 +695,7 @@ async function fetchParticleStream() {
         tab_count++;
         parent.children.push(wdgt);
       }
-      else if (wdgt.id !== undefined && (['option','option_g'].includes(wdgt.widget) || wdgt.widget.includes('g_'))) {
+      else if (wdgt.id !== undefined && (['option','option_g'].includes(wdgt.widget) || wdgt.widget.slice(0,2) === 'g_')) {
 
         const [parent,child] = wdgt.id.split('::');
         wdgt.id = child;
@@ -720,7 +720,6 @@ async function fetchParticleStream() {
     // Load and parse `grinder_spa.star`
     const file = await fetch(filename);
     const text = await file.text();
-    const all_of_them = [{dummy: '?'}];
     
     const obj = new StarGate();
     obj.parseSTAR(text);
@@ -777,6 +776,7 @@ async function fetchParticleStream() {
                   on: {
                     click: (ev) => {
                       const ui = ev.target.parentElement.dataset.proclabel;
+                      document.getElementById('job_id').dataset.nodetype = ui;
                       console.info('BUILD TABS',ui);                      
                       console.info('BUILD TABS',localStorage.getItem(ui));
                       const db = JSON.parse(localStorage.getItem(ui));

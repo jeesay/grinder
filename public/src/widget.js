@@ -260,7 +260,7 @@ const w_switch_button = (desc) => {
               type: 'checkbox',
               name: desc.label
             },
-            dataset: { toolset: desc.toolsetid, param: desc.id },
+            dataset: {key: desc.id.split('-')[0],  param: desc.id },
             props: {
               checked: (desc.default === "true") ? true : false
             },
@@ -336,7 +336,7 @@ const w_file = (desc) => {
             required: (desc.constraint === "required") ? true : false
           },
           dataset: {
-            toolset: desc.toolsetid,
+            key: desc.id.split('-')[0], 
             param: desc.id,
             node: nodetype,
             depth: tree_depth,
@@ -381,7 +381,7 @@ const w_string = (desc) => h('div.row',
           name: desc.id
         },
         dataset: {
-          toolset: desc.toolsetid,
+          key: desc.id.split('-')[0], 
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
@@ -404,7 +404,7 @@ const w_string_ro = (desc) => h('div.row',
           readOnly: true
         },
         dataset: {
-          toolset: desc.toolsetid,
+          key: desc.id.split('-')[0], 
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
@@ -427,7 +427,7 @@ const w_text = (desc) => h('div.row',
           name: desc.id
         },
         dataset: {
-          toolset: desc.toolsetid,
+          key: desc.id.split('-')[0], 
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
@@ -463,7 +463,7 @@ const w_int = (desc) => h('div.row',
           name: desc.id
         },
         dataset: {
-          toolset: desc.toolsetid,
+          key: desc.id.split('-')[0], 
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
@@ -603,7 +603,7 @@ const w_range = (desc) => h('div.row',
               name: desc.id
             },
             dataset: {
-              toolset: desc.toolsetid,
+              key: desc.id.split('-')[0], 
               param: desc.id,
               option: ('option' in desc) ? desc.option : 0
             },
@@ -629,7 +629,7 @@ const w_bool = (desc) => h('div.row',
           checked: (desc.default === 'true') ? true : false,
         },
         dataset: {
-          toolset: desc.toolsetid,
+          key: desc.id.split('-')[0], 
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
@@ -668,6 +668,7 @@ const w_radio = (desc) => h('div.row',
         },
         dataset: {
           toolset: desc.labelnew,
+          key: desc.id.split('-')[0], 
           param: desc.id,
           option: ('option' in desc) ? desc.option : 0
         },
@@ -801,12 +802,12 @@ const w_select = (desc) => {
       h('label', { attrs: { 'for': desc.id } }, desc.label + ' '),
       h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
       h('div.select-dropdown', [
-        h(`select#${desc.id}`,
+        h(`select#${desc.id}.param`,
           {
             props: {
               value: desc.default
             },
-            dataset: {dispatch: desc.on_change},
+            dataset: {key: desc.id.split('-')[0], dispatch: desc.on_change},
             on: ('on_change' in desc) ? { change: (ev) => dispatch(ev) } : {}
           },
           w_group(desc),
@@ -885,6 +886,7 @@ const w_gselect = (desc) => {
     console.log('G SELECT',ev.target.value);
     // Reset
     [...document.querySelectorAll(`#${ev.target.id} > .option_g`)].forEach(w => w.classList.add('hidden'));
+    // Select the good one
     document.querySelector(`#${ev.target.id} .option_g[value="${ev.target.value}"]`).classList.toggle('hidden');
   }
   console.log('select_g', desc.label);
@@ -904,12 +906,7 @@ const w_goption = (desc) => {
     {
       attrs: {value:desc.default}
     },
-    [
-      h(
-        'legend', (desc.icon) ? [h(`i.bi.${desc.icon}`), desc.label] : desc.label
-      ),
-      ...w_group(desc)
-    ]
+    w_group(desc)
   );
 }
 
@@ -991,40 +988,55 @@ const w_cli = (desc) => {
 
   // Private function
   const gen_cli = (ev) => {
-    console.info(ev.target.dataset.toolset);
-    const all_args = document.querySelectorAll(`#${ev.target.dataset.toolset} .param`);
+    const nodetype = document.getElementById('job_id').dataset.nodetype;
+    // Get command + form values
+    const cmd = JSON.parse(localStorage.getItem(nodetype)).datablocks.default[ev.target.parentElement.id];
+    const hidden_div_exists = document.querySelector('section .option_g');
+    console.log(hidden_div_exists);
+    const all_args = (hidden_div_exists) ? document.querySelectorAll(`section .option_g:not(.hidden) .param`) : document.querySelectorAll(`section .param`);
     // Create command-line from all the args set up in the GUI
     let cli = '';
-    all_args.forEach((w) => cli += (w.id + ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n'));
+    all_args.forEach((w) => cli += (w.dataset.key + ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n'));
     console.log('CLI ARGS', cli);
+    // Create table for display
+    const COL_TYPE = cmd.header.indexOf('type');
+    const COL_ARG = cmd.header.indexOf('arg');
+    const COL_PARAM = cmd.header.indexOf('param_id');
+    const cmd_data = cmd.rows;
+    console.log(COL_TYPE,COL_ARG,COL_PARAM,cmd_data);
     const content = h('table.custom-table',
       [
         h('caption', 'Program parameters'),
         h('thead',
           [h('tr', [
-            h('th', { attrs: { scope: "col" } }, 'ID'),
-            h('th', { attrs: { scope: "col" } }, 'Key'),
-            h('th', { attrs: { scope: "col" } }, 'Value')
+            h('th', { attrs: { scope: "col" } }, 'ID/Key'),
+            h('th', { attrs: { scope: "col" } }, 'Value'),
+            h('th', { attrs: { scope: "col" } }, 'Argument')
           ])]
         ),
         h('tbody',
-          Array.from(all_args).map(wdgt => h('tr', [
-            h('td', { attrs: { scope: "row" } }, wdgt.id),
-            h('td', { attrs: { scope: "row" } }, wdgt.dataset.param),
-            h('td', { attrs: { scope: "row" } }, (wdgt.type === 'checkbox') ? wdgt.checked.toString() : wdgt.value)
-          ])
-          ))
+          [
+            h('td', { attrs: { scope: "row" } }, 'prog'),
+            h('td', { attrs: { scope: "row" } }, cmd_data.filter( (row) => row[COL_TYPE] === 'prog')[0][COL_ARG]),
+            h('td', { attrs: { scope: "row" } }, ''),
+            ...Array.from(all_args).map(wdgt => h('tr', [
+              h('td', { attrs: { scope: "row" } }, wdgt.dataset.key),
+              h('td', { attrs: { scope: "row" } }, (wdgt.type === 'checkbox') ? wdgt.checked.toString() : wdgt.value),
+              h('td', { attrs: { scope: "row" } }, cmd_data.filter( (row) => row[COL_TYPE] !== 'prog' && row[COL_PARAM] === wdgt.dataset.key)[0][COL_ARG])
+            ]) )
+          ]
+        )
       ]
     );
-
-    document.querySelector(`#${ev.target.dataset.toolset}_cmd p.source_code`).appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
+    const source_code = document.querySelector(`#${ev.target.dataset.param} p.source_code`);
+    source_code.innerHTML = ''; // Reset
+    source_code.appendChild(content); //  = cli + '\n' + desc.children.reduce((accu,child) => accu + ' ' + child.content,'');
   }
 
   // Main
   return h(`details#${desc.id}.cli`,
     {
       dataset: {
-        toolset: desc.toolsetid,
         param: desc.id,
         option: ('option' in desc) ? desc.option : 0
       },
@@ -1034,7 +1046,6 @@ const w_cli = (desc) => {
       h('summary',
         {
           dataset: {
-            toolset: desc.toolsetid,
             param: desc.id,
             option: ('option' in desc) ? desc.option : 0
           }

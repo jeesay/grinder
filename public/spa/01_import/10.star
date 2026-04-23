@@ -32,7 +32,7 @@ dtype::halfmapdata   ?                ?                    option_g  "DensityMap
 outdata              "Output Data"    bi-box-arrow-down    fieldset  ?                                           hidden  ?
 nodes                "Nodes"          bi-controller        fieldset  ?                                           hidden  ?
 system               "System"         bi-incognito         fieldset  ?                                           hiddden ?
-import_all_cmd       "Check command"  bi-chat-right-text   cli       ?                                           show    ?
+grr_import_prgm      "Check command"  bi-chat-right-text   cli       ?                                           show    ?
 #
 loop_
 _indata.id
@@ -136,26 +136,27 @@ dir_in_raw       "Raw input directory:"     string       /path/of/movies/ ?  "."
 In contrary of RELION, the symbolic links will be generated and the output directory will be PROJECT_DIR/Movies/. 
 All the imported files will be renamed as <prefix>0001.ext.
 ;
-pattern_in         "Common Pattern"            string movie ? ? ? ? 
+pattern_in         "Common Pattern"            string    movie ? ? ? ? 
 ; Common pattern to all the input files. All the files corresponding to the regular expression `*pattern*.ext` will be searched.
 Be careful when using extra regular expression.
 ;
 img_ext           "Input Image Extension"       select ?          ? ? ? ? ?
-img_ext::mrc      "mrc"                         option "mrc"      ? ? ? ? ?
-img_ext::mrcs     "mrcs"                        option "mrcs"     ? ? ? ? ?
-img_ext::tif      "tif"                         option "tif"      ? ? ? ? ?
-img_ext::tiff     "tiff"                        option "tiff"     ? ? ? ? ?
-img_ext::eer      "eer"                         option "eer"      ? ? ? ? ?
-img_ext::mrc.bz2  "mrc.bz2"                     option "mrc.bz2"  ? ? ? ? ?
-img_ext::mrcs.bz2 "mrcs.bz2"                    option "mrcs.bz2" ? ? ? ? ?
-img_ext::mrc.zst  "mrc.zst"                     option "mrc.zst"  ? ? ? ? ?
-img_ext::mrcs.zst "mrcs.zst"                    option "mrcs.zst" ? ? ? ? ?
-img_ext::mrc.xz   "mrc.xz"                      option "mrc.xz"   ? ? ? ? ?
-img_ext::mrcs.xz  "mrcs.xz"                     option "mrcs.xz"  ? ? ? ? ?
-keep_name         "Keep the original filenames" bool   False      ? ? ? ? 
+img_ext::mrc      "mrc"                         option    "mrc"      ? ? ? ? ?
+img_ext::mrcs     "mrcs"                        option    "mrcs"     ? ? ? ? ?
+img_ext::tif      "tif"                         option    "tif"      ? ? ? ? ?
+img_ext::tiff     "tiff"                        option    "tiff"     ? ? ? ? ?
+img_ext::eer      "eer"                         option    "eer"      ? ? ? ? ?
+img_ext::mrc.bz2  "mrc.bz2"                     option    "mrc.bz2"  ? ? ? ? ?
+img_ext::mrcs.bz2 "mrcs.bz2"                    option    "mrcs.bz2" ? ? ? ? ?
+img_ext::mrc.zst  "mrc.zst"                     option    "mrc.zst"  ? ? ? ? ?
+img_ext::mrcs.zst "mrcs.zst"                    option    "mrcs.zst" ? ? ? ? ?
+img_ext::mrc.xz   "mrc.xz"                      option    "mrc.xz"   ? ? ? ? ?
+img_ext::mrcs.xz  "mrcs.xz"                     option    "mrcs.xz"  ? ? ? ? ?
+keep_name         "Keep the original filenames" bool      False       ? ? ? ? 
 ; By default, the output files are renamed `prefix000001.ext`, `prefix000002.ext`, etc. where `ext` is the image extension.
 ;
-pattern_out       "Output Prefix"    string   mov ? ? ? ? "Common pattern to all the imported output files"
+pattern_out       "Output Prefix"               string    mov         ? ? ? ? "Common pattern to all the imported output files"
+outnode           "Output Generated File"       string_ro movies.star ? ? ? ? ?
 #
 loop_
 _mov_opticsgroup.id
@@ -181,7 +182,15 @@ probably not suffer very much.
 Note that when combining data from different detectors, the differences between their MTFs can no longer be absorbed in a single B-factor, and 
 providing the MTF here is important!
 ;
-angpix               "Pixel size (Angstrom):"            range      1.4             0.5             3               0.1     ?   "Pixel size in Angstroms. "
+angpix               "Pixel size (Angstrom):"            range      1.4             0.5             3               0.1     ?   "Pixel size in Angstroms."
+kV                   "Voltage (kV):"                     range      300              50           500                10     ?   "Voltage the microscope was operated on (in kV)"
+Cs                   "Spherical aberration (mm):"        range      2.7               0             8               0.1     ?
+; Spherical aberration of the microscope used to collect these images (in mm). Typical values are 2.7 (FEI Titan & Talos, most JEOL CRYO-ARM), 
+2.0 (FEI Polara), 1.4 (some JEOL CRYO-ARM) and 0.01 (microscopes with a Cs corrector).
+;
+Q0                   "Amplitude contrast:"               range      0.1               0           0.3              0.01     ?
+; Fraction of amplitude contrast. Often values around 10% work better than theoretically more accurate lower values...
+;
 beamtilt_x           "Beamtilt in X (mrad):"             range      0.0             -1.0            1.0             0.1     ?               
 ; Known beamtilt in the X-direction (in mrad).Set to zero if unknown.
 ;
@@ -200,3 +209,27 @@ _box_indata.arg2
 _box_indata.state
 _box_indata.help
 ptcls_fn_in_raw     "Particles Directory" string "/path/of/particles_box/" ? ? ? ? "Copy and paste the input file path"
+#
+#
+loop_
+_grr_import_prgm.type
+_grr_import_prgm.arg
+_grr_import_prgm.param_id
+prog    "grinder import"         ?      
+param   "--type"                 nod
+param   --path                   dir_in_raw
+param   --pattern                pattern_in   
+param   --extension              img_ext
+param   --keep                   keep_name
+param   --prefix                 pattern_out        
+param   --odir                   Import/${RELION_NEW_JOB}/ 
+param   --ofile                  outnode
+param   --optics_group_mtf       fn_mtf
+param   --optics_group_name      optics_group_name
+param   --angpix                 angpix
+param   --kV                     kV
+param   --Cs                     Cs
+param   --Q0                     Q0
+param   --beamtilt_x             beamtilt_x
+param   --beamtilt_y             beamtilt_y
+param   --pipeline-control       Import/${RELION_NEW_JOB}/ 
