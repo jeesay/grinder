@@ -538,7 +538,17 @@ function check_bounds(val, widget) {
   }
 }
 
-const w_grid = (desc) => h(`div#${desc.id}.grid`, {dataset:{size:desc.size}}, ('children' in desc) && (desc.children.length > 0) ? w_group(desc) : []);
+const w_grid = (desc) => {
+  const s = desc.size.match(/\d+/g) || [1, 1];
+  
+  return h(`div#${desc.id}.grid`, {
+    dataset: { size: desc.size },
+    style: {
+      gridTemplateColumns: `repeat(${s[0]}, 1fr)`,
+      gridTemplateRows: `repeat(${s[1]}, 1fr)`,
+    }
+  }, (('children' in desc) && (desc.children.length > 0)) ? w_group(desc) : []);
+}
 
 const w_graphics = (desc) => g_graphics(desc);
     // const section  = document.getElementById('main-panel');

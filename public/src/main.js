@@ -8,6 +8,9 @@ import {WSClient} from "./ws_client.js";
 //import {*} from "./history.js";
 //import {*} from "./browse.js";
 //import {*} from "./widget.js";
+import { drawHistogram, drawScatterPlot } from "./dataviz.js"
+
+import * as aq from "https://esm.sh/arquero@7";
 
 export const GRINDER = {
   version: '0.1',
@@ -377,31 +380,60 @@ export  const read_data = async (obj) => {
   const connect = JSON.parse(localStorage.getItem('connection'));
   const ip_address = connect.ip;
   const port = connect.port;
-  console.info('WS',`ws://${ip_address}:${port}/job/explore`);
+  console.info('WS',`ws://${ip_address}:${port}/job/data`);
   // Open the WebSocket connection and register event handlers.
   // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
  
   return new Promise((resolve, reject) => {
         // 1. Create the connection
-        const socket = new WebSocket(`ws://${ip_address}:${port}/job/explore`);
+        const socket = new WebSocket(`ws://${ip_address}:${port}/job/data`);
 
         // 2. Handle connection open
         socket.onopen = () => {
           // Update the UI when the server responds
           const msg = {projpath:obj.projpath,dirname:obj.path,jobname:obj.job};
           console.info(msg, JSON.stringify(msg));
-          socket.send(JSON.stringify(msg));
+          const form = localStorage.getItem(obj.nodetype);
+          // console.log("TESSSSSSSTTTTTTTTTTT", form);
+          const s = {"request" : JSON.stringify(msg), "data": form}
+          socket.send(JSON.stringify(s));
         };
 
         // 3. Handle the result
         socket.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log(data);
-            // Update: form from obj.nodetype
-            const form = localStorage.getItem(obj.nodetype);
-            console.log(form);
-            socket.close(); // Close connection after getting the data
-            resolve(data);
+            const msg = JSON.parse(event.data);
+            // console.log(msg);
+            // // Update: form from obj.nodetype
+            // const form = localStorage.getItem(obj.nodetype);
+            // console.log(form);
+
+            if (msg.type == "dataviz_package"){
+              Object.entries(msg.widget).forEach(([id, config]) => {
+                // 1. We transform columns JSON in Arquero table
+                const dt = aq.fromColumns(config.data);
+
+                // 2. We target the ID container (ex : motion_total_h)
+                _, targetId = id.split('::');
+                const container = document.getElementById(`canvas-${targetId}`);
+
+                if (!container) return;
+
+                // 3. Render choice depending on widget type in STAR
+                switch (config.widget) {
+                  case 'g_hist' :
+                    drawHistogram(container, dt, config);
+                    break;
+                  case 'g_plot':
+                    drawScatterPlot(container, dt, config);
+                    break;
+                  default:
+                    console.warn(`Widget type ${config.widget} is not defined.`);
+                }
+              });
+            }
+          
+            // socket.close(); // Close connection after getting the data
+            // resolve(msg);
         };
 
         // 4. Handle errors

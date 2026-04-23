@@ -6,9 +6,9 @@
  *   - Récupération et affichage de la liste des jobs
  *   - Clic sur un job → récupération du job.star → reconstruction du formulaire
  *
- * Protocole (texte brut, cohérent avec /ws/file-tree) :
+ * Protocole :
  *   Client → "job_list"                     Serveur → JSON arbre des jobs
- *   Client → "job_params:MotionCorr/job001" Serveur → JSON { job_id, data }
+ *   Client → "job_params:MotionCorr/job002" Serveur → JSON { job_id, data }
  *
  * Usage (dans index.html) :
  *   import { initExplore } from './src/explore.js';
