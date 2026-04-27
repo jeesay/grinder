@@ -402,33 +402,47 @@ export  const read_data = async (obj) => {
         // 3. Handle the result
         socket.onmessage = (event) => {
             const msg = JSON.parse(event.data);
-            // console.log(msg);
+            console.log(msg);
             // // Update: form from obj.nodetype
             // const form = localStorage.getItem(obj.nodetype);
             // console.log(form);
 
             if (msg.type == "dataviz_package"){
               Object.entries(msg.widget).forEach(([id, config]) => {
-                // 1. We transform columns JSON in Arquero table
-                const dt = aq.fromColumns(config.data);
+                // config.data contain { rlnIndex: [...], rlnAccumMotionTotal: [...] }
+                const data = config.data;
+                
+                const targetId = id.split('::')[1];
+                console.log(targetId);
+                // const container = document.querySelector(`div#${targetId}.canvas`);
+                const container = document.getElementById(targetId)
+                console.log(`Recherche de ${targetId}:`, container); // <--- CHECK 
 
-                // 2. We target the ID container (ex : motion_total_h)
-                _, targetId = id.split('::');
-                const container = document.getElementById(`canvas-${targetId}`);
+              if (container) {
+                  // We empty the div just in case
+                  container.innerHTML = "";
+                  
+                  // The correct function is called according to the type
+                  if (config.widget === 'g_hist') {
+                      drawHistogram(container, data, config);
+                      console.log(`Tentative de dessin réussie pour ${id}`);
+                  } 
+                  else if (config.widget === 'g_plot') {
+                      drawScatterPlot(container, data, config);
+                      console.log(`Tentative de dessin réussie pour ${id}`);
+                  }
+              }
 
-                if (!container) return;
-
-                // 3. Render choice depending on widget type in STAR
-                switch (config.widget) {
-                  case 'g_hist' :
-                    drawHistogram(container, dt, config);
-                    break;
-                  case 'g_plot':
-                    drawScatterPlot(container, dt, config);
-                    break;
-                  default:
-                    console.warn(`Widget type ${config.widget} is not defined.`);
-                }
+                // if (!container) return;
+                // let fig = null;
+                // if (config.widget === 'g_hist') {
+                //     drawHistogram(container, data, config);
+                // } else if (config.widget === 'g_plot') {
+                //     drawScatterPlot(container, data, config);
+                // }
+                // if (fig) { 
+                //   container.appendChild(fig);
+                // };
               });
             }
           
@@ -436,7 +450,7 @@ export  const read_data = async (obj) => {
             // resolve(msg);
         };
 
-        // 4. Handle errors
+        // Handle errors
         socket.onerror = (error) => reject(error);
     });
 }
