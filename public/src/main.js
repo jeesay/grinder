@@ -1,8 +1,11 @@
 // import { tableFromIPC } from 'apache-arrow';
 import {StarGate} from "./stargate.js";
-import {w_leftpanel, w_tab_tools} from "./widget.js";
+import {w_alert, w_leftpanel, w_tab_tools} from "./widget.js";
+import { build_widget_tree } from "./job.js";
 import {h} from "./dom.js";
 import {WSClient} from "./ws_client.js";
+
+
 //import {*} from "./dom.js";
 //import {*} from "./job.js";
 //import {*} from "./history.js";
@@ -258,12 +261,13 @@ export  const connect_to_ws_server = async () => {
  
   return new Promise((resolve, reject) => {
         // 1. Create the connection
+        console.info('New connection to welcome');
         const socket = new WebSocket(`ws://${ip_address}:${port}/welcome`);
 
         // 2. Handle connection open
         socket.onopen = () => {
           // Update the UI when the server responds
-            alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`);
+            w_alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`,'success');
             document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
             document.getElementById('connect').style.color = 'lightgreen';
             document.getElementById('connect').dataset.ip = ip_address;
@@ -274,13 +278,16 @@ export  const connect_to_ws_server = async () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             socket.close(); // Close connection after getting the data
-            const info = {ip:ip_address,port: port};
+            const info = {ip:ip_address,port: port, connected: true};
             localStorage.setItem('connection',JSON.stringify(info));
             resolve(data);
         };
 
         // 4. Handle errors
-        socket.onerror = (error) => reject(error);
+        socket.onerror = (error) => {
+          w_alert(`[Close] Connection failed with server ws://${ip_address}:${port}/welcome`,'error');
+          reject(error);
+        }
     });
 }
 
@@ -494,7 +501,7 @@ async function fetchParticleStream() {
   receive(GRINDER.websocket);
 */
 
-
+/* Move in `job.js`
  const fetchFile = async filename => {
     const file = await fetch(filename);
     const text = await file.text();
@@ -756,6 +763,9 @@ async function fetchParticleStream() {
                       // Reset display
                       section.style.display = 'block';
                       section.querySelector('input').checked = true; // First child
+                      // Update job_toolbar
+                      document.getElementById('job_id').textContent = 'New Job';
+                      update_job_toolbar('new_job');
                     }
                   }
                 },
@@ -800,3 +810,5 @@ async function fetchParticleStream() {
       });
     }
   }
+
+  */

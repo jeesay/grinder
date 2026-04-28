@@ -79,8 +79,12 @@ body, ul, li{
 }
 
 .project-name {
-  font-weight: bold;
+  font-weight: normal;
   font-size: 1.2rem;
+}
+
+.project-name li {
+  padding: 0 10px;
 }
 
 .actions {
@@ -411,6 +415,7 @@ details[open] summary::before {
 }
 .row {
   display: flex;
+  flex-direction: column;
   margin: 5px 0px;
 }
 
@@ -426,6 +431,17 @@ details[open] summary::before {
     margin-right: 10px;
 }
 
+.row .parameter {
+  display: flex;
+  flex-direction: row;
+}
+
+.row blockquote {
+  border-left: solid 4px #007bff;
+  background-color: #c7dbf0;
+  margin: 10px 0;
+  padding: 4px 10px;
+}
 /* Menubar 
 
 @media screen and (min-width: 650px) {
@@ -1470,6 +1486,75 @@ p {
     3em 0 0 -1em, 2em 2em 0 -1em, 0 3em 0 -1em, 
     -2em 2em 0 0, -3em 0em 0 0, -2em -2em 0 0.2em;
   }
+}
+
+/***** Alert popup *****/
+
+/* Resetting the dialog defaults */
+#gdrAlert {
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 400px;
+  max-width: 90%;
+  overflow: hidden; /* Keeps the header corners rounded */
+}
+
+/* Header styling */
+.dialog-header {
+  background-color: #f0f0f0; /* Light gray */
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Close button (the X) */
+.close-icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.close-icon-btn:hover {
+  color: #000;
+}
+
+/* Body & Footer styling */
+.dialog-body {
+  padding: 20px 16px;
+  color: #444;
+  font-family: sans-serif;
+}
+
+.dialog-footer {
+  padding: 12px 16px;
+  text-align: right;
+}
+
+/* Standard Button */
+.btn-primary {
+  background: #007AFF;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Backdrop */
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
 }
 
 /***************** GRAPHICS *****************/

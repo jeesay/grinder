@@ -17,11 +17,10 @@ _home_dash.default
 _home_dash.parent
 _home_dash.state
 _home_dash.help
-connect               'Server Connection'    bi-wifi            fieldset ?                  ? ?        ?
-project               'Projects'             bi-newspaper       fieldset ?                  ? hidden   ?
-proj_select           'Project Selection'    bi-building        select_g ?                  ? ?        ?
-proj_select::projnew  'New Project'          bi-building-add    option_g RELION_NEW_PROJECT ? hidden   ?
-software              'Available Softwares'  bi-plugin          fieldset ? ? hidden   ?
+connect               'Server Connection'    bi-wifi            fieldset ?      ? ?        ?
+project               'Projects'             bi-newspaper       fieldset ?      ? hidden   ?
+projnew               'New Project'          bi-building-add    switch   False  ? hidden   ?
+software              'Available Softwares'  bi-plugin          fieldset ?      ? hidden   ?
 #
 loop_
 _connect.id
@@ -32,9 +31,9 @@ _connect.arg0     # Status
 _connect.arg1     # Placeholder
 _connect.arg2     # Node Type
 _connect.help
-ws_server_ip  'Server IP Address'   string  '127.0.0.1' ?       ? ?  'URL displayed by `grinder-server`'
-ws_port       'Server Port'         string  8000        ?       ? ?  'Port displayed by `grinder-server`'
-do_connect    'Connect'             connect true        bi-send ? ?  'Send the connection request'
+ws_server_ip  'Server IP Address'   string          '127.0.0.1' ?       ? ?  'URL displayed by `grinder-server`'
+ws_port       'Server Port'         string          8000        ?       ? ?  'Port displayed by `grinder-server`'
+do_connect    'Connect'             button[connect] true        bi-send ? ?  'Send the connection request'
 #
 loop_
 _project.id
@@ -44,33 +43,23 @@ _project.widget
 _project.default 
 _project.state
 _project.help
-proj_list>proj_select 'Project'       ?               select  ?                   required 'Create or choose one existing RELION Project'
+proj_list             'Project'       ?               select  ?                   required 'Create or choose one existing RELION Project'
 proj_list::proj_none  '-- Choose --'  bi-building-add option  RELION_NONE         ?        ?
-proj_list::proj_new   'New...'        bi-building-add option  RELION_NEW_PROJECT  ?        ?
 #
 loop_
 _projnew.id
 _projnew.label
-_projnew.icon
 _projnew.widget
 _projnew.default  # None
+_projnew.arg0     # Filter
+_projnew.arg1     # Placeholder
+_projnew.arg2     # Node Type
 _projnew.state
 _projnew.help
-pnew   'New Project'    bi-building-add    fieldset RELION_NEW_PROJECT ?   'Create a new RELION Project'
-#
-loop_
-_pnew.id
-_pnew.label
-_pnew.widget
-_pnew.default  # None
-_pnew.arg0     # Filter
-_pnew.arg1     # Placeholder
-_pnew.arg2     # Node Type
-_pnew.state
-_pnew.help
-current_dir   'Root Directory'  file     './'          GrinderFolder  ? ?  required 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
-proj_name     'New Directory'   string   'my_project'  ?              ? ?  ? ?
-proj_apply    'Apply'           button   '?'           ?              ? ?  ? 'Create a RELION Project'
+current_dir   'Root Directory'  file                 './'              GrinderFolder  ? ?  required 'RELION Project Directory. This is the root directory containing the `default_pipeline.star`.'
+proj_dir      'New Directory'   string               'my_project_dir'  ?              ? ?  ? ?
+proj_name     'Project Name'    string               'my_project'      ?              ? ?  ? ?
+proj_apply    'Apply'           button[newproject]   '?'               ?              ? ?  ? 'Create a RELION Project'
 #
 loop_
 _software.id

@@ -21,12 +21,13 @@
 
 import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
+import { button_click } from "./w_event.js"
 import { connect_to_ws_server, load_project, read_job, read_data } from "./main.js"
 
 import { g_graphics } from './dataviz.js';
-import { getDatavizConfig } from "./jobloader.js";
+import { update_right_sidebar } from "./job.js";
 
-const spin = () => document.getElementById('spinner').classList.toggle('hidden');
+export const spin = () => document.getElementById('spinner').classList.toggle('hidden');
 
 const get_parent = (desc, parent_id, level = 0) => {
   console.info(desc);
@@ -42,6 +43,19 @@ const get_parent_from_class = (desc, parent_widget, level = 0) => {
     return desc.parent;
   }
   return get_parent_from_class(desc.parent, parent_widget, level++);
+}
+
+export const w_alert = (msg,category='warning') => {
+  const cats = {
+    'warning': '<i class="bi bi-exclamation-triangle-fill"></i> Warning', 
+    'info': '<i class="bi bi-info-circle-fill"></i> Information',
+    'success': '<i class="bi bi-check-circle-fill"></i> Success',
+    'error': '<i class="bi bi-exclamation-octagon-fill"></i> Error'
+  };
+  const gdr_alert = document.getElementById('gdrAlert');
+  gdr_alert.querySelector('.dialog-header span').innerHTML = cats[category];
+  gdr_alert.querySelector('p').textContent = msg;
+  gdr_alert.showModal();
 }
 
 const w_label = (desc) => {
@@ -67,71 +81,36 @@ const w_h3 = (desc) => {
 }
 
 const w_button = (desc) => {
-  // TODO
+  // Extract button type if any
+  const regex = /\[(\w+)\]/;
+  const [widget,button_type] = desc.widget.match(regex);
+
+  desc.on_click = button_click(button_type);
   return h('div.row',
     [
-      h('label', { attrs: { 'for': desc.id } }, desc.label),
-      h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-      h(`button#${desc.id}`,
-        {
-          on: ('on_click' in desc) ? { click: desc.on_click } : {}
-        },
-        desc.label
-      )
-    ])
+      h('div.parameter',
+        [
+          h('label', { attrs: { 'for': desc.id } }, desc.label),
+          h('i.bi.bi-question-circle', 
+            { 
+              attrs: { title: desc.help },
+              on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
+            }),
+          h(`button#${desc.id}`,
+            {
+              on: ('on_click' in desc) ? { click: desc.on_click } : {}
+            },
+            desc.label
+          )
+        ]
+      ),
+      h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+    ]
+  );
 }
 
 // Specialized button
 const w_connect = (desc) => {
-
-  const new_item = (item, parent, type = 'list') => {
-    const projpath = document.getElementById('connect').dataset.projpath;
-    const [job, alias, nodetype, status, path, fn] = item;
-
-    const _read = (ev) => {
-      const jb = document.getElementById('job_id');
-      jb.dataset.projpath = projpath; 
-      jb.dataset.path = path;
-      jb.dataset.job = job;
-      jb.dataset.nodetype = nodetype;
-      document.querySelector('#job_id span').textContent = `${path}/${job}`;
-      return read_job({projpath,path,job});
-    }
-    
-    const w = h('li.file-item',
-      {
-        dataset: { job: fn, proclabel: nodetype },
-        on: { click: _read }
-      },
-      [h('a',
-        [
-          h('i.nav-icon.bi.bi-gear', { style: { color: (status === 'Succeeded') ? '#0f0' : '#f00' } }),
-          h('span.nav-text', (type === 'list') ? fn : job)
-        ])
-      ]
-    );
-    parent.appendChild(w)
-  }
-
-  const new_menu = (arr, parent, index, N) => {
-    const w = h('li.menu-item', {},
-      [
-        h('a',
-          [
-            h(`i.nav-icon.bi.bi-${index % 10}-circle`),
-            h('span.nav-text', `Jobs ${index * N + 1}-${(index + 1) * N}`)
-          ]
-        ),
-        h('ul.sub-submenu')
-      ]);
-
-    parent.appendChild(w);
-    arr.forEach(job => {
-      const [fn, alias, nodetype, status] = job;
-      const [path, jobi, ...dummy] = fn.split('/');
-      new_item([jobi, alias, nodetype, status, path, `${path}/${jobi}`], w.children[1])
-    });
-  }
 
   const set_project = async (ev) => {
     console.log(ev.target.value,ev.target.dataset);
@@ -146,67 +125,8 @@ const w_connect = (desc) => {
       spin();
       const data_proj = await load_project(project_path);
       spin();
-      update_project(project_path,data_proj);
+      update_right_sidebar(project_path,data_proj);
     }
-  }
-
-  const update_project = (project_path,data_proj) => {
-    // Step #1 - Update project
-    document.querySelector('#project_id span').textContent = project_path;
-    // Step #2 - Fill the Job List
-    let parent = document.querySelector('.jobs #joblist');
-    // Reset
-    parent.innerHTML='';
-    const N = 10;
-    chunks(data_proj.processes.data, N).forEach((chunk, i) => new_menu(chunk, parent, i, N));
-    // Step #3 - Fill the Job Folders
-    parent = document.querySelector('.jobs #jobfolder');
-    // Reset
-    parent.innerHTML='';
-    const folders = data_proj.processes.data.reduce((accu, item) => {
-      const [fn, alias, nodetype, status] = item;
-      const [path, job, ...dummy] = fn.split('/');
-      if (path in accu) {
-        accu[path].push([job, alias, nodetype, status, path, `${path}/${job}`]);
-      }
-      else {
-        accu[path] = [[job, alias, nodetype, status, path, `${path}/${job}`]];
-      }
-      return accu;
-    }, {});
-    Object.entries(folders).forEach(pair => {
-      const [folder, jobs] = pair;
-      const w = h('li.menu-item', {},
-        [
-          h('a',
-            [
-              h(`i.nav-icon.bi.bi-folder2-open`),
-              h('span.nav-text', folder)
-            ]
-          ),
-          h('ul.sub-submenu')
-        ]);
-      parent.appendChild(w);
-      jobs.forEach(job => new_item(job, w.children[1],'folder'));
-    });
-  }
-
-  function* chunks(arr, n) {
-    console.log(arr.length);
-    let chunk = [];
-    let index = n;
-    for (let i = 0; i < arr.length; i++) {
-      console.info('index', parseInt(arr[i][0].match(/\d+/)));
-      if (parseInt(arr[i][0].match(/\d+/)) <= index) {
-        chunk.push(arr[i]);
-      }
-      else {
-        yield chunk;
-        index += n;
-        chunk = [arr[i]];
-      }
-    }
-    yield chunk;
   }
 
   desc.on_click = async (ev) => {
@@ -322,94 +242,121 @@ const w_file = (desc) => {
       style: (desc.status === 'hidden') ? { display: 'none' } : { display: 'flex' }
     },
     [
-      h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`, { attrs: { 'for': desc.id } }, desc.label),
-      h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-      h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`,
-        {
-          attrs: {
-            type: 'text',
-            value: (desc.default === '?' || desc.default === '') ? '' : desc.default,
-            placeholder: placeholder || '',
-            name: desc.id
-          },
-          props: {
-            required: (desc.constraint === "required") ? true : false
-          },
-          dataset: {
-            key: desc.id.split('-')[0], 
-            param: desc.id,
-            node: nodetype,
-            depth: tree_depth,
-            option: ('option' in desc) ? desc.option : 0
-          },
-        }
-      ),
-      h('input#open_dialog.browse.open-trigger',
-        {
-          attrs: {
-            type: 'button',
-            value: 'Browse...',
-            title: nodetype
-          },
-          dataset: ds,
-          on: {
-            click: async (ev) => {
-              ev.preventDefault(); // Stop the page from refreshing/redirecting
-              const data_tree = await fetchFileTree();
-              const popup = document.getElementById('file-popup');
-              const isVisible = popup.style.display === 'flex';
-              popup.style.display = isVisible ? 'none' : 'flex';
-              if (!isVisible) init(JSON.parse(data_tree).children); // Load root on open
+      h('div.parameter',
+        [
+          h(`label${(desc.arg0 !== '?') ? '.' + desc.arg0 : ''}`, { attrs: { 'for': desc.id } }, desc.label),
+          h('i.bi.bi-question-circle', 
+            { 
+              on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
             }
-          }
-        }
-      )
+          ),
+          h(`input#${desc.id}.param${(prop === 'required') ? '.required' : ''}`,
+            {
+              attrs: {
+                type: 'text',
+                value: (desc.default === '?' || desc.default === '') ? '' : desc.default,
+                placeholder: placeholder || '',
+                name: desc.id
+              },
+              props: {
+                required: (desc.constraint === "required") ? true : false
+              },
+              dataset: {
+                key: desc.id.split('-')[0], 
+                param: desc.id,
+                node: nodetype,
+                depth: tree_depth,
+                option: ('option' in desc) ? desc.option : 0
+              },
+            }
+          ),
+          h('input#open_dialog.browse.open-trigger',
+            {
+              attrs: {
+                type: 'button',
+                value: 'Browse...',
+                title: nodetype
+              },
+              dataset: ds,
+              on: {
+                click: async (ev) => {
+                  ev.preventDefault(); // Stop the page from refreshing/redirecting
+                  const data_tree = await fetchFileTree();
+                  const popup = document.getElementById('file-popup');
+                  const isVisible = popup.style.display === 'flex';
+                  popup.style.display = isVisible ? 'none' : 'flex';
+                  if (!isVisible) init(JSON.parse(data_tree).children); // Load root on open
+                }
+              }
+            }
+          )
+        ]
+      ),
+      h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
     ]
   );
 }
 
 const w_string = (desc) => h('div.row',
   [
-    h('label', { attrs: { 'for': desc.id } }, desc.label),
-    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-    h(
-      `input#${desc.id}.param`,
-      {
-        attrs: {
-          type: 'text',
-          value: desc.default,
-          name: desc.id
-        },
-        dataset: {
-          key: desc.id.split('-')[0], 
-          param: desc.id,
-          option: ('option' in desc) ? desc.option : 0
-        },
-      }
-    )
+    h('div.parameter',
+      [
+        h('label', { attrs: { 'for': desc.id } }, desc.label),
+        h('i.bi.bi-question-circle', 
+          { 
+            attrs: { title: desc.help },
+            on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
+          }),
+        h(
+          `input#${desc.id}.param`,
+          {
+            attrs: {
+              type: 'text',
+              value: desc.default,
+              name: desc.id
+            },
+            dataset: {
+              key: desc.id.split('-')[0], 
+              param: desc.id,
+              option: ('option' in desc) ? desc.option : 0
+            },
+          }
+        )
+      ]
+    ),
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
   ]
 );
 
 const w_string_ro = (desc) => h('div.row',
   [
-    h('label', { attrs: { 'for': desc.id } }, desc.label),
-    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-    h(
-      `input#${desc.id}.param`,
-      {
-        attrs: {
-          type: 'text',
-          value: desc.default,
-          name: desc.id,
-          readOnly: true
-        },
-        dataset: {
-          key: desc.id.split('-')[0], 
-          param: desc.id,
-          option: ('option' in desc) ? desc.option : 0
-        },
-      }
-    )
+    h('div.parameter',
+      [
+        h('label', { attrs: { 'for': desc.id } }, desc.label),
+        h('i.bi.bi-question-circle', 
+          { 
+            attrs: { title: desc.help },
+            on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
+          }),
+        h(
+          `input#${desc.id}.param`,
+          {
+            attrs: {
+              type: 'text',
+              value: desc.default,
+              name: desc.id,
+              readOnly: true
+            },
+            dataset: {
+              key: desc.id.split('-')[0], 
+              param: desc.id,
+              option: ('option' in desc) ? desc.option : 0
+            },
+          }
+        )
+      ]
+    ),
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
   ]
 );
 
@@ -451,24 +398,33 @@ const w_paragraph = (desc) => h('div.row',
 
 const w_int = (desc) => h('div.row',
   [
-    h('label', { attrs: { 'for': desc.id } }, desc.label),
-    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-    h(
-      `input#${desc.id}.param`,
-      {
-        attrs: {
-          type: 'number',
-          value: desc.default,
-          lang: 'en',
-          name: desc.id
-        },
-        dataset: {
-          key: desc.id.split('-')[0], 
-          param: desc.id,
-          option: ('option' in desc) ? desc.option : 0
-        },
-      }
-    )
+    h('div.parameter',
+      [
+        h('label', { attrs: { 'for': desc.id } }, desc.label),
+        h('i.bi.bi-question-circle', 
+          { 
+            attrs: { title: desc.help },
+            on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
+          }),
+        h(
+          `input#${desc.id}.param`,
+          {
+            attrs: {
+              type: 'number',
+              value: desc.default,
+              lang: 'en',
+              name: desc.id
+            },
+            dataset: {
+              key: desc.id.split('-')[0], 
+              param: desc.id,
+              option: ('option' in desc) ? desc.option : 0
+            },
+          }
+        )
+      ]
+    ),
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
   ]
 );
 
@@ -554,77 +510,96 @@ const w_graphics = (desc) => g_graphics(desc);
 
 const w_range = (desc) => h('div.row',
   [
-    h('label', { attrs: { 'for': desc.id } }, desc.label),
-    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-    // `div#${desc.id.replace('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_container.range-container`,
-    h(
-      `div#${desc.id}_container.range-container`,
-      {
-        style: { display: 'flex' },
-        attrs: { value: desc.default }
-      },
+    h('div.parameter',
       [
-        h(`input#${desc.id}_range`,
+        h('label', { attrs: { 'for': desc.id } }, desc.label),
+        h('i.bi.bi-question-circle', 
+          { 
+            on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
+          }
+        ),
+        // `div#${desc.id.replace('_','')}-${desc.toolsetid.slice(-5).replace('_','')}_container.range-container`,
+        h(
+          `div#${desc.id}_container.range-container`,
           {
-            attrs: {
-              type: 'range',
-              min: desc.arg0,
-              max: desc.arg1,
-              step: desc.arg2,
-              value: desc.default,
-              name: desc.id + '_range'
-            },
-            dataset: {
-              toolset: desc.toolsetid,
-              param: desc.id,
-              option: ('option' in desc) ? desc.option : 0
-            },
-            on: { input: (ev) => check_bounds(ev.target.value, ev.target) }
+            style: { display: 'flex' },
+            attrs: { value: desc.default }
+          },
+          [
+            h(`input#${desc.id}_range`,
+              {
+                attrs: {
+                  type: 'range',
+                  min: desc.arg0,
+                  max: desc.arg1,
+                  step: desc.arg2,
+                  value: desc.default,
+                  name: desc.id + '_range'
+                },
+                dataset: {
+                  toolset: desc.toolsetid,
+                  param: desc.id,
+                  option: ('option' in desc) ? desc.option : 0
+                },
+                on: { input: (ev) => check_bounds(ev.target.value, ev.target) }
+              }
+            ),
+            h(
+              `input#${desc.id}.param`,
+              {
+                attrs: {
+                  type: 'number',
+                  value: desc.default,
+                  step: desc.arg2,
+                  lang: 'en',
+                  name: desc.id
+                },
+                dataset: {
+                  key: desc.id.split('-')[0], 
+                  param: desc.id,
+                  option: ('option' in desc) ? desc.option : 0
+                },
+                on: { input: (ev) => check_bounds(ev.target.value, ev.target) }
+              }
+            )
+          ]
+        )
+      ]
+    ),
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+  ]
+);
+
+const w_bool = (desc) => h('div.row',
+  [
+    h('div.parameter',
+      [
+        h('label', { attrs: { 'for': desc.id } }, desc.label),
+        h('i.bi.bi-question-circle', 
+          { 
+            on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
           }
         ),
         h(
           `input#${desc.id}.param`,
           {
             attrs: {
-              type: 'number',
-              value: desc.default,
-              step: desc.arg2,
-              lang: 'en',
+              type: 'checkbox',
               name: desc.id
+            },
+            props: {
+              checked: (desc.default === 'true') ? true : false,
             },
             dataset: {
               key: desc.id.split('-')[0], 
               param: desc.id,
               option: ('option' in desc) ? desc.option : 0
             },
-            on: { input: (ev) => check_bounds(ev.target.value, ev.target) }
           }
         )
-      ])
-  ]
-);
-
-const w_bool = (desc) => h('div.row',
-  [
-    h('label', { attrs: { 'for': desc.id } }, desc.label),
-    h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-    h(
-      `input#${desc.id}.param`,
-      {
-        attrs: {
-          type: 'checkbox',
-          name: desc.id
-        },
-        props: {
-          checked: (desc.default === 'true') ? true : false,
-        },
-        dataset: {
-          key: desc.id.split('-')[0], 
-          param: desc.id,
-          option: ('option' in desc) ? desc.option : 0
-        },
-      }
+      ]
     ),
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help.replace('\n','<br>'))
   ]
 );
 
@@ -789,21 +764,30 @@ const w_select = (desc) => {
   }
   return h('div.row',
     [
-      h('label', { attrs: { 'for': desc.id } }, desc.label + ' '),
-      h('i.bi.bi-question-circle', { attrs: { title: desc.help } }),
-      h('div.select-dropdown', [
-        h(`select#${desc.id}.param`,
-          {
-            props: {
-              value: desc.default
-            },
-            dataset: {key: desc.id.split('-')[0], dispatch: desc.on_change},
-            on: ('on_change' in desc) ? { change: (ev) => dispatch(ev) } : {}
-          },
-          w_group(desc),
-        )
-      ])
-    ]);
+      h('div.parameter',
+        [
+          h('label', { attrs: { 'for': desc.id } }, desc.label + ' '),
+          h('i.bi.bi-question-circle', 
+            { 
+            on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
+            }),
+          h('div.select-dropdown', [
+            h(`select#${desc.id}${(desc.state && desc.state !== '?') ? '.' + desc.state : ''}.param`,
+              {
+                props: {
+                  value: desc.default
+                },
+                dataset: {key: desc.id.split('-')[0], dispatch: desc.on_change},
+                on: ('on_change' in desc) ? { change: (ev) => dispatch(ev) } : {}
+              },
+              w_group(desc),
+            )
+          ])
+        ]
+      ),
+      h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+    ]
+  );
 }
 
 // TODO
@@ -981,19 +965,47 @@ const w_cli = (desc) => {
     const nodetype = document.getElementById('job_id').dataset.nodetype;
     // Get command + form values
     const cmd = JSON.parse(localStorage.getItem(nodetype)).datablocks.default[ev.target.parentElement.id];
-    const hidden_div_exists = document.querySelector('section .option_g');
-    console.log(hidden_div_exists);
-    const all_args = (hidden_div_exists) ? document.querySelectorAll(`section .option_g:not(.hidden) .param`) : document.querySelectorAll(`section .param`);
-    // Create command-line from all the args set up in the GUI
-    let cli = '';
-    all_args.forEach((w) => cli += (w.dataset.key + ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n'));
-    console.log('CLI ARGS', cli);
     // Create table for display
     const COL_TYPE = cmd.header.indexOf('type');
     const COL_ARG = cmd.header.indexOf('arg');
     const COL_PARAM = cmd.header.indexOf('param_id');
     const cmd_data = cmd.rows;
-    console.log(COL_TYPE,COL_ARG,COL_PARAM,cmd_data);
+    for (let e of cmd_data) {
+      console.log(e);
+    }
+    const supers  = document.querySelectorAll('.super.param');
+    const hidden_div_exists = document.querySelector('section .option_g');
+    console.log(hidden_div_exists);
+    const regulars = (hidden_div_exists) ? document.querySelectorAll(`section .option_g:not(.hidden) .param`) : document.querySelectorAll(`section .param`);
+    const all_args = new Set([...supers,...regulars]);
+    // Create command-line from all the args set up in the GUI
+    let cli = '';
+    all_args.forEach((w) => cli += (w.dataset.key + ': ' + ((w.type == 'checkbox') ? w.checked : w.value) + '\n'));
+    console.log('CLI ARGS', cli);
+    const rows = cmd_data.map( (arg) => {
+      if (arg[COL_TYPE] === 'prog') {
+        return ['prog',arg[COL_ARG],'',''];
+      }
+      else if  (arg[COL_TYPE] === 'param') {
+        console.log(arg[COL_PARAM]);
+        let found = [...all_args].filter( (wdgt) => arg[COL_PARAM] === wdgt.dataset.key)[0];
+        let v = (found) ? found.value.toString() : '?';
+        return [arg[COL_PARAM],arg[COL_ARG],v,''];
+      }
+      else {
+        // flag
+        let found = [...all_args].filter( (wdgt) => arg[COL_PARAM] === wdgt.dataset.key)[0];
+        if (found) {
+          let v = found.checked;
+          return (v) ? [arg[COL_PARAM],arg[COL_ARG],'',found.id] : [arg[COL_PARAM],'','',''];
+        }
+        else {
+          return [arg[COL_PARAM],arg[COL_ARG],'?',arg[COL_PARAM]]; 
+        }
+      }
+
+    });
+    console.log(COL_TYPE,COL_ARG,COL_PARAM,rows);
     const content = h('table.custom-table',
       [
         h('caption', 'Program parameters'),
@@ -1006,13 +1018,10 @@ const w_cli = (desc) => {
         ),
         h('tbody',
           [
-            h('td', { attrs: { scope: "row" } }, 'prog'),
-            h('td', { attrs: { scope: "row" } }, cmd_data.filter( (row) => row[COL_TYPE] === 'prog')[0][COL_ARG]),
-            h('td', { attrs: { scope: "row" } }, ''),
-            ...Array.from(all_args).map(wdgt => h('tr', [
-              h('td', { attrs: { scope: "row" } }, wdgt.dataset.key),
-              h('td', { attrs: { scope: "row" } }, (wdgt.type === 'checkbox') ? wdgt.checked.toString() : wdgt.value),
-              h('td', { attrs: { scope: "row" } }, cmd_data.filter( (row) => row[COL_TYPE] !== 'prog' && row[COL_PARAM] === wdgt.dataset.key)[0][COL_ARG])
+            ...rows.map(arg => h('tr', [
+              h('td', { attrs: { scope: "row" } }, arg[0]),
+              h('td', { attrs: { scope: "row" } }, arg[1]),
+              h('td', { attrs: { scope: "row" } }, arg[2])
             ]) )
           ]
         )
@@ -1066,7 +1075,12 @@ const w_table_head = (desc) => {
 
 const w_table_body = (desc) => {
   console.log('table_body', desc.label);
-  return h(`tbody#${desc.id}`, [...w_group(desc)]);
+  let fragment = document.createDocumentFragment();
+  // TODO
+  w_group(desc).forEach( (row) => fragment.appendChild(row));
+  const tbody = h(`tbody#${desc.id}.table_body`);
+  tbody.appenChild(fragment);
+  return tbody;
 }
 
 const w_table_row = (desc) => {
@@ -1104,9 +1118,14 @@ const w_group = (desc) => {
   if (desc.children.length > 0) {
     els = desc.children.map(child => {
       console.info(child);
-      if (child.widget !== undefined && (types.indexOf(child.widget) !== -1 || child.widget.slice(0,2) === 'g_')) {
-        console.info('group child', child, types.indexOf(child.widget),(child.widget.slice(0,2)));
-        return (child.widget.slice(0,2) === 'g_') ? w_graphics(child) : creators[types.indexOf(child.widget)](child);
+      if (child.widget !== undefined ) {
+        const matched = child.widget.match(/(\w+)\[(\w+)\]/);
+        console.log(matched);
+        const [_,widget,button_type] = (matched) ? matched : ['',child.widget,''];
+        if (types.indexOf(widget) !== -1 || widget.slice(0,2) === 'g_') {
+          console.info('group child', child, types.indexOf(child.widget),(child.widget.slice(0,2)));
+          return (widget.slice(0,2) === 'g_') ? w_graphics(child) : creators[types.indexOf(widget)](child);
+        }
       }
     });
   }

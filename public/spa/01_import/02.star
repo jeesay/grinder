@@ -1,13 +1,13 @@
 data_
 #
 loop_
-_import_ptcls.id
-_import_ptcls.label
-_import_ptcls.icon
-_import_ptcls.widget
-_import_ptcls.value
-_import_ptcls.help
-io                   "I/O"                      bi-arrow-down-up    tab              ?        ?
+_import_parts.id
+_import_parts.label
+_import_parts.icon
+_import_parts.widget
+_import_parts.value
+_import_parts.help
+io                   "I/O"                     bi-arrow-down-up    tab              ?        ?
 settings             "Settings"                bi-tools             tab              ?        ?
 log                  "Log"                     bi-binoculars-fill   tab              ?        ?
 dataviz              "DataViz"                 bi-eye               tab              ?        ?
@@ -129,23 +129,13 @@ _params_01.arg1
 _params_01.arg2
 _params_01.constraint
 _params_01.help
-node_type            "Node type:"                        select     0               "LABEL_IMPORT_COORDS" "?"             "?"             ?               "Select the type of Node this is."
-optics_group_particles "Rename optics group for particles:" string     ?               "?"             "?"             "?"             ?               
-; Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group for the imported particles to this string.
+node_type                    "Node type:"                                select     0               "LABEL_IMPORT_COORDS" "?"             "?"             ?               "Select the type of Node this is."
+node_type::node_type_opt_00  "Particle coordinates (*.box, *_pick.star)" option     LABEL_IMPORT_COORDS "?"             "?"             "?"             ?               "?"
+node_type::node_type_opt_01  "Particles STAR file (.star)"               option     LABEL_IMPORT_PARTS "?"             "?"             "?"             ?               "?"
+optics_group_particles       "Rename optics group for particles:"        string     ?               "?"             "?"             "?"             ?               
+; Only for the import of a particles STAR file with a single, or no, optics groups defined: rename the optics group 
+for the imported particles to this string.
 ;
-#
-loop_
-_node_type.id
-_node_type.label
-_node_type.widget
-_node_type.default
-_node_type.arg0
-_node_type.arg1
-_node_type.arg2
-_node_type.constraint
-_node_type.help
-node_type_opt_00     "Particle coordinates (*.box, *_pick.star)" option     LABEL_IMPORT_COORDS "?"             "?"             "?"             ?               "?"
-node_type_opt_01     "Particles STAR file (.star)"       option     LABEL_IMPORT_PARTS "?"             "?"             "?"             ?               "?"
 #
 loop_
 _log.id
