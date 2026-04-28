@@ -254,11 +254,11 @@ _dataviz.pos
 _dataviz.size
 _dataviz.data
 _dataviz.help
-grid               ?  grid        ?     (4,4) ? ?  
-grid::motion_total_h ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
-grid::motion_total_p ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
-grid::motion_early_h ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
-grid::motion_early_p ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
-grid::motion_late_h ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
-grid::motion_late_p ?  g_plot      (0,0) (1,1) corrected_micrographs.star?global_shift[rlnIndex,rlnAccumMotionTotal] ?
+grid                 ?  grid       ?     (2,3) ? ?  
+grid::motion_total_p ?  g_plot     (0,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionTotal] ?
+grid::motion_total_h ?  g_hist     (0,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionTotal]          ?
+grid::motion_early_p ?  g_plot     (1,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionEarly] ?
+grid::motion_early_h ?  g_hist     (1,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionEarly]          ?
+grid::motion_late_p  ?  g_plot     (2,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionLate]  ?
+grid::motion_late_h  ?  g_hist     (2,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionLate]           ?
 #

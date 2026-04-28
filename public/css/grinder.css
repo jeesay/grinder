@@ -1560,12 +1560,42 @@ dialog::backdrop {
 /***************** GRAPHICS *****************/
 
 .grid {
-  display: grid;
-  grid-template-columns: repeat(3, 2fr);
-  grid-gap: 10px;
-  grid-auto-rows: minmax(100px, auto);
+    display: grid;
+    /* Using variables injected by JS or 1 if no variables provided */
+    gap: 20px;
+    width: 100%;
+    height: 100%; /* The grid will takes full available space */
 }
 
-canvas {
+
+/* canvas {
+  width: auto;
+  height: auto;
   background-color: rgb(233,171,88);
+} */
+
+
+/* For E-charts */
+/* canvas {
+    width: 50%;    
+    height: 250px;  
+    overflow: visible;
+    display: block;
+    border: 1px solid #000;
+} */
+
+/* D3.js */
+.canvas {
+    width: 100%;
+    height: 250px; /* Fixed height */
+    display: block;
+    overflow: visible; /* To avoid cutting the axes */
 }
+
+/* Optional */
+.canvas svg {
+    width: 100%;
+    height: 100%;
+}
+
+.bar { transition: fill 0.2s; cursor: crosshair; }
