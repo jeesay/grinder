@@ -455,6 +455,41 @@ export  const read_data = async (obj) => {
     });
 }
 
+export  const compute_data = async (obj) => {
+  const connect = JSON.parse(localStorage.getItem('connection'));
+  const ip_address = connect.ip;
+  const port = connect.port;
+  console.info('WS',`ws://${ip_address}:${port}/job/compute`);
+  // Open the WebSocket connection and register event handlers.
+  // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
+ 
+  return new Promise((resolve, reject) => {
+        // 1. Create the connection
+        const socket = new WebSocket(`ws://${ip_address}:${port}/job/compute`);
+
+        // 2. Handle connection open
+        socket.onopen = () => {
+          // Update the UI when the server responds
+          const msg = {projpath:obj.projpath,dirname:obj.path,jobname:obj.job};
+          console.info(msg, JSON.stringify(msg));
+          const form = localStorage.getItem(obj.nodetype);
+          // console.log("TESSSSSSSTTTTTTTTTTT", form);
+          const s = {"request" : JSON.stringify(msg), "data": form}
+          socket.send(JSON.stringify(s));
+        };
+
+        // 3. Handle the result
+        socket.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            console.log(msg);
+
+        };
+
+        // Handle errors
+        socket.onerror = (error) => reject(error);
+    });
+}
+
 async function fetchParticleStream() {
     const response = await fetch('http://localhost:8000/stream-particles');
     
