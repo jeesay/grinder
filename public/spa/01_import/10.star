@@ -40,17 +40,18 @@ _indata.label
 _indata.icon
 _indata.widget
 _indata.default
+_indata.state
 _indata.help
-nod>dtype          'Choose Data Type'   ?                 select ?                                          ?
-nod::dtyp_choose   'Choose a file type' bi-file           option "Choose_File_Type"                         ?
-nod::dtyp_movies   'Movies'             bi-film           option "MicrographMovieGroupMetadata.star.relion" ?
-nod::dtyp_mics     'Micrographs'        bi-images         option "MicrographGroupMetadata.star.relion"      ?
-nod::dtyp_coords   'Coordinates'        bi-dice-5         option "MicrographCoordsGroup.star.relion"        ?
-nod::dtyp_parts    'Particles (*.star)' bi-star           option "ParticleGroupMetadata.star.relion"        ?
-nod::dtyp_2dimg    '2D/3D References'   bi-transparency   option "Image2DGroupMetadata.star.relion"         ?
-nod::dtyp_map      'Density Map'        bi-box            option "DensityMap.mrc"                           ?
-nod::dtyp_mask     'Mask'               bi-mask           option "Mask3D.mrc"                               ?
-nod::dtyp_halfmap  'Half-map(s)'        bi-building-add   option "DensityMap.mrc.halfmap"                   ?
+nod>dtype          'Choose Data Type'   ?                 select ?                                          super ?
+nod::dtyp_choose   'Choose a file type' bi-file           option "Choose_File_Type"                         ?     ?
+nod::dtyp_movies   'Movies'             bi-film           option "MicrographMovieGroupMetadata.star.relion" ?     ?
+nod::dtyp_mics     'Micrographs'        bi-images         option "MicrographGroupMetadata.star.relion"      ?     ?
+nod::dtyp_coords   'Coordinates'        bi-dice-5         option "MicrographCoordsGroup.star.relion"        ?     ?
+nod::dtyp_parts    'Particles (*.star)' bi-star           option "ParticleGroupMetadata.star.relion"        ?     ?
+nod::dtyp_2dimg    '2D/3D References'   bi-transparency   option "Image2DGroupMetadata.star.relion"         ?     ?
+nod::dtyp_map      'Density Map'        bi-box            option "DensityMap.mrc"                           ?     ?
+nod::dtyp_mask     'Mask'               bi-mask           option "Mask3D.mrc"                               ?     ?
+nod::dtyp_halfmap  'Half-map(s)'        bi-building-add   option "DensityMap.mrc.halfmap"                   ?     ?
 #
 loop_
 _moviedata.id
@@ -119,7 +120,7 @@ _halfmapdata.label
 _halfmapdata.icon
 _halfmapdata.widget
 _halfmapdata.help
-halfmap_indata      "Half-maps"       bi-box-arrow-in-down fieldset "Import Movies"
+halfmap_indata      "Half-maps"       bi-box-arrow-in-down fieldset "Import Half-Maps"
 #
 loop_
 _mov_indata.id
@@ -134,29 +135,29 @@ _mov_indata.help
 dir_in_raw       "Raw input directory:"     string       /path/of/movies/ ?  "."             "?"             required        
 ; Copy and paste the directory of your raw data. It is best if you set the absolute path rather than the relative one.
 In contrary of RELION, the symbolic links will be generated and the output directory will be PROJECT_DIR/Movies/. 
-All the imported files will be renamed as <prefix>0001.ext.
+All the imported files will be renamed as <prefix>0001.extension.
 ;
 pattern_in         "Common Pattern"            string    movie ? ? ? ? 
-; Common pattern to all the input files. All the files corresponding to the regular expression `*pattern*.ext` will be searched.
-Be careful when using extra regular expression.
+; Common pattern to all the input files. All the files corresponding to the regular expression `*pattern*.extension` 
+will be searched. Be careful when using extra regular expression.
 ;
-img_ext           "Input Image Extension"       select ?          ? ? ? ? ?
-img_ext::mrc      "mrc"                         option    "mrc"      ? ? ? ? ?
-img_ext::mrcs     "mrcs"                        option    "mrcs"     ? ? ? ? ?
-img_ext::tif      "tif"                         option    "tif"      ? ? ? ? ?
-img_ext::tiff     "tiff"                        option    "tiff"     ? ? ? ? ?
-img_ext::eer      "eer"                         option    "eer"      ? ? ? ? ?
-img_ext::mrc.bz2  "mrc.bz2"                     option    "mrc.bz2"  ? ? ? ? ?
-img_ext::mrcs.bz2 "mrcs.bz2"                    option    "mrcs.bz2" ? ? ? ? ?
-img_ext::mrc.zst  "mrc.zst"                     option    "mrc.zst"  ? ? ? ? ?
-img_ext::mrcs.zst "mrcs.zst"                    option    "mrcs.zst" ? ? ? ? ?
-img_ext::mrc.xz   "mrc.xz"                      option    "mrc.xz"   ? ? ? ? ?
-img_ext::mrcs.xz  "mrcs.xz"                     option    "mrcs.xz"  ? ? ? ? ?
-keep_name         "Keep the original filenames" bool      False       ? ? ? ? 
+img_ext-1           "Input Image Extension"       select ?          ? ? ? ? ?
+img_ext-1::mrc      "mrc"                         option    "mrc"      ? ? ? ? ?
+img_ext-1::mrcs     "mrcs"                        option    "mrcs"     ? ? ? ? ?
+img_ext-1::tif      "tif"                         option    "tif"      ? ? ? ? ?
+img_ext-1::tiff     "tiff"                        option    "tiff"     ? ? ? ? ?
+img_ext-1::eer      "eer"                         option    "eer"      ? ? ? ? ?
+img_ext-1::mrc.bz2  "mrc.bz2"                     option    "mrc.bz2"  ? ? ? ? ?
+img_ext-1::mrcs.bz2 "mrcs.bz2"                    option    "mrcs.bz2" ? ? ? ? ?
+img_ext-1::mrc.zst  "mrc.zst"                     option    "mrc.zst"  ? ? ? ? ?
+img_ext-1::mrcs.zst "mrcs.zst"                    option    "mrcs.zst" ? ? ? ? ?
+img_ext-1::mrc.xz   "mrc.xz"                      option    "mrc.xz"   ? ? ? ? ?
+img_ext-1::mrcs.xz  "mrcs.xz"                     option    "mrcs.xz"  ? ? ? ? ?
+keep_name         "Keep the original filenames" bool      False      ? ? ? ? 
 ; By default, the output files are renamed `prefix000001.ext`, `prefix000002.ext`, etc. where `ext` is the image extension.
 ;
 pattern_out       "Output Prefix"               string    mov         ? ? ? ? "Common pattern to all the imported output files"
-outnode           "Output Generated File"       string_ro movies.star ? ? ? ? ?
+outfile           "Output Generated File"       string_ro movies.star ? ? ? hidden ?
 #
 loop_
 _mov_opticsgroup.id
@@ -199,6 +200,83 @@ beamtilt_y           "Beamtilt in Y (mrad):"             range      0.0         
 ;
 #
 loop_
+_mic_indata.id
+_mic_indata.label
+_mic_indata.widget
+_mic_indata.default  # None
+_mic_indata.arg0     # Filter
+_mic_indata.arg1     # Placeholder
+_mic_indata.arg2     # Node Type
+_mic_indata.state
+_mic_indata.help
+dir_in_raw       "Raw input directory:"     string       /path/of/micrographs/ ?  "."             "?"             required        
+; Copy and paste the directory of your raw data. It is best if you set the absolute path rather than the relative one.
+In contrary of RELION, the symbolic links will be generated and the output directory will be PROJECT_DIR/Movies/. 
+All the imported files will be renamed as <prefix>0001.extension.
+;
+pattern_in         "Common Pattern"            string    mic ? ? ? ? 
+; Common pattern to all the input files. All the files corresponding to the regular expression `*pattern*.extension` 
+will be searched. Be careful when using extra regular expression.
+;
+img_ext-2           "Input Image Extension"       select ?          ? ? ? ? ?
+img_ext-2::mrc      "mrc"                         option    "mrc"      ? ? ? ? ?
+img_ext-2::mrcs     "mrcs"                        option    "mrcs"     ? ? ? ? ?
+img_ext-2::tif      "tif"                         option    "tif"      ? ? ? ? ?
+img_ext-2::tiff     "tiff"                        option    "tiff"     ? ? ? ? ?
+img_ext-2::eer      "eer"                         option    "eer"      ? ? ? ? ?
+img_ext-2::mrc.bz2  "mrc.bz2"                     option    "mrc.bz2"  ? ? ? ? ?
+img_ext-2::mrcs.bz2 "mrcs.bz2"                    option    "mrcs.bz2" ? ? ? ? ?
+img_ext-2::mrc.zst  "mrc.zst"                     option    "mrc.zst"  ? ? ? ? ?
+img_ext-2::mrcs.zst "mrcs.zst"                    option    "mrcs.zst" ? ? ? ? ?
+img_ext-2::mrc.xz   "mrc.xz"                      option    "mrc.xz"   ? ? ? ? ?
+img_ext-2::mrcs.xz  "mrcs.xz"                     option    "mrcs.xz"  ? ? ? ? ?
+keep_name         "Keep the original filenames" bool      False      ? ? ? ? 
+; By default, the output files are renamed `prefix000001.ext`, `prefix000002.ext`, etc. where `ext` is the image extension.
+;
+pattern_out       "Output Prefix"               string    mic         ? ? ? ? "Common pattern to all the imported output files"
+outfile           "Output Generated File"       string_ro micrographs.star ? ? ? hidden ?
+#
+#
+loop_
+_mic_opticsgroup.id
+_mic_opticsgroup.label
+_mic_opticsgroup.widget
+_mic_opticsgroup.default
+_mic_opticsgroup.arg0
+_mic_opticsgroup.arg1
+_mic_opticsgroup.arg2
+_mic_opticsgroup.state
+_mic_opticsgroup.help
+optics_group_name    "Optics group name:"                string     opticsGroup1    "?"             "?"             "?"     required               
+; Name of this optics group.
+Each group of movies/micrographs with different optics characteristics for CTF refinement should have a unique name.
+;
+fn_mtf               "MTF of the detector:"              file       ?               "STAR Files (*.star)" "."             "?"             ?               
+; As of release-3.1, the MTF of the detector is used in the refinement stages of refinement.If you know the MTF of your detector, provide it here.
+Curves for some well-known detectors may be downloaded from the RELION Wiki. Also see there for the exact format 
+If you do not know the MTF of your detector and do not want to measure it, then by leaving this entry empty, you include the MTF of your detector 
+in your overall estimated B-factor upon sharpening the map. Although that is probably slightly less accurate, the overall quality of your map will 
+probably not suffer very much.
+
+Note that when combining data from different detectors, the differences between their MTFs can no longer be absorbed in a single B-factor, and 
+providing the MTF here is important!
+;
+angpix               "Pixel size (Angstrom):"            range      1.4             0.5             3               0.1     ?   "Pixel size in Angstroms."
+kV                   "Voltage (kV):"                     range      300              50           500                10     ?   "Voltage the microscope was operated on (in kV)"
+Cs                   "Spherical aberration (mm):"        range      2.7               0             8               0.1     ?
+; Spherical aberration of the microscope used to collect these images (in mm). Typical values are 2.7 (FEI Titan & Talos, most JEOL CRYO-ARM), 
+2.0 (FEI Polara), 1.4 (some JEOL CRYO-ARM) and 0.01 (microscopes with a Cs corrector).
+;
+Q0                   "Amplitude contrast:"               range      0.1               0           0.3              0.01     ?
+; Fraction of amplitude contrast. Often values around 10% work better than theoretically more accurate lower values...
+;
+beamtilt_x           "Beamtilt in X (mrad):"             range      0.0             -1.0            1.0             0.1     ?               
+; Known beamtilt in the X-direction (in mrad).Set to zero if unknown.
+;
+beamtilt_y           "Beamtilt in Y (mrad):"             range      0.0             -1.0            1.0             0.1      ?               
+; Known beamtilt in the Y-direction (in mrad). Set to zero if unknown.
+;
+loop_
 _box_indata.id
 _box_indata.label
 _box_indata.widget
@@ -208,28 +286,42 @@ _box_indata.arg1
 _box_indata.arg2
 _box_indata.state
 _box_indata.help
-ptcls_fn_in_raw     "Particles Directory" string "/path/of/particles_box/" ? ? ? ? "Copy and paste the input file path"
+dir_in_raw     "Particles Directory" string "/path/of/particles_box/" ? ? ? ? "Copy and paste the input file path"
+#
+#
+loop_
+_mask_indata.id
+_mask_indata.label
+_mask_indata.widget
+_mask_indata.default
+_mask_indata.arg0
+_mask_indata.arg1
+_mask_indata.arg2
+_mask_indata.state
+_mask_indata.help
+fn_in_raw     "Input File" file "XFiles/mask_file.mrc" ? ? ? ? "Browse or copy and paste the absolute input file path"
 #
 #
 loop_
 _grr_import_prgm.type
 _grr_import_prgm.arg
 _grr_import_prgm.param_id
-prog    "grinder import"         ?      
-param   "--type"                 nod
-param   --path                   dir_in_raw
-param   --pattern                pattern_in   
-param   --extension              img_ext
-param   --keep                   keep_name
-param   --prefix                 pattern_out        
-param   --odir                   Import/${RELION_NEW_JOB}/ 
-param   --ofile                  outnode
-param   --optics_group_mtf       fn_mtf
-param   --optics_group_name      optics_group_name
-param   --angpix                 angpix
-param   --kV                     kV
-param   --Cs                     Cs
-param   --Q0                     Q0
-param   --beamtilt_x             beamtilt_x
-param   --beamtilt_y             beamtilt_y
-param   --pipeline-control       Import/${RELION_NEW_JOB}/ 
+prog    "grinder import"                                ?      
+param   --nodetype                                          nod
+param   --i                                             fn_in_raw
+param   --path                                          dir_in_raw
+param   --pattern                                       pattern_in   
+param   --extension                                     img_ext
+flag    --keep                                          keep_name
+param   --prefix                                        pattern_out        
+flag    "--odir Import/${RELION_NEW_JOB}/"              odir                
+param   --ofile                                         outfile
+param   --optics_group_mtf                              fn_mtf
+param   --optics_group_name                             optics_group_name
+param   --angpix                                        angpix
+param   --kV                                            kV
+param   --Cs                                            Cs
+param   --Q0                                            Q0
+param   --beamtilt_x                                    beamtilt_x
+param   --beamtilt_y                                    beamtilt_y
+flag    "--pipeline-control Import/${RELION_NEW_JOB}/"  pipeline

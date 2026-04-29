@@ -21,9 +21,14 @@ _rln_import.proc_id
 _rln_import.proc_label
 _rln_import.filename
 _rln_import.help   
-import_mov        'Import movies'        tool   0       relion.import.movies                01.star   'Import Micrographs or Movies'                           
-import_ptcls      'Import particles'     tool   0       relion.import.other.particles       02.star   'Import Particles'                                        
-import_other      'Import other files'   tool   0       relion.import.other                 03.star   'Import Other Files'              
+import_mov      'Movies'                 tool   0  relion.import.movies           01.star   'Import Movies'
+import_mics     'Micrographs'            tool   0  relion.import.mics             02.star   'Import Micrographs'
+import_coords   'Coordinates'            tool   0  relion.import.other.box        03.star   'Import Coordinates (*.box,etc.)'
+import_parts    'Particles (*.star)'     tool   0  relion.import.other.parts      04.star   'Import Particles as STAR file'  
+import_2dimg    '2D/3D References'       tool   0  relion.import.other.refs       05.star   'Import 2D/3D References'  
+import_map      'Density Map'            tool   0  relion.import.other.map        06.star   'Import Density Map'       
+import_mask     'Mask'                   tool   0  relion.import.other.mask       07.star   'Import Mask'           
+import_halfmap  'Half-map(s)'            tool   0  relion.import.other.halfmap    08.star   'Import Half-maps'                                        
 # Submenu
 loop_
 _grr_import.id
@@ -33,6 +38,6 @@ _grr_import.proc_id
 _grr_import.proc_label
 _grr_import.filename
 _grr_import.help   
-grr_import_all        'Import...'        tool   0       grinder.import.relion                04.star   'Import Micrographs or Movies'                           
+grr_import_all        'Import...'        tool   0       grinder.import.relion      10.star   'Import File(s) for RELION'                           
 
 

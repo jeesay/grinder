@@ -41,8 +41,14 @@
     <div class="project-name">
       <ul>
         <li><a id="connect" href="#"><i class="nav-icon bi bi-wifi-off"></i><span>Unconnected</span></a></li>
-        <li id="project_id"><a href="#"><i class="nav-icon bi bi-building-gear" title="Project Name"></i><span>Project</span></a></li>
-        <li id="branch_id">
+        <li id="project_id"><a href="#"><i class="nav-icon bi bi-building-gear" title="Project Name"></i><span>No Project</span></a></li>
+        <li id="branch_id"><a href="#">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M11.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5zm-2.25.75a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.492 2.492 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25zM4.25 12a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5zM3.5 3.25a.75.75 0 1 0 1.5 0 .75.75 0 0 0-1.5 0z"></path>
+          </svg>
+          <span>No Branch</span></a>
+        </li>
+<!--
           <div class="dropdown">
             <button class="btn-branch">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -69,22 +75,25 @@
               </div>
             </div>
           </div>
+-->
 <!-- i class="nav-icon bi bi-usb-symbol" title="Current Branch"></i><span>master</span></a -->
-        </li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-gear" title="Current Job"></i><span>Job</span></a></li>
+
+        <li id="job_id"><a href="#"><i class="nav-icon bi bi-gear" title="Current Job"></i><span>No Job</span></a></li>
       </ul>
     </div>
     <div class="actions">
       <ul>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-send" title="Run Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-sign-stop" title="Stop Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-arrow-repeat" title="Continue Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-clock" title="Schedule Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-copy" title="Duplicate Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-pencil-square" title="Overwrite Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-trash" title="Remove Job"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-person-walking" title="Running"></i></a></li>
-        <li id="job_id"><a href="#"><i class="nav-icon bi bi-person-standing"  title="Pending"></i></a></li>
+        <li id="job_run" class="job_action hidden"><a href="#"><i class="nav-icon bi bi-send" title="Run Job"></i></a></li>
+        <li id="job_stop" class="job_action hidden"><a href="#"><i class="nav-icon bi bi-sign-stop" title="Stop Job"></i></a></li>
+        <li id="job_cont" class="job_action hidden"><a href="#"><i class="nav-icon bi bi-arrow-repeat" title="Continue Job"></i></a></li>
+        <li id="job_schd" class="job_action hidden"><a href="#"><i class="nav-icon bi bi-clock" title="Schedule Job"></i></a></li>
+        <li id="job_dupl" class="job_action hidden"><a href="#"><i class="nav-icon bi bi-copy" title="Duplicate Job"></i></a></li>
+        <li id="job_mod" class="job_action hidden"><a href="#"><i class="nav-icon bi bi-pencil-square" title="Overwrite Job"></i></a></li>
+        <li id="job_rm" class="job_action hidden"><a href="#"><i class="nav-icon bi bi-trash" title="Remove Job"></i></a></li>
+        <li id="job_lock" class="status hidden"><a href="#"><i class="nav-icon bi bi-lock-fill" title="Lock"></i></a></li>
+        <li id="job_running" class="status hidden"><a href="#"><i class="nav-icon bi bi-person-walking" title="Running"></i></a></li>
+        <li id="job_pending" class="status hidden"><a href="#"><i class="nav-icon bi bi-person-standing"  title="Pending"></i></a></li>
+        <li id="job_none" class="status"><a href="#"><i class="nav-icon bi bi-wifi-off"  title="No project"></i></a></li>
       </ul>
     </div>
           <!--
@@ -168,6 +177,7 @@
 
   </div>
   <footer>
+    <p>Grinder version 0.2</p>
   </footer>
 
 <!-- File Chooser   -->
@@ -205,7 +215,24 @@
     </div>
   </dialog>
 
-  <!--Popup -->
+  <!-- Alert, browser, Popup, etc. -->
+  <dialog id="gdrAlert">
+    <div class="dialog-header">
+      <span><i class="bi bi-exclamation-triangle"></i> Attention</span>
+      <button class="close-icon-btn" onclick="document.getElementById('gdrAlert').close()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <div class="dialog-body">
+      <p>No message</p>
+    </div>
+
+    <div class="dialog-footer">
+      <button class="btn-primary" onclick="document.getElementById('gdrAlert').close()">OK</button>
+    </div>
+  </dialog>
+
   <dialog id= "popup" class="popup">
       <div class="header">
       <nav>
@@ -222,8 +249,7 @@
     <span class="loader"></span>
 </div>
 <script type="module">
-  import {GRINDER,buildSidebar} from "./src/main.js";
-  import {w_tab_tools} from "./src/widget.js";
+  import {buildSidebar} from "./src/job.js";
   import {filterFiles,togglePopup,handleOpen} from "./src/browse.js";
   
  
@@ -233,28 +259,6 @@
 
   // section.querySelector('li#home').checked = true; // First child
   // Add events
-/*
-    document.querySelectorAll('aside.tools ul li')
-      .forEach( (w,i) => {
-        if (i !== 0) {
-          w.addEventListener('click', (ev) => {
-            // Reset
-            document.querySelectorAll('aside.tools ul li').forEach(ww => ww.classList.remove("active"));
-            document.querySelectorAll('section').forEach(ww => ww.style.display = 'none');
-            w.classList.add("active");
-            // Section
-            document.querySelector('main').innerHTML = '';
-            // w_tab_tools(document.querySelector('main'),widgets[i]);
-            const section = document.querySelector('section');
-            const child = document.querySelector(`section#${w.dataset.tool_id}`);
-            // Reset display
-            section.style.display = 'block';
-            section.querySelector('input').checked = true; // First child
-          });
-        }
-      }
-    );
-*/
 
   // Initial call within renderFileList to show folder count even if no file is selected
   // updateFooterStatus(data);
@@ -287,7 +291,6 @@
     }
   }
 
-
   function toggleDropdown() {
     document.getElementById("branchDropdown").classList.toggle("show");
   }
@@ -309,7 +312,7 @@
   }
 
   /************* HOMEPAGE *************/
-   document.querySelector('#home .nav-text').click();
+  document.querySelector('#home .nav-text').click();
 
 </script>
 
