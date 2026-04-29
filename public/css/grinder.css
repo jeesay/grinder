@@ -437,11 +437,17 @@ details[open] summary::before {
 }
 
 .row blockquote {
-  border-left: solid 4px #007bff;
+  border-left: solid 8px #007bff;
+  box-shadow: inset 2px 0 0 0 white;
   background-color: #c7dbf0;
   margin: 10px 0;
   padding: 4px 10px;
 }
+
+.row blockquote p {
+  margin: 4px 0px;
+}
+
 /* Menubar 
 
 @media screen and (min-width: 650px) {

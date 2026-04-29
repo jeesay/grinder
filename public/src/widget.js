@@ -104,7 +104,7 @@ const w_button = (desc) => {
           )
         ]
       ),
-      h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+      h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
     ]
   );
 }
@@ -292,7 +292,7 @@ const w_file = (desc) => {
           )
         ]
       ),
-      h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+      h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
     ]
   );
 }
@@ -324,7 +324,7 @@ const w_string = (desc) => h('div.row',
         )
       ]
     ),
-    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
   ]
 );
 
@@ -356,7 +356,7 @@ const w_string_ro = (desc) => h('div.row',
         )
       ]
     ),
-    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
   ]
 );
 
@@ -424,7 +424,7 @@ const w_int = (desc) => h('div.row',
         )
       ]
     ),
-    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
   ]
 );
 
@@ -576,7 +576,7 @@ const w_range = (desc) => h('div.row',
         )
       ]
     ),
-    h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
   ]
 );
 
@@ -609,7 +609,7 @@ const w_bool = (desc) => h('div.row',
         )
       ]
     ),
-    h(`blockquote#${desc.id}-help.help.hidden`,desc.help.replace('\n','<br>'))
+    h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
   ]
 );
 
@@ -795,7 +795,7 @@ const w_select = (desc) => {
           ])
         ]
       ),
-      h(`blockquote#${desc.id}-help.help.hidden`,desc.help)
+      h(`blockquote#${desc.id}-help.help.hidden`,desc.help.split('\n\n').map(p => h('p',p)))
     ]
   );
 }
