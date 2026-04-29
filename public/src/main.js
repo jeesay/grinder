@@ -269,12 +269,8 @@ export  const connect_to_ws_server = async () => {
 
         // 2. Handle connection open
         socket.onopen = () => {
-          // Update the UI when the server responds
-            w_alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`,'success');
-            document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
-            document.getElementById('connect').style.color = 'lightgreen';
-            document.getElementById('connect').dataset.ip = ip_address;
-            document.getElementById('connect').dataset.port = port;
+          // Do nothing
+          socket.send('welcome');
         };
 
         // 3. Handle the result
@@ -283,6 +279,13 @@ export  const connect_to_ws_server = async () => {
             socket.close(); // Close connection after getting the data
             const info = {ip:ip_address,port: port, connected: true};
             localStorage.setItem('connection',JSON.stringify(info));
+            // Update the UI when the server responds
+            w_alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`,'success');
+
+            document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
+            document.getElementById('connect').style.color = 'lightgreen';
+            document.getElementById('connect').dataset.ip = info.ip;
+            document.getElementById('connect').dataset.port = info.port;
             resolve(data);
         };
 
@@ -326,7 +329,10 @@ export  const load_project = async (project_path) => {
         };
 
         // 4. Handle errors
-        socket.onerror = (error) => reject(error);
+        socket.onerror = (error) => {
+          w_alert(`[Close] Connection failed with server ws://${ip_address}:${port}/project`,'error');
+          reject(error);
+        }
     });
 }
 
@@ -356,8 +362,13 @@ export  const read_job = async (obj) => {
         // 3. Handle the result
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            socket.close(); // Close connection after getting the data
             console.log(data);
             const nodetype = data.params_head.rlnJobTypeLabel;
+            // Step #0 - Update toolbar
+            const jb = document.getElementById('job_id');
+            jb.dataset.nodetype = nodetype;
+            document.querySelector('#tag_id span').textContent = nodetype;
             // Step #1 - Update: get gui from obj.nodetype
             const ui = JSON.parse(localStorage.getItem(nodetype));
             const widgets = build_widget_tree(ui.datablocks.default, {children: []});
@@ -372,11 +383,14 @@ export  const read_job = async (obj) => {
             // Step #2 - Fill Log Tab
             document.querySelector('#Log.tab .tab-content').innerHTML = '';
             document.querySelector('#Log.tab .tab-content').appendChild(h('pre',data.log));
-            socket.close(); // Close connection after getting the data
+
             resolve(data);
           };
         // 4. Handle errors
-        socket.onerror = (error) => reject(error);
+        socket.onerror = (error) => {
+          w_alert(`[Close] Connection failed with server ws://${ip_address}:${port}/job/read`,'error');
+          reject(error);
+        }
     });
 }
 
@@ -458,7 +472,10 @@ export  const read_data = async (obj) => {
         };
 
         // Handle errors
-        socket.onerror = (error) => reject(error);
+        socket.onerror = (error) => {
+          w_alert(`[Close] Connection failed with server ws://${ip_address}:${port}/job/data`,'error');
+          reject(error);
+        }
     });
 }
 

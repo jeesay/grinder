@@ -36,12 +36,11 @@ _indata.arg1
 _indata.arg2
 _indata.constraint
 _indata.help
-fn_img               "Input images STAR file:"           file       ?               "ParticleGroupMetadata.star.relion" 1               "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" required        
+fn_img               "Input images STAR file:"           file       ?               "ParticleGroupMetadata.star.relion" 1               "STAR files (*.star)" required        
 ; A STAR file with all images (and their metadata).
 
- 
- Alternatively, you may give a Spider/MRC stack of 2D images, but in that case NO metadata can be included and thus NO CTF correction can be performed, nor will it be possible to perform noise spectra estimation or intensity scale corrections in image groups.
-Therefore, running RELION with an input stack will in general provide sub-optimal results and is therefore not recommended!! Use the Preprocessingrh.PROCedure to get the input STAR file in a semi-automated manner.
+Alternatively, you may give a Spider/MRC stack of 2D images, but in that case NO metadata can be included and thus NO CTF correction can be performed, nor will it be possible to perform noise spectra estimation or intensity scale corrections in image groups.
+Therefore, running RELION with an input stack will in general provide sub-optimal results and is therefore not recommended!! Use the Preprocessing procedure to get the input STAR file in a semi-automated manner.
 Read the RELION wiki for more information.
 ;
 #
@@ -115,7 +114,7 @@ params_01            "Parameters"                             bi-chat-right-text
 dont_skip_align      "Perform image alignment?"               bi-chat-right-text   switch     ?          show       ?
 diskio               "Disk Access"                            bi-database-fill     fieldset   ?          show       ?
 use_gpu              "GPU"                                    bi-gpu-card          switch     ?          show       ?
-parallel_computing   "Parallel Computing"                     bi-chat-right-text   fieldset   ?          show       ?
+parallel_computing   "Parallel Computing"                     bi-lightning         fieldset   ?          show       ?
 #
 loop_
 _do_ctf_correction.id
@@ -268,7 +267,7 @@ NFS may break with many followers reading in parallel.
 If your datasets contain particles with different box sizes, you have to say Yes.
 ;
 nr_pool              "Number of pooled particles:"       range      3               1               16              1               ?               
-; Particles arerh.PROCessed in individual batches by MPI followers.
+; Particles are processed in individual batches by MPI followers.
 During each batch, a stack of particle images is only opened and closed once to improve disk access times.
 All particle images of a single batch are read into memory together.
 The size of these batches is at least one particle per thread used.
@@ -292,7 +291,7 @@ scratch_dir          "Copy particles to scratch directory:" string     RELION_SC
 If that relion_volatile directory already exists, it will be wiped.
 Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory.
 Provided this directory is on a fast local drive (e.g.
-an SSD drive),rh.PROCessing in all the iterations will be faster.
+an SSD drive), processing in all the iterations will be faster.
 If the job finishes correctly, the relion_volatile directory will be wiped.
 If the job crashes, you may want to remove it yourself.
 ;

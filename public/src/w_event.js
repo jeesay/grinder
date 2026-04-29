@@ -34,18 +34,12 @@ function table_cell(ev) {
 const _set_project = async (ev) => {
   console.log(ev.target.value,ev.target.dataset);
   const project_path = ev.target.value;
-  if (project_path === 'RELION_NEW_PROJECT') {
-    const target = ev.target.dataset.dispatch;
-    document.querySelector(`#${target} > fieldset[value=${project_path}]`).classList.toggle('hidden');
-  }
-  else {
-    document.getElementById('connect').dataset.projpath = project_path;
-    console.log('LOAD',project_path);
-    spin();
-    const data_proj = await load_project(project_path);
-    spin();
-    update_right_sidebar(project_path,data_proj);
-  }
+  document.getElementById('connect').dataset.projpath = project_path;
+  console.log('LOAD',project_path);
+  spin();
+  const data_proj = await load_project(project_path);
+  spin();
+  update_right_sidebar(project_path,data_proj);
 }
 
 // In `grinder.home`, button `Connect`
