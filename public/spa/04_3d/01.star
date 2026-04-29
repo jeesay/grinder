@@ -5,12 +5,13 @@ _inimodel.id
 _inimodel.label
 _inimodel.icon
 _inimodel.widget
-_inimodel.value
+_inimodel.state
 _inimodel.help
-io                   "I/O"                      bi-arrow-down-up    tab              ?        ?
-settings             "Settings"                bi-tools             tab              ?        ?
-log                  "Log"                     bi-binoculars-fill   tab              ?        ?
-dataviz              "DataViz"                 bi-eye               tab              ?        ?
+cont                 "Continue"                bi-repeat            tab      hidden   ?
+io                   "I/O"                     bi-arrow-down-up     tab      ?        ?
+settings             "Settings"                bi-tools             tab      ?        ?
+log                  "Log"                     bi-binoculars-fill   tab      ?        ?
+dataviz              "DataViz"                 bi-eye               tab      ?        ?
 #
 loop_
 _io.id
@@ -24,7 +25,7 @@ indata               "Input Data"                             bi-box-arrow-in-do
 outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          hidden     ?
 nodes                "Nodes"                                  bi-controller        fieldset   ?          hidden     ?
 system               "System"                                 bi-incognito         fieldset   ?          hiddden    ?
-inimodel_cmd         "Check command"                          bi-chat-right-text   cli        ?          show       ?
+gdr_abinitio_prgm    "Check Command"                          bi-chat-right-text   cli        ?          show       ?
 #
 loop_
 _indata.id
@@ -36,7 +37,7 @@ _indata.arg1
 _indata.arg2
 _indata.constraint
 _indata.help
-fn_img               "Input images STAR file:"           file       ?               "ParticleGroupMetadata.star.relion" 1               "STAR files (*.star) 	 Image stacks (not recommended, read help!) (*.{spi,mrcs})" required        
+fn_img               "Input images STAR file:"           file       ?               "ParticleGroupMetadata.star.relion" 1               "STAR files (*.star)" required        
 ; A STAR file with all images (and their metadata).
 In Gradient optimisation, it is very important that there are particles from enough different orientations.
 One only needs a few thousand to 10k particles.
@@ -79,17 +80,6 @@ _system.arg1
 _system.arg2
 _system.constraint
 _system.help
-#
-loop_
-_inimodel_cmd.id
-_inimodel_cmd.label
-_inimodel_cmd.widget
-_inimodel_cmd.default
-_inimodel_cmd.arg0
-_inimodel_cmd.arg1
-_inimodel_cmd.arg2
-_inimodel_cmd.constraint
-_inimodel_cmd.help
 #
 loop_
 _settings.id
@@ -296,4 +286,39 @@ _dataviz.widget
 _dataviz.value
 _dataviz.display
 _dataviz.help
+#
+loop_
+_gdr_abinitio_prgm.type
+_gdr_abinitio_prgm.arg
+_gdr_abinitio_prgm.param_id
+prog    "grinder abinitio"                   ?
+param   --continue                           fn_cont
+param   --o                                  "InitialModel/${RELION_NEW_JOB}/initial_model.mrc"
+param   -iter                                nr_iter
+param   "--grad --denovo_3dref"              ""
+param   --sigma_tilt                         sigma_tilt
+param   --i                                  fn_img
+flag    --ctf                                do_ctf_correction
+param   --K                                  nr_classes
+flag    "--sym C1"                           do_run_C1==True
+flag    "--sym  ${fn_sym}"                   do_run_C1==False
+flag    --flatten_solvent                    do_solvent==True
+param   --zero_mask                          zero_mask
+flag    --dont_combine_weights_via_disc      do_combine_thru_disc==False
+flag    --no_parallel_disc_io                do_parallel_discio==False
+flag    --preread_images                     do_preread_images==True
+flag    --scratch_dir                        "${RELION_SCRATCH_DIR}"
+param   --pool                               nr_pool
+param   --pad                                1
+param   --particle_diameter                  particle_diameter
+param   --oversampling                       1                         
+param   --healpix_order                      1  
+param   --offset_range                       6  
+param   --offset_step                        2 
+param   --auto_sampling                      ""
+param   --tau2_fudge                         tau_fudge
+param   --j                                  nr_threads
+param   "--gpu ${gpu_ids}"                   use_gpu==True
+param   "${other_args}"                      ""
+param   --pipeline-control                   "InitialModel/${RELION_NEW_JOB}/
 #

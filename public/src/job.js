@@ -296,8 +296,7 @@ export const buildSidebar = async filename => {
         parent.addEventListener('click', (ev) => {
             console.log('CLICK',ev.target);
             const ui = ev.target.parentElement.dataset.proclabel;
-            console.info('BUILD TABS',ui);                      
-            console.info('BUILD TABS',localStorage.getItem(ui));
+            console.info('BUILD TABS',ui,localStorage.getItem(ui));
             const db = JSON.parse(localStorage.getItem(ui));
             const widgets = build_widget_tree(db.datablocks.default,{children:[]});
             // Section
