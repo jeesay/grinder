@@ -269,8 +269,9 @@ export  const connect_to_ws_server = async () => {
 
         // 2. Handle connection open
         socket.onopen = () => {
-          // Do nothing
-          socket.send('welcome');
+            // Do nothing
+            socket.send('welcome');
+            w_alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`,'success');
         };
 
         // 3. Handle the result
@@ -280,7 +281,7 @@ export  const connect_to_ws_server = async () => {
             const info = {ip:ip_address,port: port, connected: true};
             localStorage.setItem('connection',JSON.stringify(info));
             // Update the UI when the server responds
-            w_alert(`[Open] Connection established with server ws://${ip_address}:${port}/welcome`,'success');
+
 
             document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
             document.getElementById('connect').style.color = 'lightgreen';
@@ -362,7 +363,7 @@ export  const read_job = async (obj) => {
         // 3. Handle the result
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            socket.close(); // Close connection after getting the data
+
             console.log(data);
             const nodetype = data.params_head.rlnJobTypeLabel;
             // Step #0 - Update toolbar
@@ -383,8 +384,22 @@ export  const read_job = async (obj) => {
             // Step #2 - Fill Log Tab
             document.querySelector('#Log.tab .tab-content').innerHTML = '';
             document.querySelector('#Log.tab .tab-content').appendChild(h('pre',data.log));
+            // Step #3 - Fill all the widgets with the job values
+            const RLN_VAR = data.params.columns.indexOf('rlnJobOptionVariable');
+            const RLN_VAL = data.params.columns.indexOf('rlnJobOptionValue');
+            [...document.querySelectorAll('.param')].forEach((w) => {
+              const key = w.dataset.param;
+              const row = data.params.data.filter( r => r[RLN_VAR] === key)[0];
+              if (w.type === 'checkbox') {
+                w.checked = (row[RLN_VAL] === 'Yes') ? true : false;
+              }
+              else {
+                w.value = row[RLN_VAL];
+              }
 
+            });
             resolve(data);
+            socket.close(); // Close connection after getting the data
           };
         // 4. Handle errors
         socket.onerror = (error) => {
