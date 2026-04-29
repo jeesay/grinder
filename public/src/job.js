@@ -345,7 +345,7 @@ export const update_right_sidebar = (project_path,data_proj) => {
       jb.dataset.projpath = projpath; 
       jb.dataset.path = path;
       jb.dataset.job = job;
-      jb.dataset.nodetype = nodetype;
+      jb.dataset.nodetype = nodetype; // TODO: Here is the label from RELION but not from GRINDER
       document.querySelector('#job_id span').textContent = `${path}/${job}`;
       update_job_toolbar('read_job');
       return read_job({projpath,path,job});
