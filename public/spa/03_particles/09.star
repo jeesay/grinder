@@ -89,17 +89,6 @@ If set to No, then the slower EM algorithm needs to be used.
 ;
 #
 loop_
-_class2d_vdam_cmd.id
-_class2d_vdam_cmd.label
-_class2d_vdam_cmd.widget
-_class2d_vdam_cmd.default
-_class2d_vdam_cmd.arg0
-_class2d_vdam_cmd.arg1
-_class2d_vdam_cmd.arg2
-_class2d_vdam_cmd.constraint
-_class2d_vdam_cmd.help
-#
-loop_
 _settings.id
 _settings.label
 _settings.icon

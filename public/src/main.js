@@ -281,8 +281,9 @@ export  const connect_to_ws_server = async () => {
             const info = {ip:ip_address,port: port, connected: true};
             localStorage.setItem('connection',JSON.stringify(info));
             // Update the UI when the server responds
-
-
+            document.getElementById('connect_fs').classList.toggle('hidden');
+            document.getElementById('connected').classList.toggle('hidden');
+            // Update icon
             document.getElementById('connect').innerHTML = '<i class="bi bi-wifi"></i>Connected';
             document.getElementById('connect').style.color = 'lightgreen';
             document.getElementById('connect').dataset.ip = info.ip;
