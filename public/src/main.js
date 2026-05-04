@@ -278,7 +278,7 @@ export  const connect_to_ws_server = async () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             socket.close(); // Close connection after getting the data
-            const info = {ip:ip_address,port: port, connected: true};
+            const info = {ip:ip_address,port: port, connected: true,env: data.environment};
             localStorage.setItem('connection',JSON.stringify(info));
             // Update the UI when the server responds
             document.getElementById('connect_fs').classList.toggle('hidden');

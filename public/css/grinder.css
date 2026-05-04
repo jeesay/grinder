@@ -3,7 +3,7 @@
 }
 
 :root {
-  font-family: 'Asap Condensed',sans-serif;
+  --font-family: 'Asap Condensed',sans-serif;
   /* Define widths here */
   --menubar-height: 40px;
   --sidebar-width-collapsed: 60px;
@@ -1364,6 +1364,14 @@ p {
 */
 }
 
+.drop-btn {
+  border: none;
+  cursor: pointer;
+  background-color: var(--background-color);
+  color: #fff;
+  font-family: var(--font-family);
+  font-size: 1.0rem;
+}
 .dropdown-caret {
   width: 0; height: 0;
   border-left: 4px solid transparent;
@@ -1373,6 +1381,25 @@ p {
 
 /* The Menu Container */
 .dropdown { position: relative; display: inline-block; }
+
+.dropdown-list {
+  display: none;
+  position: absolute;
+  background-color: var(--bg-color-main);;
+  min-width: 100%;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  padding: 12px 16px;
+  z-index: 10;
+}
+
+.dropdown-list li {
+  display: flex;
+  justify-content: left;
+}
+
+.dropdown:hover .dropdown-list {
+  display: flex;
+}
 
 .dropdown-menu {
   display: none; /* Hidden by default */
@@ -1388,7 +1415,7 @@ p {
   z-index: 100;
 }
 
-/* Header & Input */
+/* Header & Input
 .dropdown-header {
   padding: 8px 10px;
   font-weight: 600;
@@ -1397,8 +1424,9 @@ p {
   display: flex;
   justify-content: space-between;
 }
-
+ */
 .dropdown-input-container { padding: 8px; }
+
 #branchInput {
   width: 100%;
   padding: 5px 12px;
@@ -1407,8 +1435,10 @@ p {
   box-sizing: border-box;
 }
 
-/* Branch List */
+/* Branch List 
 .dropdown-list { max-height: 240px; overflow-y: auto; }
+*/
+
 .branch-item {
   display: block;
   padding: 8px 30px; /* Space for a checkmark if needed */

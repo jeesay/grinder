@@ -32,8 +32,8 @@ function table_cell(ev) {
 
 // Private function for click_connect(..)
 const _set_project = async (ev) => {
-  console.log(ev.target.value,ev.target.dataset);
-  const project_path = ev.target.value;
+  console.log(ev.target,ev.target.dataset);
+  const project_path = ev.target.dataset.path;
   document.getElementById('connect').dataset.projpath = project_path;
   console.log('LOAD',project_path);
   spin();
@@ -42,25 +42,41 @@ const _set_project = async (ev) => {
   update_right_sidebar(project_path,data_proj);
 }
 
+const set_projlist = (paths) => {
+  const dropdown = document.querySelector('#project_id .dropdown-list ul');
+  paths.forEach( (path) => {
+    dropdown.appendChild(
+      h('li.dropdown-item',
+        [
+          h('a',
+            {
+              attrs: {
+                href: "#",
+              },
+              dataset: {
+                path: path
+              },
+              on : {click: _set_project}
+            },
+            path)
+        ]
+      )
+    );
+  });
+}
+
 // In `grinder.home`, button `Connect`
 async function click_connect(ev) {
   ev.preventDefault(); // Stop the page from refreshing/redirecting
   const data_env = await connect_to_ws_server();
   // Step #1 - Fill the home dashboard
-  const dropdown = document.querySelector('#project #proj_list');
-  dropdown.addEventListener('change', _set_project);
-  for (let path of data_env.project_list) {
-    dropdown.appendChild(
-      h('option',
-        {
-          attrs: {value: path}
-        },
-        path)
-    );
-  }
-  // Show the `project` fieldset
-  document.getElementById('project').classList.toggle('hidden');
+  // TODO
   console.log(data_env);
+   // Step #2 - Fill the project list in the top menubar
+  const obj = JSON.parse(localStorage.getItem('connection'));
+  obj.proj_list = data_env.project_list;
+  set_projlist(data_env.project_list);
+
 }
 
 // In `grinder.home`, button `Apply`

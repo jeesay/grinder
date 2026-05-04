@@ -239,7 +239,7 @@ export const buildSidebar = async filename => {
 
         const parent = document.getElementById(wdgt.parent);
         // Create child/tab
-        const w = h('li',
+        const w = h(`li#${wdgt.id}.${(wdgt.state && wdgt.state !== '?') ? wdgt.state: 'sidebar-item'}`,
           [
             h('a',
               {
@@ -248,26 +248,48 @@ export const buildSidebar = async filename => {
                 },
                 on: {
                   click: (ev) => {
-                    if (document.getElementById('connect').dataset.projpath) {
-                      const ui = ev.target.parentElement.dataset.proclabel;
-                      document.getElementById('job_id').dataset.nodetype = ui;
-                      console.info('BUILD TABS',ui);                      
-                      console.info('BUILD TABS',localStorage.getItem(ui));
-                      const db = JSON.parse(localStorage.getItem(ui));
-                      const widgets = build_widget_tree(db.datablocks.default,{children:[]});
-                      // Section
-                      let section = document.getElementById('main-panel');
-                      section.innerHTML = '';
-                      w_tab_tools(section,widgets);
-                      // Reset display
-                      section.style.display = 'block';
-                      section.querySelector('input').checked = true; // First child
-                      // Update job_toolbar
-                      document.querySelector('#job_id span').textContent = 'New Job';
-                      update_job_toolbar('new_job');
+                    if (document.getElementById('connect').dataset.ip) {
+                      console.log(ev.target.closest('.connected'));
+                      if (document.getElementById('connect').dataset.projpath) {
+                        const ui = ev.target.parentElement.dataset.proclabel;
+                        document.getElementById('job_id').dataset.nodetype = ui;
+                        console.info('BUILD TABS',ui);                      
+                        console.info('BUILD TABS',localStorage.getItem(ui));
+                        const db = JSON.parse(localStorage.getItem(ui));
+                        const widgets = build_widget_tree(db.datablocks.default,{children:[]});
+                        // Section
+                        let section = document.getElementById('main-panel');
+                        section.innerHTML = '';
+                        w_tab_tools(section,widgets);
+                        // Reset display
+                        section.style.display = 'block';
+                        section.querySelector('input').checked = true; // First child
+                        // Update job_toolbar
+                        document.querySelector('#job_id span').textContent = 'New Job';
+                        update_job_toolbar('new_job');
+                      }
+                      else if (ev.target.closest('.connected')) {
+                        const ui = ev.target.parentElement.dataset.proclabel;
+                        document.getElementById('job_id').dataset.nodetype = ui;
+                        console.info('BUILD TABS',ui);                      
+                        console.info('BUILD TABS',localStorage.getItem(ui));
+                        const db = JSON.parse(localStorage.getItem(ui));
+                        const widgets = build_widget_tree(db.datablocks.default,{children:[]});
+                        // Section
+                        let section = document.getElementById('main-panel');
+                        section.innerHTML = '';
+                        w_tab_tools(section,widgets);
+                        // Reset display
+                        section.style.display = 'block';
+                        section.querySelector('input').checked = true; // First child
+
+                      }
+                      else {
+                        w_alert('No Project found...Please connect to the grinder server and choose or create a RELION Project');
+                      }
                     }
                     else {
-                      w_alert('No Project found...Please connect to the grinder server and choose a RELION Project');
+                      w_alert('No connection. Please connect to the GRINDER server');
                     }
                   }
                 }
