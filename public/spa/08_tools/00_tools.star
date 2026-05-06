@@ -44,3 +44,4 @@ _extras.proc_label
 _extras.filename
 _extras.help   
 external        "Provide an External Executable"        tool      99      "relion.external"       07.star         "?"
+test            "Test"                                  tool      99      "grinder.debug.test"    10.star         "Test only for debugging"

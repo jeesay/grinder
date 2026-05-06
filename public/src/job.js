@@ -22,7 +22,7 @@
 import {StarGate} from "./stargate.js";
 import { h } from './dom.js';
 import {w_alert, w_leftpanel, w_tab_tools} from "./widget.js";
-import { read_job } from "./main.js"
+import { read_job,run_job } from "./main.js"
 
 /* Obsolete */
 const set_job_params = (gui,json) => {
@@ -265,7 +265,12 @@ export const buildSidebar = async filename => {
                         section.style.display = 'block';
                         section.querySelector('input').checked = true; // First child
                         // Update job_toolbar
-                        document.querySelector('#job_id span').textContent = 'New Job';
+                        const rln_jobid = JSON.parse(localStorage.getItem('current_project')).last_job_id;
+                        const new_job = `job${String(rln_jobid).padStart(3, '0')}`;
+                        const path_new_job = document.getElementById('JOB_OUTDIR').value.replace('${NEW_JOB}',new_job);
+                        localStorage.setItem('current_job',JSON.stringify({jobpath:path_new_job,tag:ui}));
+                        document.querySelector('#job_id span').textContent = path_new_job;
+                        document.querySelector('#tag_id span').textContent = ui;
                         update_job_toolbar('new_job');
                       }
                       else if (ev.target.closest('.connected')) {
@@ -285,11 +290,11 @@ export const buildSidebar = async filename => {
 
                       }
                       else {
-                        w_alert('No Project found...Please connect to the grinder server and choose or create a RELION Project');
+                        w_alert('No Project found...Please, choose or create a RELION Project in the top menubar');
                       }
                     }
                     else {
-                      w_alert('No connection. Please connect to the GRINDER server');
+                      w_alert('No connection. Please, connect to the GRINDER server');
                     }
                   }
                 }

@@ -28,8 +28,8 @@ _nodes.nodetype
 _nodes.widget
 _nodes.filename
 _nodes.filetype
-outdir  outdir node  External/${NEW_JOB}   Directory.output.relion                           
-outfile output node 'files.star'           ParamsData.star.grinder.test
+JOB_OUTDIR  outdir node  External/${NEW_JOB}   Directory.output.relion                           
+outfile     output node 'files.star'           ParamsData.star.grinder.test
 #
 loop_
 _general.id
@@ -44,12 +44,12 @@ _general.help
 index            "Digits Number of Index:" range      2                1  10 1  no_bounds  "An index of N digits is generated and stored in the results CSV file"
 message          "Message:"                string     "Hello World!"   ?  ?  ?  ?          "Define a message displayed in the log and stored in the results CSV file."
 reverse          "Reverse:"                bool       false            ?  ?  ?  ?          "Display the message from right to left"
-case             "Modify Case:"            select     ?                ?  ?  ?  ?          "Display the message in uppercase"
+case             "Modify Case:"            select     ?                ?  ?  ?  ?          "Display the message in a case mode. This param is applied after the `reverse` parameter"
 case::none       "No"                      option     unchanged        ?  ?  ?  ?          ?
 case::lower      "Lowercase"               option     lower            ?  ?  ?  ?          ?
 case::upper      "Uppercase"               option     upper            ?  ?  ?  ?          ?
 case::capitalize "Capitalize"              option     cap              ?  ?  ?  ?          ?
-repeat           "Repeat:"                 int        10               ?  ?  ?  ?          "Define a number N of iterations repeating N times the message"
+repeat           "Repeat:"                 int        10               ?  ?  ?  ?          "Define a number N of iterations creating N files named file<index>.csv containing the message"
 #
 loop_
 _log.id
@@ -68,8 +68,8 @@ prog    "grinder test"       ?
 param   --message            message
 param   --repeat             repeat
 flag    --rev                reverse     
-param    --case              case     
-param   --odir               outdir                
+param   --case               case     
+param   --odir               JOB_OUTDIR                
 param   --ofile              outfile
 #
 
