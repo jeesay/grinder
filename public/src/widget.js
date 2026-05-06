@@ -45,6 +45,8 @@ const get_parent_from_class = (desc, parent_widget, level = 0) => {
   return get_parent_from_class(desc.parent, parent_widget, level++);
 }
 
+////////////////// WIDGETS //////////////////
+
 export const w_alert = (msg,category='warning') => {
   const cats = {
     'warning': '<i class="bi bi-exclamation-triangle-fill"></i> Warning', 
@@ -54,7 +56,7 @@ export const w_alert = (msg,category='warning') => {
   };
   const gdr_alert = document.getElementById('gdrAlert');
   gdr_alert.querySelector('.dialog-header span').innerHTML = cats[category];
-  gdr_alert.querySelector('p').textContent = msg;
+  gdr_alert.querySelector('p').innerHTML = msg;
   gdr_alert.showModal();
 }
 
@@ -108,6 +110,37 @@ const w_button = (desc) => {
     ]
   );
 }
+
+const w_node = (desc) => h('div.row',
+  [
+    h('div.parameter',
+      [
+        h('label', { attrs: { 'for': desc.id } }, desc.nodetype),
+        h('i.bi.bi-question-circle',
+          { 
+            on : {click: (ev) => document.getElementById(`${desc.id}-help`).classList.toggle('hidden')}
+          }
+        ),
+        h(
+          `input#${desc.id}.param`,
+          {
+            attrs: {
+              type: 'text',
+              value: desc.filename,
+              name: desc.id
+            },
+            dataset: {
+              key: desc.id.split('-')[0], 
+              param: desc.id,
+              option: ('option' in desc) ? desc.filetype : 0
+            },
+          }
+        )
+      ]
+    ),
+    h(`blockquote#${desc.id}-help.help.hidden`,`${desc.nodetype} Node of type ${desc.filetype}`)
+  ]
+);
 
 // Specialized button
 const w_connect = (desc) => {
@@ -1106,14 +1139,14 @@ const w_group = (desc) => {
   // Primitive Widgets
   const types = [
     'label', 'h3', 'button', 'bool', 'cli', 'connect', 'dropdown', 'dropdown_option',
-    'import', 'int', 'float', 'file', 'toolset', 'string', 'string_ro', 'text', 'range',
+    'import', 'int', 'float', 'file', 'node','toolset', 'string', 'string_ro', 'text', 'range',
     'radio', 'radio_tool', 'select', 'option', 'section',
     'switch', 'select_g', 'option_g',
     'fieldset', 'details', 'tab', 'grid',
     'table', 'thead', 'tbody', 'trow', 'tcell', 'toolbar', 'toolmenu', 'paragraph'];
   const creators = [
     w_label, w_h3, w_button, w_bool, w_cli, w_connect, w_dropdown, w_dropdown_option,
-    w_import, w_int, w_float, w_file, w_toolset, w_string, w_string_ro, w_text, w_range,
+    w_import, w_int, w_float, w_file, w_node,w_toolset, w_string, w_string_ro, w_text, w_range,
     w_radio, w_radiotool, w_select, w_option, w_section,
     w_switch, w_gselect, w_goption,
     w_fieldset, w_details, w_navtab, w_grid,

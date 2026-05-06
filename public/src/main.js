@@ -326,7 +326,9 @@ export  const load_project = async (project_path) => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             socket.close(); // Close connection after getting the data
-            localStorage.setItem('project_path',project_path);
+            const p = {path: project_path,last_job_id: data.pipeline.rlnPipeLineJobCounter}
+            w_alert(`Project <strong>${project_path}</strong> loaded...`,'success');
+            localStorage.setItem('current_project',JSON.stringify(p));
             resolve(data);
         };
 
@@ -399,6 +401,87 @@ export  const read_job = async (obj) => {
               }
 
             });
+            resolve(data);
+            socket.close(); // Close connection after getting the data
+          };
+        // 4. Handle errors
+        socket.onerror = (error) => {
+          w_alert(`[Close] Connection failed with server ws://${ip_address}:${port}/job/read`,'error');
+          reject(error);
+        }
+    });
+}
+
+/*
+ * Run the WebSocket Client and try to connect to the python WebSocket server
+*/
+export  const run_job = async () => {
+  // Step #1 - Get connection info
+  const connect = JSON.parse(localStorage.getItem('connection'));
+  const ip_address = connect.ip;
+  const port = connect.port;
+
+  // Step #2 - Get all the widgets values
+  const supers  = document.querySelectorAll('.super.param');
+  const hidden_div_exists = document.querySelector('section .option_g');
+  console.log(hidden_div_exists);
+  const regulars = (hidden_div_exists) ? document.querySelectorAll(`section .option_g:not(.hidden) .param`) : document.querySelectorAll(`section .param`);
+  const all_params = new Set([...supers,...regulars]);
+  console.info(all_params);
+  const joboptions = [...all_params].map((w) => {
+    console.log(w);
+    const key = w.dataset.param;
+    let value = null;
+    if (w.type === 'checkbox') {
+      value = (w.checked) ? true : false;
+    }
+    else {
+      value = w.value;
+    }
+    return {key,value};
+  });
+  const current_project = JSON.parse(localStorage.getItem('current_project'));
+  const current_job = JSON.parse(localStorage.getItem('current_job'));
+  const nodes = [...document.querySelectorAll('.node')];
+  const metadata = {current_project,current_job,joboptions,nodes};
+  
+  // Open the WebSocket connection and register event handlers.
+  // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
+ 
+  return new Promise((resolve, reject) => {
+        // 1. Create the connection
+        const socket = new WebSocket(`ws://${ip_address}:${port}/job/read`);
+
+        // 2. Handle connection open
+        socket.onopen = () => {
+          // Update the UI when the server responds
+          console.info(metadata);
+          socket.send(JSON.stringify(metadata));
+        };
+
+        // 3. Handle the result
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log(data);
+            const nodetype = data.params_head.rlnJobTypeLabel;
+            // Step #0 - Update toolbar
+            const jb = document.getElementById('job_id');
+            jb.dataset.nodetype = nodetype;
+            document.querySelector('#tag_id span').textContent = nodetype;
+            // Step #1 - Update: get gui from obj.nodetype
+            const ui = JSON.parse(localStorage.getItem(nodetype));
+            const widgets = build_widget_tree(ui.datablocks.default, {children: []});
+            // Section
+            let section = document.getElementById('main-panel');
+            section.innerHTML = '';
+            // Create tabs...
+            w_tab_tools(section, widgets);
+            // Reset display
+            section.style.display = 'block';
+            section.querySelector('input').checked = true; // First child
+            // Step #2 - Fill Log Tab
+            document.querySelector('#Log.tab .tab-content').innerHTML = '';
+            document.querySelector('#Log.tab .tab-content').appendChild(h('pre',data.log));
             resolve(data);
             socket.close(); // Close connection after getting the data
           };
