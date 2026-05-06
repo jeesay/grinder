@@ -268,6 +268,7 @@
 </div>
 <script type="module">
   import {buildSidebar} from "./src/job.js";
+  import {run_job} from "./src/main.js";
   import {filterFiles,togglePopup,handleOpen} from "./src/browse.js";
   
  
@@ -291,9 +292,10 @@
   // Bind the open button
   document.getElementById('open-btn').addEventListener('click', handleOpen);
 
-  // Go to Home, first
-  document.querySelector('aside #home').click();
+  // Bind events to actions toolbar
+  document.querySelector('#job_run a').addEventListener('click', (ev) => run_job());
 
+  /***** Obsolete ?
   // Jobs panel
   function toggleSidebar() {
     const sidebar = document.getElementById('joblist');
@@ -328,8 +330,13 @@
       }
     }
   }
+*/
+
 
   /************* HOMEPAGE *************/
+
+    // Go to Home, first
+  document.querySelector('aside #home').click();
   document.querySelector('#home .nav-text').click();
 
 </script>
