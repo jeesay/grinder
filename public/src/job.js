@@ -268,7 +268,13 @@ export const buildSidebar = async filename => {
                         const rln_jobid = JSON.parse(localStorage.getItem('current_project')).last_job_id;
                         const new_job = `job${String(rln_jobid).padStart(3, '0')}`;
                         const path_new_job = document.getElementById('JOB_OUTDIR').value.replace('${NEW_JOB}',new_job);
-                        localStorage.setItem('current_job',JSON.stringify({jobpath:path_new_job,tag:ui}));
+                        localStorage.setItem('current_job',JSON.stringify(
+                          {
+                            jobpath:path_new_job,
+                            tag:ui,
+                            command: document.querySelector('details.cli').dataset.param
+                          }
+                        ));
                         document.querySelector('#job_id span').textContent = path_new_job;
                         document.querySelector('#tag_id span').textContent = ui;
                         update_job_toolbar('new_job');

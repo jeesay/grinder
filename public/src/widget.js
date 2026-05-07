@@ -122,7 +122,7 @@ const w_node = (desc) => h('div.row',
           }
         ),
         h(
-          `input#${desc.id}.param`,
+          `input#${desc.id}.node.param`,
           {
             attrs: {
               type: 'text',
@@ -820,7 +820,11 @@ const w_select = (desc) => {
                 props: {
                   value: desc.default
                 },
-                dataset: {key: desc.id.split('-')[0], dispatch: desc.on_change},
+                dataset: {
+                  key: desc.id.split('-')[0],  
+                  param: desc.id,
+                  dispatch: desc.on_change
+                },
                 on: ('on_change' in desc) ? { change: (ev) => dispatch(ev) } : {}
               },
               w_group(desc),

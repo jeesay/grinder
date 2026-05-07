@@ -366,7 +366,7 @@ export  const read_job = async (obj) => {
         // 3. Handle the result
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-
+            socket.close(); // Close connection after getting the data
             console.log(data);
             const nodetype = data.params_head.rlnJobTypeLabel;
             // Step #0 - Update toolbar
@@ -386,7 +386,7 @@ export  const read_job = async (obj) => {
             section.querySelector('input').checked = true; // First child
             // Step #2 - Fill Log Tab
             document.querySelector('#Log.tab .tab-content').innerHTML = '';
-            document.querySelector('#Log.tab .tab-content').appendChild(h('pre',data.log));
+            document.querySelector('#Log.tab .tab-content').appendChild(h('pre.log-content',data.log));
             // Step #3 - Fill all the widgets with the job values
             const RLN_VAR = data.params.columns.indexOf('rlnJobOptionVariable');
             const RLN_VAL = data.params.columns.indexOf('rlnJobOptionValue');
@@ -402,7 +402,6 @@ export  const read_job = async (obj) => {
 
             });
             resolve(data);
-            socket.close(); // Close connection after getting the data
           };
         // 4. Handle errors
         socket.onerror = (error) => {
@@ -443,14 +442,23 @@ export  const run_job = async () => {
   const current_project = JSON.parse(localStorage.getItem('current_project'));
   const current_job = JSON.parse(localStorage.getItem('current_job'));
   const nodes = [...document.querySelectorAll('.node')];
-  const metadata = {current_project,current_job,joboptions,nodes};
+
+  // Step #3 - Get the CLI
+  const tag = current_job.tag;
+  const cli = current_job.command;
+  const cargo = new StarGate();
+  cargo.from_json(JSON.parse(localStorage.getItem(tag)));
+  const cmd = cargo.datablock('default').table(cli);
+  console.log(cmd);
+  // Ready to send...
+  const metadata = {current_project,current_job,joboptions,nodes,command: cmd};
   
   // Open the WebSocket connection and register event handlers.
   // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
  
   return new Promise((resolve, reject) => {
         // 1. Create the connection
-        const socket = new WebSocket(`ws://${ip_address}:${port}/job/read`);
+        const socket = new WebSocket(`ws://${ip_address}:${port}/job/run`);
 
         // 2. Handle connection open
         socket.onopen = () => {
