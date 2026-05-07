@@ -36,6 +36,10 @@ export class StarGate {
         this.db = {};
     }
 
+    from_json(json_data) {
+      this.db = json_data
+    }
+    
     blocks() {
         return this.db
     }
