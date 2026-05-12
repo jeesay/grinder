@@ -270,7 +270,10 @@ export const buildSidebar = async filename => {
                         const path_new_job = document.getElementById('JOB_OUTDIR').value.replace('${NEW_JOB}',new_job);
                         localStorage.setItem('current_job',JSON.stringify(
                           {
+                            projpath:document.getElementById('connect').dataset.projpath,
                             jobpath:path_new_job,
+                            dirname: path_new_job.split('/')[0],
+                            jobname: path_new_job.split('/')[1],
                             tag:ui,
                             command: document.querySelector('details.cli').dataset.param
                           }

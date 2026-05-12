@@ -2,6 +2,7 @@
 import {StarGate} from "./stargate.js";
 import {w_alert, w_leftpanel, w_tab_tools} from "./widget.js";
 import { build_widget_tree } from "./job.js";
+import { log_append } from "./log.js";
 import {h} from "./dom.js";
 import {WSClient} from "./ws_client.js";
 
@@ -591,56 +592,47 @@ export const read_log = async (obj) => {
     const ip_address = connect.ip;
     const port = connect.port;
     
-    console.info('WS',`ws://${ip_address}:${port}/log/test`);
+    console.info('WS',`ws://${ip_address}:${port}/log`);
 
     return new Promise((resolve, reject) => {
-        const socketUrl = `ws://${ip_address}:${port}/log/test`;
-        const socket = new WebSocket(socketUrl);
+        const socket_url = `ws://${ip_address}:${port}/log`;
+        const socket = new WebSocket(socket_url);
 
         socket.onopen = () => {
-            const msg = { 
-                projpath: obj.projpath, 
-                dirname: obj.path, 
-                jobname: obj.job,
-                command: "start_monitoring" 
-            };
-            socket.send(JSON.stringify(msg));
+          const metadata = JSON.parse(localStorage.getItem('current_job'));
+          const msg = { 
+            projpath: metadata.projpath, 
+            dirname: metadata.dirname, 
+            jobname: metadata.jobname,
+            jobtag: metadata.tag,
+            command: "start_monitoring" 
+          };
+          socket.send(JSON.stringify(msg));
         };
 
         socket.onmessage = (event) => {
-            const msg = JSON.parse(event.data);
-
-            if (msg.type === "log_update") {
-                appendLine(msg.content); 
-            }
-            resolve(msg);
+          const msg = JSON.parse(event.data);
+          console.info('Log',msg,msg.log_type);
+          if (msg.log_type === "log_update") {
+              log_append(msg.content); 
+          }
+          resolve(msg);
         };
 
         socket.onerror = (error) => {
           console.log(error);
-            w_alert(`Log error ${socketUrl} ${error}`, 'error');
-            reject(error);
+          w_alert(`Log error ${socket_url} ${error}`, 'error');
+          reject(error);
         };
 
         socket.onclose = (event) => {
-          w_alert(`Log closed ${socketUrl} ${event.code} ${event.reason}`, 'info');
-            console.log("Stream closed");
+          w_alert(`Log closed ${socket_url} ${event.code} ${event.reason}`, 'info');
+          console.log("Stream closed");
         };
         
         // We can link socket to window object to close it later
         window.currentLogSocket = socket;
     });
-}
-
-function appendLine(text, isSystem = false) {
-    const div = document.createElement('div');
-    div.className = isSystem ? 'log-line system-msg' : 'log-line';
-    const timestamp = new Date().toLocaleTimeString();
-    div.textContent = `[${timestamp}] ${text}`;
-    terminal.appendChild(div);
-    
-    // Auto-scroll vers le bas
-    terminal.scrollTop = terminal.scrollHeight;
 }
 
 export  const compute_data = async (obj) => {
