@@ -591,9 +591,25 @@ export const read_log = async (obj) => {
     const connect = JSON.parse(localStorage.getItem('connection'));
     const ip_address = connect.ip;
     const port = connect.port;
+
+    const current_project = JSON.parse(localStorage.getItem('current_project'));
+    const current_job = JSON.parse(localStorage.getItem('current_job'));
     
     console.info('WS',`ws://${ip_address}:${port}/log`);
+    /*
+    const metadata = {current_project,current_job};
 
+    // close old socket of still open
+    if (window.currentLogSocket) {
+        window.currentLogSocket.close();
+    }
+
+    // cleaning
+    const terminal = document.getElementById("terminal");
+    if (terminal) {
+        terminal.innerHTML = "";
+    }
+*/
     return new Promise((resolve, reject) => {
         const socket_url = `ws://${ip_address}:${port}/log`;
         const socket = new WebSocket(socket_url);
@@ -628,10 +644,70 @@ export const read_log = async (obj) => {
         socket.onclose = (event) => {
           w_alert(`Log closed ${socket_url} ${event.code} ${event.reason}`, 'info');
           console.log("Stream closed");
+          console.info(metadata);
+          socket.send(JSON.stringify(metadata));
+        };
+
+        /* SOLENE
+        socket.onmessage = (event) => {
+          let msg;
+
+          try {
+              msg = JSON.parse(event.data);
+          } catch (err) {
+              console.error("Invalid WS message:", event.data);
+              return;
+          }
+
+          switch (msg.type) {
+
+              // Initial loading
+              case "full_log":
+                  if (terminal) {
+                      terminal.innerHTML = "";
+
+                      msg.content.split("\n").forEach(line => {
+                          if (line.trim() !== "") {
+                              appendLine(line);
+                          }
+                      });
+                  }
+                  resolve(msg);
+                  break;
+
+              // New lines in live
+              case "log_update":
+                  appendLine(msg.content);
+                  break;
+
+              // Erreurs backend
+              case "error":
+                  appendLine(`ERROR: ${msg.content}`, true);
+                  reject(msg.content);
+                  break;
+
+              default:
+                  console.warn("Unknown log message type:", msg);
+          }
+        };
+
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+            appendLine(`WebSocket error on ${socketUrl}`, true);
+            reject(error);
+        };
+
+        socket.onclose = (event) => {
+            appendLine(
+                `Log stream closed (${event.code}) ${event.reason || ""}`,
+                true
+            );
+            console.info("Stream closed");
         };
         
         // We can link socket to window object to close it later
         window.currentLogSocket = socket;
+      */
     });
 }
 

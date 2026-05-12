@@ -104,6 +104,12 @@ export function button_click(wtype) {
 }
 
 export const update_log = (ev) => {
+  h(`div#log_container`,
+    [
+      h(`div#log-terminal.terminal`)
+    ]
+  )
+
   console.info("log")
   const wdgt = ev.target;
   const jb = document.getElementById('job_id');
