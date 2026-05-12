@@ -586,6 +586,63 @@ export  const read_data = async (obj) => {
     });
 }
 
+export const read_log = async (obj) => {
+    const connect = JSON.parse(localStorage.getItem('connection'));
+    const ip_address = connect.ip;
+    const port = connect.port;
+    
+    console.info('WS',`ws://${ip_address}:${port}/log/test`);
+
+    return new Promise((resolve, reject) => {
+        const socketUrl = `ws://${ip_address}:${port}/log/test`;
+        const socket = new WebSocket(socketUrl);
+
+        socket.onopen = () => {
+            const msg = { 
+                projpath: obj.projpath, 
+                dirname: obj.path, 
+                jobname: obj.job,
+                command: "start_monitoring" 
+            };
+            socket.send(JSON.stringify(msg));
+        };
+
+        socket.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+
+            if (msg.type === "log_update") {
+                appendLine(msg.content); 
+            }
+            resolve(msg);
+        };
+
+        socket.onerror = (error) => {
+          console.log(error);
+            w_alert(`Log error ${socketUrl} ${error}`, 'error');
+            reject(error);
+        };
+
+        socket.onclose = (event) => {
+          w_alert(`Log closed ${socketUrl} ${event.code} ${event.reason}`, 'info');
+            console.log("Stream closed");
+        };
+        
+        // We can link socket to window object to close it later
+        window.currentLogSocket = socket;
+    });
+}
+
+function appendLine(text, isSystem = false) {
+    const div = document.createElement('div');
+    div.className = isSystem ? 'log-line system-msg' : 'log-line';
+    const timestamp = new Date().toLocaleTimeString();
+    div.textContent = `[${timestamp}] ${text}`;
+    terminal.appendChild(div);
+    
+    // Auto-scroll vers le bas
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
 export  const compute_data = async (obj) => {
   const connect = JSON.parse(localStorage.getItem('connection'));
   const ip_address = connect.ip;

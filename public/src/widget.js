@@ -21,7 +21,7 @@
 
 import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
-import { button_click } from "./w_event.js"
+import { button_click, update_log, update_viz } from "./w_event.js"
 import { connect_to_ws_server, load_project, read_job, read_data } from "./main.js"
 
 import { g_graphics } from './dataviz.js';
@@ -731,24 +731,6 @@ const w_navtab = (desc) => {
     console.info('Do nothing');
   }
 
-  const update_log = (ev) => {
-    console.info("log")
-  }
-
-  const update_viz = async (ev) => {
-    const wdgt = ev.target;
-    const jb = document.getElementById('job_id');
-    const gui = JSON.parse(localStorage.getItem('relion.motioncorr.own')).datablocks.default.dataviz;
-    console.log(gui);
-    const obj = { 
-      projpath : jb.dataset.projpath, 
-      path : jb.dataset.path,
-      job : jb.dataset.job,
-      nodetype : jb.dataset.nodetype,
-      gui : gui
-    };
-    const data = await read_data(obj);
-  }
 
   const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': update_log, 'DataViz': update_viz };
 
