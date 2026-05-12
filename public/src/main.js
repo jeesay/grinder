@@ -590,41 +590,87 @@ export const read_log = async (obj) => {
     const connect = JSON.parse(localStorage.getItem('connection'));
     const ip_address = connect.ip;
     const port = connect.port;
+
+    const current_project = JSON.parse(localStorage.getItem('current_project'));
+    const current_job = JSON.parse(localStorage.getItem('current_job'));
     
     console.info('WS',`ws://${ip_address}:${port}/log/test`);
+    const metadata = {current_project,current_job};
+
+    // close old socket of still open
+    if (window.currentLogSocket) {
+        window.currentLogSocket.close();
+    }
+
+    // cleaning
+    const terminal = document.getElementById("terminal");
+    if (terminal) {
+        terminal.innerHTML = "";
+    }
 
     return new Promise((resolve, reject) => {
         const socketUrl = `ws://${ip_address}:${port}/log/test`;
         const socket = new WebSocket(socketUrl);
 
         socket.onopen = () => {
-            const msg = { 
-                projpath: obj.projpath, 
-                dirname: obj.path, 
-                jobname: obj.job,
-                command: "start_monitoring" 
-            };
-            socket.send(JSON.stringify(msg));
+          console.info(metadata);
+          socket.send(JSON.stringify(metadata));
         };
 
         socket.onmessage = (event) => {
-            const msg = JSON.parse(event.data);
+          let msg;
 
-            if (msg.type === "log_update") {
-                appendLine(msg.content); 
-            }
-            resolve(msg);
+          try {
+              msg = JSON.parse(event.data);
+          } catch (err) {
+              console.error("Invalid WS message:", event.data);
+              return;
+          }
+
+          switch (msg.type) {
+
+              // Initial loading
+              case "full_log":
+                  if (terminal) {
+                      terminal.innerHTML = "";
+
+                      msg.content.split("\n").forEach(line => {
+                          if (line.trim() !== "") {
+                              appendLine(line);
+                          }
+                      });
+                  }
+                  resolve(msg);
+                  break;
+
+              // New lines in live
+              case "log_update":
+                  appendLine(msg.content);
+                  break;
+
+              // Erreurs backend
+              case "error":
+                  appendLine(`ERROR: ${msg.content}`, true);
+                  reject(msg.content);
+                  break;
+
+              default:
+                  console.warn("Unknown log message type:", msg);
+          }
         };
 
         socket.onerror = (error) => {
-          console.log(error);
-            w_alert(`Log error ${socketUrl} ${error}`, 'error');
+            console.error("WebSocket error:", error);
+            appendLine(`WebSocket error on ${socketUrl}`, true);
             reject(error);
         };
 
         socket.onclose = (event) => {
-          w_alert(`Log closed ${socketUrl} ${event.code} ${event.reason}`, 'info');
-            console.log("Stream closed");
+            appendLine(
+                `Log stream closed (${event.code}) ${event.reason || ""}`,
+                true
+            );
+            console.info("Stream closed");
         };
         
         // We can link socket to window object to close it later
@@ -633,13 +679,18 @@ export const read_log = async (obj) => {
 }
 
 function appendLine(text, isSystem = false) {
-    const div = document.createElement('div');
-    div.className = isSystem ? 'log-line system-msg' : 'log-line';
+    const terminal = document.getElementById("terminal");
+    if (!terminal) return;
+
+    const div = document.createElement("div");
+    div.className = isSystem ? "log-line system-msg" : "log-line";
+
     const timestamp = new Date().toLocaleTimeString();
     div.textContent = `[${timestamp}] ${text}`;
+
     terminal.appendChild(div);
-    
-    // Auto-scroll vers le bas
+
+    // Auto-scroll
     terminal.scrollTop = terminal.scrollHeight;
 }
 
