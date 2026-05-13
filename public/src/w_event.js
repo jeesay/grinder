@@ -104,6 +104,8 @@ export function button_click(wtype) {
 }
 
 export const update_log = (ev) => {
+  // Do nothing
+  /*
   h(`div#log_container`,
     [
       h(`div#log-terminal.terminal`)
@@ -123,6 +125,7 @@ export const update_log = (ev) => {
     gui : gui
   };
   const data = read_log(obj);
+  */
 }
 
 export const update_viz = async (ev) => {

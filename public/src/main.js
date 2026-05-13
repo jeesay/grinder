@@ -472,27 +472,37 @@ export  const run_job = async () => {
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log(data);
-            const nodetype = data.params_head.rlnJobTypeLabel;
-            // Step #0 - Update toolbar
-            const jb = document.getElementById('job_id');
-            jb.dataset.nodetype = nodetype;
-            document.querySelector('#tag_id span').textContent = nodetype;
-            // Step #1 - Update: get gui from obj.nodetype
-            const ui = JSON.parse(localStorage.getItem(nodetype));
-            const widgets = build_widget_tree(ui.datablocks.default, {children: []});
-            // Section
-            let section = document.getElementById('main-panel');
-            section.innerHTML = '';
-            // Create tabs...
-            w_tab_tools(section, widgets);
-            // Reset display
-            section.style.display = 'block';
-            section.querySelector('input').checked = true; // First child
-            // Step #2 - Fill Log Tab
-            document.querySelector('#Log.tab .tab-content').innerHTML = '';
-            document.querySelector('#Log.tab .tab-content').appendChild(h('pre',data.log));
+            if (data.type === 'process') {
+              w_alert(`[Info] Process ${data.pid} ${data.status}`,'info');
+              if (data.status === 'finished') {
+                socket.close(); // Close connection after getting the data
+              }
+            }
+            else if (data.type === 'log') {
+              log_append(data.content);
+            }
+            else {
+              const nodetype = data.params_head.rlnJobTypeLabel;
+              // Step #0 - Update toolbar
+              const jb = document.getElementById('job_id');
+              jb.dataset.nodetype = nodetype;
+              document.querySelector('#tag_id span').textContent = nodetype;
+              // Step #1 - Update: get gui from obj.nodetype
+              const ui = JSON.parse(localStorage.getItem(nodetype));
+              const widgets = build_widget_tree(ui.datablocks.default, {children: []});
+              // Section
+              let section = document.getElementById('main-panel');
+              section.innerHTML = '';
+              // Create tabs...
+              w_tab_tools(section, widgets);
+              // Reset display
+              section.style.display = 'block';
+              section.querySelector('input').checked = true; // First child
+              // Step #2 - Fill Log Tab
+              document.querySelector('#Log.tab .tab-content').innerHTML = '';
+              document.querySelector('#Log.tab .tab-content').appendChild(h('pre',data.log));
+            }
             resolve(data);
-            socket.close(); // Close connection after getting the data
           };
         // 4. Handle errors
         socket.onerror = (error) => {
@@ -632,6 +642,9 @@ export const read_log = async (obj) => {
           if (msg.log_type === "log_update") {
               log_append(msg.content); 
           }
+          else if (msg.log_type === 'log_done') {
+            socket.close();
+          }
           resolve(msg);
         };
 
@@ -644,8 +657,7 @@ export const read_log = async (obj) => {
         socket.onclose = (event) => {
           w_alert(`Log closed ${socket_url} ${event.code} ${event.reason}`, 'info');
           console.log("Stream closed");
-          console.info(metadata);
-          socket.send(JSON.stringify(metadata));
+          socket.close();
         };
 
         /* SOLENE
