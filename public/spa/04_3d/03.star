@@ -21,7 +21,7 @@ _io.value
 _io.display
 _io.help
 indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          show       ?
-indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          show       ?
+indata_2             "Input Data"                             bi-box-arrow-in-down fieldset   ?          show       ?
 outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          hidden     ?
 nodes                "Nodes"                                  bi-controller        fieldset   ?          hidden     ?
 system               "System"                                 bi-incognito         fieldset   ?          hiddden    ?

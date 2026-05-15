@@ -307,7 +307,7 @@ _grr_import_prgm.type
 _grr_import_prgm.arg
 _grr_import_prgm.param_id
 prog    "grinder import"                                ?      
-param   --nodetype                                          nod
+param   --nodetype                                      nod
 param   --i                                             fn_in_raw
 param   --path                                          dir_in_raw
 param   --pattern                                       pattern_in   

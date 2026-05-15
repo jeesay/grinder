@@ -5,7 +5,7 @@ _import.id
 _import.label
 _import.icon
 _import.widget
-grr_import  'GRINDER'           bi-cup-hot-fill       submenu
+gdr_import  'GRINDER'           bi-cup-hot-fill       submenu
 rln_import  'From RELION'       bi-r-circle-fill      submenu
 cs_import   'From CryoSparc'    bi-c-circle-fill      submenu
 # refs        'References'             bi-r-circle      submenu
@@ -31,13 +31,23 @@ import_mask     'Mask'                   tool   0  relion.import.other.mask     
 import_halfmap  'Half-map(s)'            tool   0  relion.import.other.halfmap    08.star   'Import Half-maps'                                        
 # Submenu
 loop_
-_grr_import.id
-_grr_import.label        
-_grr_import.widget    
-_grr_import.proc_id 
-_grr_import.proc_label
-_grr_import.filename
-_grr_import.help   
+_gdr_import.id
+_gdr_import.label        
+_gdr_import.widget    
+_gdr_import.proc_id 
+_gdr_import.proc_label
+_gdr_import.filename
+_gdr_import.help   
 grr_import_all        'Import...'        tool   0       grinder.import.relion      10.star   'Import File(s) for RELION'                           
+# Submenu
+loop_
+_cs_import.id
+_cs_import.label        
+_cs_import.widget    
+_cs_import.proc_id 
+_cs_import.proc_label
+_cs_import.filename
+_cs_import.help   
+pyem_import_ptcls      'Particles'        tool   0       pyem.import.relion      20.star   'Import Patticles from Cryosparc with PyEM'                           
 
 

@@ -15,4 +15,4 @@ _build.proc_id
 _build.proc_label
 _build.filename
 _build.help 
-angelo      'ModelAngelo Building'      tool      23      "modelangelo"       01.star         "?"
+angelo      'ModelAngelo'      tool      23      "modelangelo"       01.star         "?"
