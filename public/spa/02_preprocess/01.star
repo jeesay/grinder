@@ -10,7 +10,8 @@ _rln_mc.help
 io                   "I/O"                     bi-arrow-down-up     tab              ?               ?
 settings             "Settings"                bi-tools             tab              ?               ?
 log                  "Log"                     bi-binoculars-fill   tab              update          ?
-dataviz              "DataViz"                 bi-eye               tab              update          ?
+dataviz              "DataViz"                 bi-columns-gap       tab              update          ?
+per_micrograph       "Per Micrograph"          bi-eye               tab              update          ?
 #
 loop_
 _io.id
@@ -261,4 +262,13 @@ grid::motion_early_p ?  g_plot     (1,0) (1,1) corrected_micrographs.star?microg
 grid::motion_early_h ?  g_hist     (1,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionEarly]          ?
 grid::motion_late_p  ?  g_plot     (2,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionLate]  ?
 grid::motion_late_h  ?  g_hist     (2,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionLate]           ?
+#
+loop_
+_per_micrograph.id
+_per_micrograph.label
+_per_micrograph.icon
+_per_micrograph.widget
+_per_micrograph.value
+_per_micrograph.display
+_per_micrograph.help
 #

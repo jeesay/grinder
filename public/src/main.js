@@ -632,7 +632,13 @@ export const read_log = async (obj) => {
           if (msg.log_type === "log_update") {
               log_append(msg.content); 
           }
-          resolve(msg);
+          else if (msg.log_type === "job_done") {
+            socket.close();
+            resolve(msg);
+          }
+          else if (msg.log_type === "job_complete") {
+            log_append(msg.content)
+          }
         };
 
         socket.onerror = (error) => {
@@ -644,8 +650,6 @@ export const read_log = async (obj) => {
         socket.onclose = (event) => {
           w_alert(`Log closed ${socket_url} ${event.code} ${event.reason}`, 'info');
           console.log("Stream closed");
-          console.info(metadata);
-          socket.send(JSON.stringify(metadata));
         };
 
         /* SOLENE
