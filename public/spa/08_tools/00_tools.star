@@ -5,11 +5,10 @@ _misc.id
 _misc.label 
 _misc.icon
 _misc.widget 
-selection  'Subset Selection'           bi-list-check            submenu
-class_sel  'Class Ranker'               bi-cookie                submenu
-split_data 'Split Data'                 bi-arrows-angle-expand   submenu
-joinstar   'Join STAR files'            bi-arrows-angle-contract submenu
-extras     'Extras'                     bi-bag-plus              submenu
+selection  'Subset Selection'   bi-list-check            submenu
+split_data 'Split Data'         bi-arrows-angle-expand   submenu
+joinstar   'Join STAR files'    bi-arrows-angle-contract submenu
+extras     'Extras'             bi-bag-plus              submenu
 #
 loop_
 _selection.id
@@ -43,5 +42,4 @@ _extras.proc_id
 _extras.proc_label
 _extras.filename
 _extras.help   
-external        "Provide an External Executable"        tool      99      "relion.external"       07.star         "?"
 test            "Test"                                  tool      99      "grinder.debug.test"    10.star         "Test only for debugging"

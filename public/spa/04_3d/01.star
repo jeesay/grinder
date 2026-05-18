@@ -7,11 +7,11 @@ _inimodel.icon
 _inimodel.widget
 _inimodel.state
 _inimodel.help
-cont                 "Continue"                bi-repeat            tab      hidden   ?
-io                   "I/O"                     bi-arrow-down-up     tab      ?        ?
-settings             "Settings"                bi-tools             tab      ?        ?
-log                  "Log"                     bi-binoculars-fill   tab      ?        ?
-dataviz              "DataViz"                 bi-eye               tab      ?        ?
+cont                 "Continue"            bi-repeat            tab      hidden   ?
+io                   "I/O"                 bi-arrow-down-up     tab      ?        ?
+settings             "Settings"            bi-tools             tab      ?        ?
+log                  "Log"                 bi-binoculars-fill   tab      ?        ?
+dataviz              "DataViz"             bi-eye               tab      ?        ?
 #
 loop_
 _io.id
@@ -21,11 +21,11 @@ _io.widget
 _io.value
 _io.display
 _io.help
-indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          show       ?
-outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          hidden     ?
-nodes                "Nodes"                                  bi-controller        fieldset   ?          hidden     ?
-system               "System"                                 bi-incognito         fieldset   ?          hiddden    ?
-gdr_abinitio_prgm    "Check Command"                          bi-chat-right-text   cli        ?          show       ?
+indata               "Input Data"          bi-box-arrow-in-down fieldset   ?          show       ?
+outdata              "Output Data"         bi-box-arrow-down    fieldset   ?          hidden     ?
+nodes                "Nodes"               bi-controller        fieldset   ?          hidden     ?
+system               "System"              bi-incognito         fieldset   ?          hiddden    ?
+gdr_abinitio_prgm    "Check Command"       bi-chat-right-text   cli        ?          show       ?
 #
 loop_
 _indata.id
@@ -89,13 +89,13 @@ _settings.widget
 _settings.value
 _settings.display
 _settings.help
-do_ctf_correction    "Do CTF-correction?"                     bi-chat-right-text   switch     ?          show       ?
-general              "General"                                bi-chat-right-text   fieldset   ?          show       ?
-params_01            "Parameters"                             bi-chat-right-text   fieldset   ?          show       ?
-diskio               "Disk Management"                        bi-chat-right-text   fieldset   ?          show       ?
-params_03            "Parameters"                             bi-chat-right-text   fieldset   ?          show       ?
-use_gpu              "Use GPU acceleration?"                  bi-chat-right-text   switch     ?          show       ?
-parallel_computing   "Parallel Computing"                     bi-chat-right-text   fieldset   ?          show       ?
+do_ctf_correction    "Do CTF-correction?"          bi-chat-right-text   switch     ?          show       ?
+general              "General"                     bi-chat-right-text   fieldset   ?          show       ?
+params_01            "Parameters"                  bi-chat-right-text   fieldset   ?          show       ?
+diskio               "Disk Management"             bi-chat-right-text   fieldset   ?          show       ?
+params_03            "Parameters"                  bi-chat-right-text   fieldset   ?          show       ?
+use_gpu              "Use GPU acceleration?"       bi-chat-right-text   switch     ?          show       ?
+parallel_computing   "Parallel Computing"          bi-chat-right-text   fieldset   ?          show       ?
 #
 loop_
 _do_ctf_correction.id
@@ -107,7 +107,7 @@ _do_ctf_correction.arg1
 _do_ctf_correction.arg2
 _do_ctf_correction.constraint
 _do_ctf_correction.help
-ctf_intact_first_peak "Ignore CTFs until first peak?"     bool       false           "?"             "?"             "?"             ?               
+ctf_intact_first_peak "Ignore CTFs until first peak?"     bool       false           ?             ?             ?             ?               
 ; If set to Yes, then CTF-amplitude correction will only be performed from the first peak of each CTF onward.
 This can be useful if the CTF model is inadequate at the lowest resolution.
 Still, in general using higher amplitude contrast on the CTFs (e.g.
@@ -156,10 +156,10 @@ Make sure this radius is not set too small because that may mask away part of th
 
 The same diameter will also be used for a spherical mask of the reference structures if no user-provided mask is specified.
 ;
-do_solvent           "Flatten and enforce non-negative solvent?" bool       true            "?"             "?"             "?"             ?               
+do_solvent           "Flatten and enforce non-negative solvent?" bool       true            ?             ?             ?             ?               
 ; If set to Yes, the job will apply a spherical mask and enforce all values in the reference to be non-negative.
 ;
-sym_name             "Symmetry:"                         string     C1              "?"             "?"             "?"             ?               
+sym_name             "Symmetry:"                         string     C1              ?             ?             ?             ?               
 ; The initial model is always generated in C1 and then aligned to and symmetrized with the specified point group.
 If the automatic alignment fails, please manually rotate run_itNNN_class001.mrc (NNN is the number of iterations) so that it conforms the symmetry convention.
 ;
@@ -174,7 +174,7 @@ _diskio.arg1
 _diskio.arg2
 _diskio.constraint
 _diskio.help
-do_parallel_discio   "Use parallel disc I/O?"            bool       true            "?"             "?"             "?"             ?               
+do_parallel_discio   "Use parallel disc I/O?"            bool       true            ?             ?             ?             ?               
 ; If set to Yes, all MPI followers will read their own images from disc.
 Otherwise, only the leader will read images and send them through the network to the followers.
 Parallel file systems like gluster of fhgfs are good at parallel disc I/O.
@@ -202,7 +202,7 @@ _params_03.arg1
 _params_03.arg2
 _params_03.constraint
 _params_03.help
-do_preread_images    "Pre-read all particles into RAM?"  bool       false           "?"             "?"             "?"             ?               
+do_preread_images    "Pre-read all particles into RAM?"  bool       false           ?             ?             ?             ?               
 ; If set to Yes, all particle images will be read into computer memory, which will greatly speed up calculations on systems with slow disk access.
 However, one should of course be careful with the amount of RAM available.
 Because particles are read in float-precision, it will take ( N * box_size * box_size * 4 / (1024 * 1024 * 1024) ) Giga-bytes to read N particles into RAM.
@@ -212,7 +212,7 @@ Remember that running a single MPI follower on each node that runs as many threa
  
  If parallel disc I/O is set to No, then only the leader reads all particles into RAM and sends those particles through the network to the MPI followers during the refinement iterations.
 ;
-scratch_dir          "Copy particles to scratch directory:" string     RELION_SCRATCH_DIR "?"             "?"             "?"             ?               
+scratch_dir          "Copy particles to scratch directory:" string     RELION_SCRATCH_DIR ?             ?             ?             ?               
 ; If a directory is provided here, then the job will create a sub-directory in it called relion_volatile.
 If that relion_volatile directory already exists, it will be wiped.
 Then, the program will copy all input particles into a large stack inside the relion_volatile subdirectory.
@@ -221,7 +221,7 @@ an SSD drive),rh.PROCessing in all the iterations will be faster.
 If the job finishes correctly, the relion_volatile directory will be wiped.
 If the job crashes, you may want to remove it yourself.
 ;
-do_combine_thru_disc "Combine iterations through disc?"  bool       false           "?"             "?"             "?"             ?               
+do_combine_thru_disc "Combine iterations through disc?"  bool       false           ?             ?             ?             ?               
 ; If set to Yes, at the end of every iteration all MPI followers will write out a large file with their accumulated results.
 The MPI leader will read in all these files, combine them all, and write out a new file with the combined results.
 All MPI salves will then read in the combined results.
@@ -240,7 +240,7 @@ _use_gpu.arg1
 _use_gpu.arg2
 _use_gpu.constraint
 _use_gpu.help
-gpu_ids              "Which GPUs to use:"                string     ?               "?"             "?"             "?"             ?               
+gpu_ids              "Which GPUs to use:"    string     ?       ?       ?      ?             ?               
 ; This argument is not necessary.
 If left empty, the job itself will try to allocate available GPU resources.
 You can override the default allocation by providing a list of which GPUs (0,1,2,3, etc) to use.
@@ -258,12 +258,12 @@ _parallel_computing.arg1
 _parallel_computing.arg2
 _parallel_computing.constraint
 _parallel_computing.help
-nr_mpi               "Number of MPI procs:"              range      {QSUB_NRMPI_VAL} 1               "{RELION_MPI_MAX}" 1               ?               
+nr_mpi      "Number of MPI procs:"    range      {QSUB_NRMPI_VAL} 1     "{RELION_MPI_MAX}" 1       ?               
 ; Number of MPI nodes to use in parallel.
 When set to 1, MPI will not be used.
 The maximum can be set through the environment variable RELION_MPI_MAX.
 ;
-nr_threads           "Number of threads:"                range      {QSUB_NRTHREADS_VAL} 1               "{RELION_THREAD_MAX}" 1               ?               
+nr_threads  "Number of threads:"      range      {QSUB_NRTHREADS_VAL} 1  "{RELION_THREAD_MAX}" 1   ?               
 ; Number of shared-memory (POSIX) threads to use in parallel.
 When set to 1, no multi-threading will be used.
 The maximum can be set through the environment variable RELION_THREAD_MAX.
@@ -320,5 +320,5 @@ param   --tau2_fudge                         tau_fudge
 param   --j                                  nr_threads
 param   "--gpu ${gpu_ids}"                   use_gpu==True
 param   "${other_args}"                      ""
-param   --pipeline-control                   "InitialModel/${RELION_NEW_JOB}/
+param   --pipeline-control                   "InitialModel/${RELION_NEW_JOB}/"
 #

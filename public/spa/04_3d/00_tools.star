@@ -29,7 +29,7 @@ _class_3d.proc_label
 _class_3d.filename
 _class_3d.help   
 3d_align        'With Alignment'        tool      9       "relion.class3d.align"    02.star     "?"
-3d_skip_align   'No Alignment'          tool      9       "relion.class3d"          03.star     "?"
+3d_skip_align   'W/o Alignment'         tool      9       "relion.class3d"          03.star     "?"
 #
 loop_
 _refine.id

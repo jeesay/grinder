@@ -39,7 +39,7 @@ _indata.help
 fn_img               "Input images STAR file:"           file       ?               "ParticleGroupMetadata.star.relion" 1               "STAR files (*.star)" required        "A STAR file with all images (and their metadata)."
 fn_ref               "Reference map:"                    file       ?               "DensityMap.mrc" 1               "Image Files (*.{spi,vol,mrc})" required        
 ; A 3D map in MRC/Spider format.
-    Make sure this map has the same dimensions and the same pixel size as your input images, or specify that one can resize the reference if needed.
+Make sure this map has the same dimensions and the same pixel size as your input images, or specify that one can resize the reference if needed.
 ;
 fn_mask              "Reference mask (optional):"        file       ?               "Mask3D.mrc"    1               "Image Files (*.{spi,vol,msk,mrc})" required        
 ; If no mask is provided, a soft spherical mask based on the particle diameter will be used.

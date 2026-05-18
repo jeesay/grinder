@@ -21,11 +21,10 @@ _io.widget
 _io.value
 _io.display
 _io.help
-indata               "Input Data"                             bi-box-arrow-in-down fieldset   ?          show       ?
-outdata              "Output Data"                            bi-box-arrow-down    fieldset   ?          hidden     ?
-nodes                "Nodes"                                  bi-controller        fieldset   ?          hidden     ?
-system               "System"                                 bi-incognito         fieldset   ?          hiddden    ?
-rln_mc_cmd           "Check command"                          bi-chat-right-text   cli        ?          show       ?
+indata               "Input Data"               bi-box-arrow-in-down fieldset   ?          show       ?
+nodes                "Nodes"                    bi-controller        fieldset   ?          show       ?
+system               "System"                   bi-incognito         fieldset   ?          hiddden    ?
+rln_mc_cmd           "Check command"            bi-chat-right-text   cli        ?          show       ?
 #
 loop_
 _indata.id
@@ -37,29 +36,19 @@ _indata.arg1
 _indata.arg2
 _indata.constraint
 _indata.help
-input_star_mics      "Input movies STAR file:"           file       ?               "MicrographMovieGroupMetadata.star.relion" 1               "STAR files (*.star)" required        "A STAR file with all micrographs to run MOTIONCORR on"
-#
-loop_
-_outdata.id
-_outdata.label
-_outdata.widget
-_outdata.default
-_outdata.arg0
-_outdata.arg1
-_outdata.arg2
-_outdata.constraint
-_outdata.help
+input_star_mics  "Input movies STAR file:" file  ?  "MicrographMovieGroupMetadata.star.relion" 1   "STAR files (*.star)" required        "A STAR file with all micrographs to run MOTIONCORR on"
 #
 loop_
 _nodes.id
-_nodes.label
+_nodes.nodetype
 _nodes.widget
-_nodes.default
-_nodes.arg0
-_nodes.arg1
-_nodes.arg2
-_nodes.constraint
-_nodes.help
+_nodes.filename
+_nodes.filetype
+_nodes.comment
+input_star_mics input  node ?                            MicrographMovieGroupMetadata.star.relion       ?
+outdir          outdir node MotionCorr/${RELION_NEW_JOB} ?                                              ?
+outfile         output node "corrected_micrographs.star" MicrographGroupMetadata.star.relion.motioncorr LABEL_MOCORR_MICS
+pdf             output node "logfile.pdf"                LogFile.pdf.relion.motioncorr                  LABEL_MOCORR_LOG
 #
 loop_
 _system.id
@@ -84,15 +73,27 @@ Whichever program you use, 'Motion Refinement' is highly recommended to get the 
 ;
 #
 loop_
-_rln_mc_cmd.id
-_rln_mc_cmd.label
-_rln_mc_cmd.widget
-_rln_mc_cmd.default
-_rln_mc_cmd.arg0
-_rln_mc_cmd.arg1
-_rln_mc_cmd.arg2
-_rln_mc_cmd.constraint
-_rln_mc_cmd.help
+_rln_mc_cmd.type
+_rln_mc_cmd.arg
+_rln_mc_cmd.param_id
+prog    "grinder motion"                    ?      
+param   --i                                 fn_in_raw
+param   --path                              dir_in_raw
+param   --pattern                           pattern_in   
+param   --extension                         img_ext
+flag    --keep                              keep_name
+param   --prefix                            pattern_out        
+flag    "--odir /${RELION_NEW_JOB}/"        odir                
+param   --ofile                             outfile
+param   --optics_group_mtf                  fn_mtf
+param   --optics_group_name                 optics_group_name
+param   --angpix                            angpix
+param   --kV                                kV
+param   --Cs                                Cs
+param   --Q0                                Q0
+param   --beamtilt_x                        beamtilt_x
+param   --beamtilt_y                        beamtilt_y
+flag    "--pipeline-control"                "MotionCorr/${RELION_NEW_JOB}/"
 #
 loop_
 _settings.id
