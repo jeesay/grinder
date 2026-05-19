@@ -48,6 +48,6 @@ _cs_import.proc_id
 _cs_import.proc_label
 _cs_import.filename
 _cs_import.help   
-pyem_import_ptcls      'Particles'        tool   0       pyem.import.relion      20.star   'Import Patticles from Cryosparc with PyEM'                           
+pyem_import_ptcls      'Particles'        tool   0       pyem.import.relion      20.star   'Import Particles from Cryosparc with PyEM'                           
 
 
