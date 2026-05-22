@@ -21,7 +21,7 @@
 
 import { h } from "./dom.js";
 import { togglePopup, fetchFileTree, init } from "./browse.js";
-import { button_click, update_log, update_viz } from "./w_event.js"
+import { button_click, update_log, update_viz, update_table } from "./w_event.js"
 import { connect_to_ws_server, load_project, read_job, read_data } from "./main.js"
 
 import { g_graphics } from './dataviz.js';
@@ -732,7 +732,7 @@ const w_navtab = (desc) => {
   }
 
 
-  const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': update_log, 'DataViz': update_viz };
+  const funcs = { 'I/O': nothing, 'Settings': nothing, 'Log': update_log, 'DataViz': update_viz, 'Micrographs': update_table };
 
   console.error(`Has children in ${desc.id}?`, ('children' in desc) && (desc.children.length > 0));
   // Remove all the previous children

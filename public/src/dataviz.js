@@ -65,51 +65,6 @@ export function drawHistogram(container, data, config) {
         .attr("fill", "#56b494");
 }
 
-// export function drawHistogram(container, data, config) {
-//     const colName = Object.keys(data)[0];
-//     const values = data[colName].map(Number); 
-
-//     d3.select(container).selectAll("*").remove();
-
-//     const margin = {top: 20, right: 20, bottom: 40, left: 50};
-//     const width = container.clientWidth - margin.left - margin.right;
-//     const height = 250 - margin.top - margin.bottom;
-
-//     const svg = d3.select(container)
-//         .append("svg")
-//         .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-//         .append("g")
-//         .attr("transform", `translate(${margin.left},${margin.top})`);
-
-//     const x = d3.scaleLinear()
-//         .domain(d3.extent(values)).nice()
-//         .range([0, width]);
-
-//     const histogram = d3.bin().domain(x.domain()).thresholds(x.ticks(50));
-//     const bins = histogram(values);
-
-//     // const bins = d3.bin()
-//     //     .domain(x.domain())
-//     //     .thresholds(x.ticks(50));
-
-//     const y = d3.scaleLinear()
-//         .domain([0, d3.max(bins, d => d.length)]).nice()
-//         .range([height, 0]);
-
-//     // Axes
-//     svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
-//     svg.append("g").call(d3.axisLeft(y));
-
-//     // Bars
-//     svg.selectAll("rect")
-//         .data(bins)
-//         .join("rect")
-//         .attr("x", d => x(d.x0) + 1)
-//         .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
-//         .attr("y", d => y(d.length))
-//         .attr("height", d => height - y(d.length))
-//         .attr("fill", "#56b494");
-// }
 
 /////////////// SCATTER PLOT  ///////////////
 
@@ -151,6 +106,67 @@ export function drawScatterPlot(container, data, config) {
             .y(d => y(d.y))
         );
 }
+
+/////////////// MICROGRAPHS TABLE  ///////////////
+
+export function renderTable(container, data, config) {
+    const colNames = Object.keys(data);
+    console.log("colNames :", colNames)
+
+    const totalRows = data[colNames[0]].length;
+    console.log("data test (nbr mics) : ", data[colNames[0]].length)
+
+    const table = document.createElement("table");
+    table.className = "grinder-star-table"; // Optional : CSS style
+
+    const thead = document.createElement("thead");
+    const tbody = document.createElement("tbody");
+
+    // 3. Headers (Th)
+    const headerTr = document.createElement("tr");
+    colNames.forEach(col => {
+        const th = document.createElement("th");
+        headerTr.appendChild(th);
+    });
+    thead.appendChild(headerTr);
+    table.appendChild(thead);
+
+    // 4. Lines (Td) with DocumentFragment
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < totalRows; i++) {
+        const tr = document.createElement("tr");
+        
+        // click event on target
+        tr.addEventListener("click", () => {
+            const mrcPath = data["rlnMicrographName"] ? data["rlnMicrographName"][i] : null;
+            console.log(`Line ${i} selected. Corresponding micrograph :`, mrcPath);
+            
+            // TODO : display .webP
+            if (mrcPath) {
+                // window.dispatchEvent or instant call to display function WebP
+            }
+        });
+
+        // filling cells for line i
+        colNames.forEach(col => {
+            const td = document.createElement("td");
+            const value = data[col][i];
+            td.textContent = (value !== undefined && value !== null) ? value : "-";
+            tr.appendChild(td);
+        });
+
+        fragment.appendChild(tr);
+    }
+
+    // 5. DOM injection
+    tbody.appendChild(fragment);
+    table.appendChild(tbody);
+    container.appendChild(table);
+
+    console.log(`Table rendered successfully : ${totalRows} lines and ${colNames.length} columns.`);
+}
+
 
 /////////////// CORE  ///////////////
 

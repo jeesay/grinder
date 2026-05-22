@@ -90,8 +90,9 @@ loop_
 _import_cs_cmd.type
 _import_cs_cmd.arg
 _import_cs_cmd.param_id
-prog    "csparc2star.py"    ?      
-param   ""                  fn_ptcls
-param   ""                  fn_passthrouh             
-param   ""                  fn_out
+prog    "grinder import_cs"    ?      
+param   "--particles"          fn_ptcls
+param   "--passthrough"        fn_passthrouh          
+param   "--ofile"              fn_out
+param   "----micrograph-path"  mic-path
 #

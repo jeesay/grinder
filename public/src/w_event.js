@@ -21,7 +21,7 @@
 
 import { h} from "./dom.js"
 import { update_right_sidebar } from "./job.js";
-import { connect_to_ws_server, load_project, read_data, read_log } from "./main.js"
+import { connect_to_ws_server, load_project, read_data, read_log, mics_viewer } from "./main.js"
 import { spin,w_alert} from "./widget.js"
 
 function table_cell(ev) {
@@ -141,4 +141,19 @@ export const update_viz = async (ev) => {
     gui : gui
   };
   const data = await read_data(obj);
+}
+
+export const update_table = async (ev) => {
+  const wdgt = ev.target;
+  const jb = document.getElementById('job_id');
+  const gui = JSON.parse(localStorage.getItem('relion.motioncorr.own')).datablocks.default.micrograph;
+  console.log(gui);
+  const obj = { 
+    projpath : jb.dataset.projpath, 
+    path : jb.dataset.path,
+    job : jb.dataset.job,
+    nodetype : jb.dataset.nodetype,
+    gui : gui
+  };
+  const data = await mics_viewer(obj);
 }
