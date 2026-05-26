@@ -8,6 +8,7 @@ _pyem_import_ptcls.widget
 _pyem_import_ptcls.value
 _pyem_import_ptcls.help
 io                   "I/O"                   bi-arrow-down-up     tab        ?        ?
+settings             "Settings"              bi-tools             tab        ?        ?
 log                  "Log"                   bi-binoculars-fill   tab        ?        ?
 #
 loop_
@@ -19,9 +20,20 @@ _io.value
 _io.display
 _io.help
 general              "Required"                    bi-chat-right-text      fieldset   ?        show     ?
-advanced             "Advanced parameters"      bi-chat-right-text      fieldset   ?        show     ?
 nodes                "Nodes"                    bi-controller           fieldset   ?        show     ?
 import_cs_cmd        "Check command"            bi-chat-right-text      cli        ?        show     ?
+#
+#
+loop_
+_settings.id
+_settings.label
+_settings.icon
+_settings.widget
+_settings.value
+_settings.display
+_settings.help
+path             "Paths options"           bi-chat-right-text      fieldset   ?        show     ?
+advanced         "Advanced parameters"     bi-chat-right-text      fieldset   ?        show     ?
 #
 loop_
 _nodes.id
@@ -47,6 +59,19 @@ fn_passthrouh   "Input passthrouh particles file:"       string       Px/Jy/pass
 fn_out          "Output particles file:"                 string       Px_Jy_particles.star           ? ?            ?             ?        ?
 #
 loop_
+_path.id
+_path.label
+_path.widget
+_path.default
+_path.arg0
+_path.arg1
+_path.arg2
+_path.state
+_path.help 
+stack-path   "Path to single particle stack"        string          ?           ?   ?   ?   ?   "Path to single particle stack"
+mic-path     "Path for micrographs or movies"       string          ?           ?   ?   ?   ?   "Replacement path for micrographs or movies"
+#
+loop_
 _advanced.id
 _advanced.label
 _advanced.widget
@@ -60,8 +85,6 @@ movies       "Write per-movie star files ?"         bool            false       
 boxsize      "Box size :"                           string          ?           ?   ?   ?   ?   "Cryosparc refinement box size (if different from particles)"
 class        "Select class to keep :"               string          ?           ?   ?   ?   ?   "Keep this class in output, may be passed multiple times"
 minhpic      "Minimum posterior probability"        string          ?           ?   ?   ?   ?   "Minimum posterior probability for class assignment"
-stack-path   "Path to single particle stack"        string          ?           ?   ?   ?   ?   "Path to single particle stack"
-mic-path     "Path for micrographs or movies"       string          ?           ?   ?   ?   ?   "Replacement path for micrographs or movies"
 mic-coor     "Copy micrograph coordinates"          string          ?           ?   ?   ?   ?   "Source for micrograph paths and particle coordinates (file or quoted glob)"
 swapxy       "Do swap X and Y ?"                    bool            false       ?   ?   ?   ?   "Swap X and Y axes when converting particle coordinates from normalized to absolute"
 invertx      "Invert on X ?"                        bool            false       ?   ?   ?   ?   "Invert particle coordinate X axis"
@@ -90,9 +113,10 @@ loop_
 _import_cs_cmd.type
 _import_cs_cmd.arg
 _import_cs_cmd.param_id
-prog    "grinder import_cs"    ?      
-param   "--particles"          fn_ptcls
-param   "--passthrough"        fn_passthrouh          
-param   "--ofile"              fn_out
-param   "----micrograph-path"  mic-path
+prog    "conda run -n pyem csparc2star.py"    ?      
+param   ""                    fn_ptcls
+param   ""                    fn_passthrouh             
+param   ""                    fn_out
+param   "--micrograph-path"   mic-path
+param   "--stack-path"        stack-path
 #
