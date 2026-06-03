@@ -114,10 +114,10 @@ export function renderTable(container, data, config) {
     console.log("colNames :", colNames)
 
     const totalRows = data[colNames[0]].length;
-    console.log("data test (nbr mics) : ", data[colNames[0]].length)
+    console.log("data test (nbr mics) : ", totalRows)
 
     const table = document.createElement("table");
-    table.className = "grinder-star-table"; // Optional : CSS style
+    table.className = "custom-table"; // Optional : CSS style
 
     const thead = document.createElement("thead");
     const tbody = document.createElement("tbody");
@@ -126,6 +126,7 @@ export function renderTable(container, data, config) {
     const headerTr = document.createElement("tr");
     colNames.forEach(col => {
         const th = document.createElement("th");
+        th.textContent = col;
         headerTr.appendChild(th);
     });
     thead.appendChild(headerTr);
