@@ -442,7 +442,17 @@ export  const run_job = async () => {
   });
   const current_project = JSON.parse(localStorage.getItem('current_project'));
   const current_job = JSON.parse(localStorage.getItem('current_job'));
-  const nodes = [...document.querySelectorAll('.node')];
+  // Extract info from nodes
+  const nodes = [...document.querySelectorAll('.node')]
+    .map( el => (
+      {
+        id: el.id,
+        filename: el.value,
+        nodetype: el.dataset.nodetype,
+        filetype: el.dataset.filetype
+      }
+    )
+  );
 
   // Step #3 - Get the CLI
   const tag = current_job.tag;

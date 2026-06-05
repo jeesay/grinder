@@ -1,4 +1,4 @@
-//  GRINDER - Graphical user interface of RelIoN and DataminER
+//  GRINDER - Graphical Runtime Interface for Node-based Dynamic cryo-EM Recipes
 //  Copyright (C) 2023-2026  Jean-Christophe Taveau
 //
 //  This file is part of GRINDER

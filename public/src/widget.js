@@ -132,7 +132,8 @@ const w_node = (desc) => h('div.row',
             dataset: {
               key: desc.id.split('-')[0], 
               param: desc.id,
-              option: ('option' in desc) ? desc.filetype : 0
+              filetype: ('filetype' in desc) ? desc.filetype : 0,
+              nodetype: ('nodetype' in desc) ? desc.nodetype : 0
             },
           }
         )

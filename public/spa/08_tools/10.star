@@ -41,7 +41,7 @@ _general.arg1
 _general.arg2
 _general.state
 _general.help 
-index            "Digits Number of Index:" range      2                1  10 1  no_bounds  "An index of N digits is generated and stored in the results CSV file"
+time             "Computation Time:"       range      10               2  60 1  no_bounds  "The number of seconds the program is sleeping to mimick computation time"
 message          "Message:"                string     "Hello World!"   ?  ?  ?  ?          "Define a message displayed in the log and stored in the results CSV file."
 reverse          "Reverse:"                bool       false            ?  ?  ?  ?          "Display the message from right to left"
 case             "Modify Case:"            select     ?                ?  ?  ?  ?          "Display the message in a case mode. This param is applied after the `reverse` parameter"
@@ -65,6 +65,7 @@ _test_cmd.type
 _test_cmd.arg
 _test_cmd.param_id
 prog    "grinder test"       ?      
+param   --time               time
 param   --message            message
 param   --repeat             repeat
 flag    --rev                reverse     

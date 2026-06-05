@@ -1,8 +1,8 @@
 //
-//  GIMMICK - Graphical Interface of Multi-Modal Imaging and sCientific Kit
-//  Copyright (C) 2023  Jean-Christophe Taveau
+//  GRINDER - Graphical Runtime Interface for Node-based Dynamic Electron microscopy Recipes
+//  Copyright (C) 2026  Jean-Christophe Taveau
 //
-//  This file is part of GIMMICK
+//  This file is part of GRINDER
 //
 // This program is free software: you can redistribute it and/or modify it
 // under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 // GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with GIMMICK. If not, see <http://www.gnu.org/licenses/>.
+//  along with GRINDER. If not, see <http://www.gnu.org/licenses/>.
 //
 // Authors: 
 // 
