@@ -12,7 +12,7 @@ import {WSClient} from "./ws_client.js";
 //import {*} from "./history.js";
 //import {*} from "./browse.js";
 //import {*} from "./widget.js";
-import { drawHistogram, drawScatterPlot } from "./dataviz.js"
+import { drawHistogram, drawScatterPlot, renderTable } from "./dataviz.js"
 
 import * as aq from "https://esm.sh/arquero@7";
 
@@ -565,7 +565,7 @@ export  const read_data = async (obj) => {
                 console.log(targetId);
                 // const container = document.querySelector(`div#${targetId}.canvas`);
                 const container = document.getElementById(targetId)
-                console.log(`Recherche de ${targetId}:`, container); // <--- CHECK 
+                console.log(`Looking for ${targetId}:`, container); // <--- CHECK 
 
               if (container) {
                   // We empty the div just in case
@@ -574,11 +574,11 @@ export  const read_data = async (obj) => {
                   // The correct function is called according to the type
                   if (config.widget === 'g_hist') {
                       drawHistogram(container, data, config);
-                      console.log(`Tentative de dessin réussie pour ${id}`);
+                      console.log(`Creating draw for ${id}`);
                   } 
                   else if (config.widget === 'g_plot') {
                       drawScatterPlot(container, data, config);
-                      console.log(`Tentative de dessin réussie pour ${id}`);
+                      console.log(`Creating draw for ${id}`);
                   }
               }
 
@@ -731,6 +731,75 @@ export const read_log = async (obj) => {
         // We can link socket to window object to close it later
         window.currentLogSocket = socket;
       */
+    });
+}
+
+export  const mics_viewer = async (obj) => {
+  const connect = JSON.parse(localStorage.getItem('connection'));
+  const ip_address = connect.ip;
+  const port = connect.port;
+  console.info('WS',`ws://${ip_address}:${port}/ws/micrographs`);
+  // Open the WebSocket connection and register event handlers.
+  // await GRINDER.server.connect(`ws://${ip_address}:${port}/welcome`);
+ 
+  return new Promise((resolve, reject) => {
+        // 1. Create the connection
+        const socket = new WebSocket(`ws://${ip_address}:${port}/ws/micrographs`);
+
+        // 2. Handle connection open
+        socket.onopen = () => {
+          // Update the UI when the server responds
+          const msg = {projpath:obj.projpath,dirname:obj.path,jobname:obj.job};
+          console.info(msg, JSON.stringify(msg));
+          const form = localStorage.getItem(obj.nodetype);
+          // console.log("TESSSSSSSTTTTTTTTTTT", form);
+          const s = {"request" : JSON.stringify(msg), "data": form}
+          socket.send(JSON.stringify(s));
+        };
+
+        // 3. Handle the result
+        socket.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            console.log(msg);
+            // // Update: form from obj.nodetype
+            // const form = localStorage.getItem(obj.nodetype);
+            // console.log(form);
+
+            if (msg.type == "mics_viewer"){
+              Object.entries(msg.widget).forEach(([id, config]) => {
+                // config.data contain { rlnIndex: [...], rlnAccumMotionTotal: [...] }
+                const data = config.data;
+                
+                const targetId = id.split('::')[1];
+                console.log(targetId);
+                // const container = document.querySelector(`div#${targetId}.canvas`);
+                const container = document.getElementById(targetId)
+                console.log(`Looking for ${targetId}:`, container); // <--- CHECK 
+
+              if (container) {
+                  // We empty the div just in case
+                  container.innerHTML = "";
+                  
+                  // The correct function is called according to the type
+                  if (config.widget === 'g_table') {
+                      renderTable(container, data, config);
+                      console.log(`Creating draw for ${id}`);
+                  } 
+                  else {
+                    console.log(`Unexpected widget type : ${config.widget}`)
+                  }
+              }
+              });
+            }
+            // socket.close(); // Close connection after getting the data
+            // resolve(msg);
+        };
+
+        // Handle errors
+        socket.onerror = (error) => {
+          w_alert(`[Close] Connection failed with server ws://${ip_address}:${port}/job/data`,'error');
+          reject(error);
+        }
     });
 }
 

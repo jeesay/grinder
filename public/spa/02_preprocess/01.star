@@ -11,7 +11,7 @@ io                   "I/O"                     bi-arrow-down-up     tab         
 settings             "Settings"                bi-tools             tab              ?               ?
 log                  "Log"                     bi-binoculars-fill   tab              update          ?
 dataviz              "DataViz"                 bi-columns-gap       tab              update          ?
-per_micrograph       "Per Micrograph"          bi-eye               tab              update          ?
+micrograph       "Micrographs"          bi-eye               tab              update          ?
 #
 loop_
 _io.id
@@ -256,20 +256,24 @@ _dataviz.pos
 _dataviz.size
 _dataviz.data
 _dataviz.help
-grid                 ?  grid       ?     (2,3) ? ?  
-grid::motion_total_p ?  g_plot     (0,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionTotal] ?
-grid::motion_total_h ?  g_hist     (0,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionTotal]          ?
-grid::motion_early_p ?  g_plot     (1,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionEarly] ?
-grid::motion_early_h ?  g_hist     (1,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionEarly]          ?
-grid::motion_late_p  ?  g_plot     (2,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionLate]  ?
-grid::motion_late_h  ?  g_hist     (2,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionLate]           ?
+grid_plot                 ?  grid       ?     (2,3) ? ?  
+grid_plot::motion_total_p ?  g_plot     (0,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionTotal] ?
+grid_plot::motion_total_h ?  g_hist     (0,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionTotal]          ?
+grid_plot::motion_early_p ?  g_plot     (1,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionEarly] ?
+grid_plot::motion_early_h ?  g_hist     (1,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionEarly]          ?
+grid_plot::motion_late_p  ?  g_plot     (2,0) (1,1) corrected_micrographs.star?micrographs[rlnIndex,rlnAccumMotionLate]  ?
+grid_plot::motion_late_h  ?  g_hist     (2,1) (1,1) corrected_micrographs.star?micrographs[rlnAccumMotionLate]           ?
 #
 loop_
-_per_micrograph.id
-_per_micrograph.label
-_per_micrograph.icon
-_per_micrograph.widget
-_per_micrograph.value
-_per_micrograph.display
-_per_micrograph.help
+_micrograph.id
+_micrograph.label
+_micrograph.widget
+_micrograph.pos
+_micrograph.size
+_micrograph.data
+_micrograph.help
+grid_mics                      ?       grid        ?       (2,2)   ?   ?     
+grid_mics::micrograph_table    ?       g_table     (0,0)   (1,1)   corrected_micrographs.star?micrographs[rlnMicrographName,rlnOpticsGroup,rlnAccumMotionTotal,rlnAccumMotionEarly,rlnAccumMotionLate]   ?       
+# grid::shifts              ?       g_shift     (0,1)   (1,1)   ?    hide     ?
+# grid::image               ?       g_img       (1,1)   (1,1)   ?    hide     ?    
 #
