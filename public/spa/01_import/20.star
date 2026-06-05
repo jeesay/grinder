@@ -18,7 +18,7 @@ _io.widget
 _io.value
 _io.display
 _io.help
-general              "Required"                    bi-chat-right-text      fieldset   ?        show     ?
+general              "Required"                 bi-chat-right-text      fieldset   ?        show     ?
 advanced             "Advanced parameters"      bi-chat-right-text      fieldset   ?        show     ?
 nodes                "Nodes"                    bi-controller           fieldset   ?        show     ?
 import_cs_cmd        "Check command"            bi-chat-right-text      cli        ?        show     ?
@@ -29,7 +29,7 @@ _nodes.nodetype
 _nodes.widget
 _nodes.filename
 _nodes.filetype
-JOB_OUTDIR  outdir node  Import/${NEW_JOB}   Directory.output.relion                           
+JOB_OUTDIR  outdir node  Import/${NEW_JOB}     Directory.output.relion                           
 outfile     output node 'files.star'           ParamsData.star.grinder.test
 #
 loop_
