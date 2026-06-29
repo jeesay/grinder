@@ -1,0 +1,68 @@
+/////////////// HISTOGRAM  ///////////////
+
+export function drawHistogram(container, data, config) {
+    const colName = Object.keys(data)[0];
+    const values = data[colName];
+
+    const myChart = echarts.init(container);
+    
+    // Calcul des bins simplifié pour E-Charts
+    const option = {
+        grid: { top: 10, right: 10, bottom: 30, left: 40 },
+        xAxis: { type: 'value', scale: true },
+        yAxis: { type: 'value'},
+        tooltip: { trigger: 'axis' },
+        series: [{
+            type: 'bar',
+            data: computeBins(values), // Petite fonction helper ci-dessous
+            color: '#56b494'
+        }]
+    };
+    myChart.setOption(option);
+}
+
+// Helper pour simuler des bins comme dans D3
+function computeBins(data) {
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const binsCount = 30;
+    const step = (max - min) / binsCount;
+    const bins = new Array(binsCount).fill(0);
+    
+    data.forEach(v => {
+        const idx = Math.min(Math.floor((v - min) / step), binsCount - 1);
+        bins[idx]++;
+    });
+    
+    return bins.map((count, i) => [min + (i * step), count]);
+}
+
+
+/////////////// SCATTER PLOT  ///////////////
+
+export function drawScatterPlot(container, data, config) {
+    const keys = Object.keys(data);
+    const xName = keys.includes('rlnIndex') ? 'rlnIndex' : keys[0];
+    const yName = keys.length > 1 ? keys[1] : keys[0];
+
+    const myChart = echarts.init(container)
+    
+    // On prépare les données au format [[x, y], [x, y], ...]
+    const seriesData = data[xName].map((x, i) => [x, data[yName][i]]);
+
+    const option = {
+        grid: { top: 10, right: 10, bottom: 30, left: 40 },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'value' },
+        yAxis: { type: 'value', scale: true },
+        series: [{
+            data: seriesData,
+            type: 'line',
+            symbol: 'none', // Pas de points individuels pour la performance
+            lineStyle: { width: 1, color: '#4682b4' },
+            sampling: 'lttb' // MAGIQUE : Réduit les points pour le rendu sans perdre la forme
+        }]
+    };
+    myChart.setOption(option);
+
+}
