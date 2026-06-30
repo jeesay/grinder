@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecture Flux Polars IPC via WebSocket</title>
+    <link href="./clusterize.css" rel="stylesheet">
+    <script src="./clusterize.min.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "apache-arrow": "https://esm.sh/apache-arrow@19.0.0",
+            "arquero":      "https://esm.sh/arquero@7"
+        }
+    }
+    </script>
+    <style>
+        body { font-family: monospace; font-size: 13px; padding: 1rem; height: 100vh; display: flex; flex-direction: column; margin: 0; box-sizing: border-box; }
+        #header { flex: 0 0 auto; }
+        #output { 
+            flex: 1 1 auto; 
+            overflow: auto; 
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 4px 10px; white-space: nowrap; }
+        th { background: #eee; position: sticky; top: 0; z-index: 10; }
+        tr:nth-child(even) { background: #fafafa; }
+        tr:hover { background: #eef2ff; }
+        .status { padding: 5px; margin-bottom: 10px; border-radius: 4px; }
+        .connected { background: #e6ffed; color: #22863a; border: 1px solid #22863a; }
+        .loading { background: #fff8e1; color: #b78103; border: 1px solid #b78103; }
+    </style>
+</head>
+<body>
+
+    <!-- <div id="header">
+        <h2>Flux Polars IPC → Arquero</h2>
+        <div id="status" class="status loading">Connexion au serveur WebSocket...</div>
+    </div>
+
+    <div id="output">En attente de données binaires...</div> -->
+
+    <h2>Affichage Haute Performance (Clusterize.js)</h2>
+    <div id="stats" class="stats">Connexion en cours...</div>
+
+    <div id="scrollArea" class="clusterize-scroll">
+        <table>
+            <thead>
+                <tr id="tableHeader"></tr>
+            </thead>
+            <tbody id="contentArea" class="clusterize-content">
+                <tr><td>Chargement des données...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { tableFromIPC } from "apache-arrow";
+        import * as aq from "arquero";
+
+        const output = document.getElementById("output");
+        const statusDiv = document.getElementById("status");
+
+        const stats = document.getElementById("stats");
+        const contentArea = document.getElementById("contentArea");
+        const tableHeader = document.getElementById("tableHeader");
+
+        let dt;
+
+        const connect_to_ws_server = () => {
+            return new Promise((resolve, reject) => {
+                const url = "ws://147.210.32.250:20000/parquet";
+                const socket = new WebSocket(url);
+
+                // IMPORTANT : On attend des données binaires (Buffer/Uint8Array)
+                socket.binaryType = "arraybuffer";
+
+                socket.onopen = () => {
+                    statusDiv.className = "status connected";
+                    statusDiv.innerText = `[Connecté] : ${url}`;
+                    console.log("Connexion établie");
+                };
+
+                socket.onmessage = (event) => {
+                    try {
+                        console.info("Données reçues, taille :", event.data.byteLength, "octets");
+                        
+                        // 1. Transformer le binaire en table Apache Arrow
+                        const arrowTable = tableFromIPC(event.data);
+                        
+                        // 2. Charger dans Arquero pour manipulation
+                        dt = aq.fromArrow(arrowTable);
+                        console.log("Stats Arrow :", arrowTable.numRows);
+                        console.log("Stats Arquero :", dt.numRows());
+
+                        // 3. Exemple de transformation Arquero avant affichage
+                        // (On ajoute une colonne calculée ou un filtre ici si besoin)
+                        const view = dt.derive({ 
+                            reception_at: aq.op.now() 
+                        });
+
+                        // 1. Préparer le Header (colonnes)
+                        const columns = dt.columnNames();
+                        tableHeader.innerHTML = columns.map(c => `<th>${c}</th>`).join('');
+
+                        // 2. Transformer Arquero en lignes HTML pour Clusterize
+                        // On crée un tableau de strings : ["<tr>...</tr>", "<tr>...</tr>", ...]
+                        const rowsHTML = [];
+                        for (const row of dt) {
+                            let tr = "<tr>";
+                            for (const col of columns) {
+                                // row[col] fonctionne correctement ici car l'itérateur 
+                                // de la table (dt) renvoie des objets ligne mappés
+                                const val = row[col] ?? ""; // On gère le null/undefined proprement
+                                tr += `<td>${val}</td>`;
+                            }
+                            tr += "</tr>";
+                            rowsHTML.push(tr);
+                        }
+
+                        // 3. On initialise Clusterize avec le tableau de strings
+                        if (window.myClusterize) window.myClusterize.destroy(); // Nettoyage si on reçoit un nouveau flux
+
+                        // 3. Initialiser Clusterize
+                        window.myClusterize = new Clusterize({
+                            rows: rowsHTML,
+                            scrollId: 'scrollArea',
+                            contentId: 'contentArea'
+                        });
+
+                        console.log("Clusterize est actif.");
+
+                        // 4. Rendu HTML
+                        // output.innerHTML = dt.slice(0, 500).toHTML()
+
+                        
+                        statusDiv.innerText = `Données mises à jour (${dt.numRows()} lignes)`;
+                        
+                        // Si vous voulez garder la connexion ouverte pour un flux constant, 
+                        // commentez la ligne ci-dessous :
+                        // socket.close(); 
+                        
+                        resolve(dt);
+                    } catch (err) {
+                        console.error("Erreur de traitement IPC/Arrow:", err);
+                        output.innerHTML = `<span style="color:red">Erreur : ${err.message}</span>`;
+                        reject(err);
+                    }
+                };
+
+            });
+        }
+
+        // Lancement
+        connect_to_ws_server().catch(console.error);
+    </script>
+</body>
+</html>

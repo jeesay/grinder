@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console de Monitoring</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --terminal-bg: #1e1e1e;
+            --terminal-green: #00ff00;
+            --primary-blue: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 { color: var(--primary-blue); }
+
+        /* Style des Onglets */
+        nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 10px 25px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            background: #e0e0e0;
+            border-radius: 8px 8px 0 0;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .tab-btn.active {
+            background: white;
+            border-bottom: 2px solid white;
+            color: var(--primary-blue);
+        }
+
+        /* Contenu des onglets */
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            min-height: 450px;
+        }
+
+        .tab-content.active { display: block; }
+
+        /* Style du Terminal */
+        #terminal {
+            background-color: var(--terminal-bg);
+            color: var(--terminal-green);
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            border-radius: 5px;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: inset 0 0 10px #000;
+        }
+
+        .log-line {
+            border-left: 2px solid #444;
+            padding-left: 10px;
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+        }
+
+        .system-msg { color: #888; font-style: italic; }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #bbb;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .online { background-color: #2ecc71; }
+    </style>
+</head>
+<body>
+
+    <h2><span id="status-dot" class="status-dot"></span> Système de Monitoring</h2>
+
+    <nav>
+        <button class="tab-btn active" onclick="openTab(event, 'dashboard')">Dashboard</button>
+        <button class="tab-btn" onclick="openTab(event, 'logs')">Logs Temps Réel</button>
+    </nav>
+
+    <!-- Onglet Dashboard -->
+    <div id="dashboard" class="tab-content active">
+        <h3>Statistiques Générales</h3>
+        <p>Bienvenue dans l'interface de test. Connectez le serveur Python pour commencer.</p>
+        <ul>
+            <li>Protocole : <strong>WebSocket (ws://)</strong></li>
+            <li>Serveur : <strong>localhost:8765</strong></li>
+            <li>Fichier surveillé : <strong>log.txt</strong></li>
+        </ul>
+    </div>
+
+    <!-- Onglet Logs -->
+    <div id="logs" class="tab-content">
+        <h3>Console de sortie (log.txt)</h3>
+        <div id="terminal">
+            <div class="system-msg">En attente d'activation du flux...</div>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+        let logStarted = false;
+        const terminal = document.getElementById('terminal');
+        const statusDot = document.getElementById('status-dot');
+
+        // Connexion au WebSocket
+        function connect() {
+            socket = new WebSocket('ws://localhost:8765');
+
+            socket.onopen = () => {
+                console.log("Connecté au serveur Python");
+                statusDot.classList.add('online');
+            };
+
+            socket.onmessage = (event) => {
+                appendLine(event.data);
+            };
+
+            socket.onclose = () => {
+                console.log("Déconnecté");
+                statusDot.classList.remove('online');
+                // Tentative de reconnexion automatique après 3 secondes
+                setTimeout(connect, 3000);
+            };
+        }
+
+        // Gestion du changement d'onglet
+        function openTab(evt, tabName) {
+            const contents = document.getElementsByClassName("tab-content");
+            for (let content of contents) content.classList.remove("active");
+
+            const buttons = document.getElementsByClassName("tab-btn");
+            for (let btn of buttons) btn.classList.remove("active");
+
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+
+            // Si on clique sur l'onglet logs pour la première fois
+            if (tabName === 'logs' && !logStarted) {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send("start_log");
+                    logStarted = true;
+                    appendLine("Requête d'abonnement aux logs envoyée...", true);
+                } else {
+                    alert("Le serveur WebSocket n'est pas connecté !");
+                }
+            }
+        }
+
+        // Ajouter une ligne au terminal
+        function appendLine(text, isSystem = false) {
+            const div = document.createElement('div');
+            div.className = isSystem ? 'log-line system-msg' : 'log-line';
+            const timestamp = new Date().toLocaleTimeString();
+            div.textContent = `[${timestamp}] ${text}`;
+            terminal.appendChild(div);
+            
+            // Auto-scroll vers le bas
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Initialisation
+        connect();
+    </script>
+
+</body>
+</html>

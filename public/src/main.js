@@ -724,7 +724,7 @@ export const read_log = async (obj) => {
     });
 }
 
-export  const mics_viewer = async (obj) => {
+export  const mics_table = async (obj) => {
   const connect = JSON.parse(localStorage.getItem('connection'));
   const ip_address = connect.ip;
   const port = connect.port;
@@ -755,7 +755,7 @@ export  const mics_viewer = async (obj) => {
             // const form = localStorage.getItem(obj.nodetype);
             // console.log(form);
 
-            if (msg.type == "mics_viewer"){
+            if (msg.type == "mics_table"){
               Object.entries(msg.widget).forEach(([id, config]) => {
                 // config.data contain { rlnIndex: [...], rlnAccumMotionTotal: [...] }
                 const data = config.data;

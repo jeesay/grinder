@@ -21,7 +21,7 @@
 
 import { h} from "./dom.js"
 import { update_right_sidebar } from "./job.js";
-import { connect_to_ws_server, load_project, read_data, read_log, mics_viewer } from "./main.js"
+import { connect_to_ws_server, load_project, read_data, read_log, mics_table } from "./main.js"
 import { spin,w_alert} from "./widget.js"
 
 function table_cell(ev) {
@@ -155,5 +155,5 @@ export const update_table = async (ev) => {
     nodetype : jb.dataset.nodetype,
     gui : gui
   };
-  const data = await mics_viewer(obj);
+  const data = await mics_table(obj);
 }

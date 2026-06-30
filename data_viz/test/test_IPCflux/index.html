@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Lecture Parquet avec Fenêtre Glissante</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "apache-arrow": "https://esm.sh/apache-arrow@17",
+            "arquero":      "https://esm.sh/arquero@6"
+        }
+    }
+    </script>
+    <style>
+        body { font-family: monospace; font-size: 13px; padding: 1rem; height: 100vh; display: flex; flex-direction: column; margin: 0; box-sizing: border-box; }
+        
+        #header { flex: 0 0 auto; }
+        
+        #controls { 
+            margin-bottom: 1rem; 
+            padding: 1rem; 
+            background: #f8f9fa; 
+            border: 1px solid #ddd;
+            display: flex; 
+            align-items: center; 
+            gap: 1.5rem; 
+        }
+
+        #slider { width: 400px; cursor: pointer; }
+
+        /* Conteneur pour le défilement */
+        #output { 
+            flex: 1 1 auto; 
+            overflow: auto; 
+            border: 1px solid #ccc;
+        }
+
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 4px 10px; white-space: nowrap; }
+        th { background: #eee; position: sticky; top: 0; z-index: 10; }
+        tr:nth-child(even) { background: #fafafa; }
+        tr:hover { background: #eef2ff; }
+
+        .info-box { font-weight: bold; color: #1a73e8; }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <h2>Fichier : mx2441_grid5_12130_shifts.parquet</h2>
+    </div>
+
+    <div id="controls">
+        <div>
+            Fenêtre : <span class="info-box" id="range-text">0 - 40</span> 
+            sur <span id="total-rows">0</span> lignes
+        </div>
+        <input type="range" id="slider" min="0" value="0" step="1">
+        <div id="info">Glissez pour faire défiler</div>
+    </div>
+
+    <div id="output">Chargement des données...</div>
+
+    <script type="module">
+        import { tableFromIPC } from "apache-arrow";
+        import * as aq from "arquero";
+
+        // Import dynamique de parquet-wasm
+        const parquet = await import("https://cdn.jsdelivr.net/npm/parquet-wasm@0.6.0/esm/parquet_wasm.js");
+        await parquet.default();
+        const { readParquet } = parquet;
+
+        const slider = document.getElementById("slider");
+        const rangeText = document.getElementById("range-text");
+        const output = document.getElementById("output");
+        const totalRowsEl = document.getElementById("total-rows");
+
+        const WINDOW_SIZE = 40; // Taille de la fenêtre d'affichage
+        let dt; // Notre dataframe global
+
+        async function init() {
+            try {
+                const buffer = await fetch("files/mx2441_grid5_12130_shifts.parquet")
+                                    .then(r => r.arrayBuffer());
+                
+                const table      = readParquet(new Uint8Array(buffer));
+                const ipcBytes   = table.intoIPCStream();
+                const arrowTable = tableFromIPC(ipcBytes);
+                dt = aq.fromArrow(arrowTable);
+
+                const total = dt.numRows();
+                totalRowsEl.innerText = total;
+
+                // Configuration du slider
+                slider.max = Math.max(0, total - WINDOW_SIZE);
+                
+                // Premier affichage
+                render(0);
+
+                // Écouteur d'événement sur le slider
+                slider.addEventListener("input", (e) => {
+                    render(parseInt(e.target.value));
+                });
+
+            } catch (err) {
+                output.innerHTML = "<b style='color:red'>Erreur : " + err.message + "</b>";
+            }
+        }
+
+        function render(start) {
+            const end = Math.min(start + WINDOW_SIZE, dt.numRows());
+            
+            // On slice les données (ultra rapide avec Arquero)
+            const view = dt.slice(start, end);
+            
+            // Mise à jour de l'interface
+            rangeText.innerText = `${start} - ${end}`;
+            output.innerHTML = view.toHTML();
+        }
+
+        init();
+    </script>
+
+</body>
+</html>

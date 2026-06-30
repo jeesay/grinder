@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mol* Local File Viewer</title>
+    
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/molstar@latest/build/viewer/molstar.css" />
+    
+    <style>
+        /* CSS resets and layout styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #111;
+            color: #fff;
+        }
+
+        #container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Sidebar UI */
+        #sidebar {
+            width: 320px;
+            background: #191919;
+            border-right: 1px solid #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f0f0f0;
+        }
+
+        p {
+            font-size: 0.85rem;
+            color: #aaa;
+            line-height: 1.4;
+        }
+
+        .upload-zone {
+            background: #222;
+            border: 2px dashed #444;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .upload-zone label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #007acc;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            font-size: 0.75rem;
+            color: #ccc;
+        }
+
+        .btn {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #0062a3;
+        }
+
+        /* The canvas zone where Mol* will inject its UI and WebGL layer */
+        #viewer-container {
+            flex-grow: 1;
+            position: relative;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <div id="sidebar">
+            <h1>Mol* File Viewer</h1>
+            <p>Upload a local structure or map file to render it using the Mol* WebGL engine.</p>
+            
+            <div class="upload-zone">
+                <label for="file-input">Choose Molecule / Map file</label>
+                <input type="file" id="file-input" accept=".pdb,.cif,.mmcif,.ccp4,.map,.mrc" />
+            </div>
+
+            <button class="btn" id="toggle-controls">Toggle Mol* UI Panels</button>
+            <p style="margin-top: auto; font-size: 0.75rem;">Supported formats: PDB, mmCIF, CCP4, MRC, MAP.</p>
+        </div>
+
+        <div id="viewer-container"></div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/molstar@latest/build/viewer/molstar.js"></script>
+
+    <script type="text/javascript">
+    let viewerInstance = null;
+    let showFullUI = false;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        
+        // 1. Instantiate the Mol* Viewer wrapper app empty
+        molstar.Viewer.create('viewer-container', {
+            layoutIsExpanded: false,
+            layoutShowControls: showFullUI, 
+            layoutShowRemoteState: false,
+            layoutShowSequence: true,
+            layoutShowLog: false,
+            layoutShowLeftPanel: showFullUI,
+            viewportShowExpand: true,
+            viewportShowSelectionMode: false,
+            viewportShowAnimation: false,
+        }).then(viewer => {
+            viewerInstance = viewer;
+        }).catch(err => {
+            console.error("Failed to initialize Mol* Viewer:", err);
+        });
+
+        // 2. Handle Local File Upload
+        document.getElementById('file-input').addEventListener('change', async function(e) {
+            if (!viewerInstance || !e.target.files.length) return;
+            
+            const file = e.target.files[0];
+            const extension = file.name.split('.').pop().toLowerCase();
+            const plugin = viewerInstance.plugin;
+            
+            // Clear current viewer session to make room for the new file
+            plugin.clear();
+
+            try {
+                if (['pdb', 'cif', 'mmcif'].includes(extension)) {
+                    // Coordinates work seamlessly out of the box with the standard wrapper
+                    await viewerInstance.loadStructureFromData(file, extension);
+                } 
+                else if (['ccp4', 'map', 'mrc'].includes(extension)) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const rawData = new Uint8Array(arrayBuffer);
+
+                    // 3. Register the binary data as a structural asset node
+                    const dataNode = await plugin.builders.data.rawData({ 
+                        data: rawData, 
+                        label: file.name 
+                    });
+
+                    // 4. Safely query the central format registry for the CCP4 data provider
+                    const ccp4Provider = plugin.dataFormats.get('ccp4');
+                    if (!ccp4Provider) {
+                        throw new Error("CCP4 format provider not registered in this Mol* instance.");
+                    }
+
+                    // 5. Parse the binary data node using the native provider format rules
+                    const parsedData = await ccp4Provider.parse(plugin, dataNode);
+
+                    // 6. Generate the visual isosurface mesh using the official volume builder
+                    // This applies the necessary GPU protection parameters directly
+                    await plugin.builders.volume.createVolumeRepresentation(
+                        parsedData.volume || parsedData.volumes[0] || parsedData, 
+                        {
+                            type: 'isosurface',
+                            typeParams: { 
+                                maxVoxels: 250000, // Downsamples dense grids to shield GPU memory
+                                alpha: 0.4 
+                            }
+                        }
+                    );
+                    
+                    // Request the WebGL camera to automatically focus and re-center on the canvas
+                    setTimeout(() => {
+                        plugin.managers.camera.reset();
+                    }, 200);
+                } 
+                else {
+                    alert("Unsupported file format.");
+                }
+            } catch (err) {
+                console.error("Error loading file into Mol*:", err);
+                alert("Failed to parse file. Check console for details.");
+            }
+        });
+
+        // Interactive UI toggle event handler
+        document.getElementById('toggle-controls').addEventListener('click', () => {
+            if (!viewerInstance) return;
+            showFullUI = !showFullUI;
+            
+            viewerInstance.plugin.layout.setProps({
+                showControls: showFullUI,
+                showLeftPanel: showFullUI
+            });
+        });
+    });
+</script>
+</body>
+</html>

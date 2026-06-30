@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mol* — minimal viewer</title>
+
+  <!-- mol* viewer bundle (no React peer dep needed for the prebuilt bundle) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/molstar@4.14.0/build/viewer/molstar.css" />
+  <script src="https://cdn.jsdelivr.net/npm/molstar@4.14.0/build/viewer/molstar.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f1117;
+      --surface:   #1a1d27;
+      --border:    rgba(255,255,255,0.08);
+      --accent:    #5a9cf8;
+      --accent-dim:#2a4a80;
+      --text:      #e4e8f0;
+      --muted:     #6b7280;
+      --radius:    8px;
+      --font:      'Inter', system-ui, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── layout ─────────────────────────────────────────────── */
+    #app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+    }
+
+    /* ── topbar ─────────────────────────────────────────────── */
+    #topbar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0 1.25rem;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    #topbar .logo {
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    #topbar .logo span { color: var(--accent); }
+
+    #topbar .sep {
+      width: 1px;
+      height: 20px;
+      background: var(--border);
+    }
+
+    /* file button */
+    #load-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px;
+      height: 32px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    #load-btn:hover { background: var(--accent); color: #fff; }
+    #load-btn svg { flex-shrink: 0; }
+
+    /* format hint */
+    #format-hint {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* spacer */
+    .flex-spacer { flex: 1; }
+
+    /* panel toggles */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .toggle-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-right: 2px;
+    }
+    .tog {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 10px;
+      height: 28px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-family: var(--font);
+      font-size: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .tog:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
+    .tog.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(90,156,248,0.08);
+    }
+
+    /* ── viewer container ───────────────────────────────────── */
+    #viewer-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    #molstar-container {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── drop overlay ───────────────────────────────────────── */
+    #drop-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background: var(--bg);
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 10;
+    }
+    #drop-overlay.hidden { opacity: 0; pointer-events: none; }
+
+    #drop-overlay .drop-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #drop-overlay h2 {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    #drop-overlay p {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+    #drop-overlay .formats {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #drop-overlay .fmt {
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+    }
+
+    /* drag-active state */
+    #viewer-wrap.drag-over #drop-overlay {
+      background: rgba(90,156,248,0.06);
+      border: 2px dashed var(--accent);
+    }
+
+    /* ── hide mol* chrome we don't want ────────────────────── */
+    /* sequence panel */
+    .msp-sequence { display: none !important; }
+    /* left control panel (toggle & animation strip) */
+    .msp-controls-panel { display: none !important; }
+    /* default tool icon strip on the left */
+    .msp-viewport-controls { display: none !important; }
+    /* bottom status bar */
+    .msp-log { display: none !important; }
+    /* right-side task queue */
+    .msp-task-state { display: none !important; }
+    /* outer wrapper branding / expand button */
+    .msp-plugin-content > .msp-layout-expanded-controls { display: none !important; }
+
+    /* panels that can be toggled — hidden by default */
+    .panel-state { display: none !important; }
+    .panel-state.visible { display: block !important; }
+
+    /* the inner structure/left panel */
+    .msp-left-panel  { display: none !important; }
+    .msp-left-panel.visible { display: flex !important; }
+
+    /* right panel */
+    .msp-right-panel { display: none !important; }
+    .msp-right-panel.visible { display: flex !important; }
+
+    /* ensure canvas fills the space */
+    .msp-plugin-content { height: 100% !important; }
+    .msp-canvas-controls { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- topbar -->
+  <div id="topbar">
+    <div class="logo">mol<span>*</span> viewer</div>
+    <div class="sep"></div>
+
+    <!-- file load -->
+    <button id="load-btn" onclick="document.getElementById('file-input').click()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Open structure
+    </button>
+    <input id="file-input" type="file" accept=".pdb,.cif,.mmcif,.bcif,.sdf,.mol2,.xyz,.gro,.ccp4,.mrc,.dsn6,.cube,.dx" style="display:none" />
+
+    <span id="format-hint">PDB · mmCIF · SDF · MOL2 · XYZ · GRO · CCP4/MRC</span>
+
+    <div class="flex-spacer"></div>
+
+    <!-- panel toggles -->
+    <div class="toggle-group">
+      <span class="toggle-label">panels</span>
+      <button class="tog" id="tog-left" title="Structure tree / components">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="18"/><path d="M14 3h7M14 9h7M14 15h7M14 21h7"/></svg>
+        tree
+      </button>
+      <button class="tog" id="tog-right" title="Properties / measurements">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="14" y="3" width="7" height="18"/><path d="M3 3h7M3 9h7M3 15h7M3 21h7"/></svg>
+        props
+      </button>
+      <button class="tog" id="tog-seq" title="Sequence viewer">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        seq
+      </button>
+    </div>
+  </div>
+
+  <!-- viewer -->
+  <div id="viewer-wrap">
+    <div id="molstar-container"></div>
+
+    <!-- drop / empty state overlay -->
+    <div id="drop-overlay">
+      <div class="drop-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5a9cf8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="12" y1="12" x2="12" y2="18"/>
+          <line x1="9" y1="15" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <h2>Drop a structure file</h2>
+      <p>or click <strong style="color:#e4e8f0">Open structure</strong> above</p>
+      <div class="formats">
+        <span class="fmt">.pdb</span>
+        <span class="fmt">.cif</span>
+        <span class="fmt">.mmcif</span>
+        <span class="fmt">.bcif</span>
+        <span class="fmt">.sdf</span>
+        <span class="fmt">.mol2</span>
+        <span class="fmt">.xyz</span>
+        <span class="fmt">.gro</span>
+        <span class="fmt">.ccp4</span>
+        <span class="fmt">.mrc</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(async () => {
+  const wrap       = document.getElementById('viewer-wrap');
+  const overlay    = document.getElementById('drop-overlay');
+  const fileInput  = document.getElementById('file-input');
+  const togLeft    = document.getElementById('tog-left');
+  const togRight   = document.getElementById('tog-right');
+  const togSeq     = document.getElementById('tog-seq');
+
+  // ── init mol* ───────────────────────────────────────────────
+  const { Viewer } = molstar;
+
+  const viewer = await Viewer.create('molstar-container', {
+    layoutIsExpanded: false,
+    layoutShowControls: false,
+    layoutShowRemoteState: false,
+    layoutShowSequence: true,
+    layoutShowLog: false,
+    layoutShowLeftPanel: false,
+    viewportShowExpand: true,
+    viewportShowSelectionMode: false,
+    viewportShowAnimation: false,
+    collapseRightPanel: true,
+    collapseLeftPanel: true,
+    pdbProvider: 'rcsb',
+    emdbProvider: 'rcsb',
+  });
+
+  // ── helpers ─────────────────────────────────────────────────
+  function hideOverlay() {
+    overlay.classList.add('hidden');
+  }
+
+  function extensionFor(filename) {
+    return filename.split('.').pop().toLowerCase();
+  }
+
+  const formatMap = {
+    pdb: 'pdb', ent: 'pdb',
+    cif: 'mmcif', mmcif: 'mmcif', bcif: 'mmcif',
+    sdf: 'sdf', mol: 'sdf',
+    mol2: 'mol2',
+    xyz: 'xyz',
+    gro: 'gro',
+    ccp4: 'ccp4', mrc: 'ccp4', map: 'ccp4',
+    dsn6: 'dsn6',
+    cube: 'cube',
+    dx: 'dx',
+  };
+
+  async function loadFile(file) {
+    const ext = extensionFor(file.name);
+    const format = formatMap[ext] || 'pdb';
+    const url = URL.createObjectURL(file);
+    try {
+      await viewer.loadStructureFromUrl(url, format, false);
+      hideOverlay();
+    } catch (e) {
+      console.error('Load error:', e);
+      alert(`Could not load "${file.name}".\n\nCheck the console for details.`);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  // ── file input ───────────────────────────────────────────────
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) loadFile(file);
+    fileInput.value = '';
+  });
+
+  // ── drag & drop ──────────────────────────────────────────────
+  wrap.addEventListener('dragover', e => {
+    e.preventDefault();
+    wrap.classList.add('drag-over');
+    overlay.classList.remove('hidden');
+  });
+  wrap.addEventListener('dragleave', e => {
+    if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('drag-over');
+  });
+  wrap.addEventListener('drop', e => {
+    e.preventDefault();
+    wrap.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  });
+
+  // ── panel toggles ────────────────────────────────────────────
+  function afterLayoutChange() {
+    // give mol* a tick to inject DOM before we query it
+    setTimeout(applyPanelState, 120);
+  }
+
+  function applyPanelState() {
+    const left  = document.querySelector('.msp-left-panel');
+    const right = document.querySelector('.msp-right-panel');
+    const seq   = document.querySelector('.msp-sequence');
+    if (left)  left.classList.toggle('visible',  togLeft.classList.contains('active'));
+    if (right) right.classList.toggle('visible', togRight.classList.contains('active'));
+    if (seq)   seq.classList.toggle('visible',   togSeq.classList.contains('active'));
+  }
+
+  function bindToggle(btn, apply) {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      apply();
+    });
+  }
+
+  bindToggle(togLeft,  afterLayoutChange);
+  bindToggle(togRight, afterLayoutChange);
+  bindToggle(togSeq,   afterLayoutChange);
+
+  // run once to ensure hidden classes are set after mol* boot
+  afterLayoutChange();
+})();
+</script>
+</body>
+</html>

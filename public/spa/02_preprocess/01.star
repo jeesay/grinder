@@ -273,7 +273,5 @@ _micrograph.size
 _micrograph.data
 _micrograph.help
 grid_mics                      ?       grid        ?       (2,2)   ?   ?     
-grid_mics::micrograph_table    ?       g_table     (0,0)   (1,1)   corrected_micrographs.star?micrographs[rlnMicrographName,rlnOpticsGroup,rlnAccumMotionTotal,rlnAccumMotionEarly,rlnAccumMotionLate]   ?       
-# grid::shifts              ?       g_shift     (0,1)   (1,1)   ?    hide     ?
-# grid::image               ?       g_img       (1,1)   (1,1)   ?    hide     ?    
+grid_mics::mics_table    ?       g_table     (0,0)   (1,1)   corrected_micrographs.star?micrographs[rlnMicrographName,rlnOpticsGroup,rlnAccumMotionTotal,rlnAccumMotionEarly,rlnAccumMotionLate]   ?       
 #

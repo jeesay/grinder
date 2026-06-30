@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        :root { --primary: #2c3e50; --success: #56b494; --danger: #e15759; --bg: #f0f2f5; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); height: 100vh; overflow: hidden; }
+        
+        /* Structure */
+        .app-shell { display: grid; grid-template-columns: 220px 1fr 280px; height: 100vh; }
+        .job-sidebar { background: var(--primary); color: white; padding: 20px 0; }
+        .main-workspace { padding: 20px; overflow-y: auto; }
+        .settings-panel { background: white; border-left: 1px solid #ddd; padding: 20px; }
+
+        /* Grille de cartes */
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 450px 450px; gap: 20px; }
+        .chart-card { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .chart-header { background: #f8f9fa; padding: 12px 15px; font-weight: bold; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Zone Graphique */
+        .chart-body { flex: 1; display: flex; flex-direction: column; padding: 10px; min-height: 0; }
+        #main-chart { flex: 1; width: 100%; position: relative; }
+
+        /* Contrôles bas de carte */
+        .chart-controls { padding: 15px; border-top: 1px solid #eee; background: #fcfcfc; display: flex; align-items: center; gap: 20px; }
+        .slider-box { flex: 1; display: flex; align-items: center; gap: 10px; }
+        input[type=range] { flex: 1; cursor: pointer; }
+        .mini-stats { font-size: 0.9em; display: flex; gap: 15px; font-weight: bold; }
+        
+        /* Tooltip */
+        #tooltip {
+            position: absolute; opacity: 0; background: rgba(0,0,0,0.8); color: white;
+            padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; z-index: 1000;
+        }
+
+        .badge { background: var(--primary); color: white; padding: 3px 10px; border-radius: 10px; font-size: 0.8em; }
+        .bar { transition: fill 0.2s; cursor: crosshair; }
+    </style>
+</head>
+<body>
+
+<div id="tooltip"></div>
+
+<div class="app-shell">
+    <aside class="job-sidebar">
+        <div style="padding: 0 20px 20px; border-bottom: 1px solid #444;"><strong>GRINDER</strong></div>
+        <ul style="list-style: none; padding: 20px 0;">
+            <li style="padding: 12px 20px; background: #34495e; border-left: 4px solid #1abc9c; cursor: pointer;">IO</li>
+            <li style="padding: 12px 20px; background: #34495e; border-left: 4px solid #1abc9c; cursor: pointer;">Settings</li>
+            <li id="btn-table" style="padding: 12px 20px; background: #34495e; border-left: 4px solid #1abc9c; cursor: pointer;">Log</li>
+            <li id="btn-dataviz" style="padding: 12px 20px; background: #34495e; border-left: 4px solid #1abc9c; cursor: pointer;">DataViz</li>
+        </ul>
+    </aside>
+
+    <main class="main-workspace">
+        <div id="dataviz-dashboard" class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <span>Motion Distribution</span>
+                    <span class="badge" id="lbl-threshold-display">30 Å</span>
+                </div>
+                <div class="chart-body">
+                    <div id="main-chart"></div>
+                    <div class="chart-controls">
+                        <div class="slider-box">
+                            <label>Seuil:</label>
+                            <input type="range" id="threshold-slider" min="1" max="150" value="30">
+                        </div>
+                        <div class="mini-stats">
+                            <span style="color:var(--success)">Keep: <span id="count-keep">0</span></span>
+                            <span style="color:var(--danger)">Reject: <span id="count-reject">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card"><div class="chart-header">Data Table</div></div>
+            <div class="chart-card"><div class="chart-header">Defocus</div></div>
+            <div class="chart-card"><div class="chart-header">Quality Log</div></div>
+        </div>
+    </main>
+
+    <aside class="settings-panel">
+        <h3>Projet Info</h3>
+        <p>Futurement la liste des jobs</p>
+    </aside>
+</div>
+
+<script>
+    // --- VARIABLES GLOBALES ---
+    let allData = [];
+    let currentThreshold = 30;
+    let x, y, bars, line, chartH;
+
+    // --- INITIALISATION ---
+    document.getElementById('btn-dataviz').addEventListener('click', () => {
+        if (allData.length === 0) loadAndRenderGraphics();
+        else renderChart();
+    });
+
+    document.getElementById('btn-table').addEventListener('click', () => {
+        if (allData.length === 0) loadAndRenderTable();
+        else renderChart();
+    });
+
+    // Écouteur du Slider
+    document.getElementById('threshold-slider').addEventListener('input', function() {
+        updateVisuals(+this.value);
+    });
+
+    async function loadAndRenderGraphics(type, cols) {
+        try {
+            // Remplace par le nom exact de ton fichier JSON
+            const root = await d3.json("corrected_micrograph.json");
+
+            if (type === "graphics") {
+                allData = root.data_micrographs.map(d => ({
+                    name: d["_rlnMicrographName #2"]
+                        ? d["_rlnMicrographName #2"].split("/").pop()
+                        : "Unknown",
+                    motion: +d["_rlnAccumMotionTotal #5"] || 0
+                }));
+                renderChart();
+
+            } else if (type === "table") {
+                allData = cols.map(col => ({
+                    name: col,
+                    data: root.data_micrographs.map(d => +d[col] || 0)
+                }));
+            }
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function renderChart() {
+        const container = d3.select("#main-chart");
+        container.selectAll("*").remove(); // Nettoyage important
+
+        const width = container.node().clientWidth;
+        const height = container.node().clientHeight || 350;
+        const margin = {top: 20, right: 20, bottom: 40, left: 50};
+
+        const chartW = width - margin.left - margin.right;
+        chartH = height - margin.top - margin.bottom;
+
+        const svg = container.append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // 1. Échelles
+        x = d3.scaleLinear().domain([0, 150]).range([0, chartW]);
+        const histogram = d3.bin().domain(x.domain()).thresholds(x.ticks(50));
+        const bins = histogram(allData.map(d => d.motion));
+        y = d3.scaleLinear().domain([0, d3.max(bins, d => d.length)]).nice().range([chartH, 0]);
+
+        // 2. Axes
+        svg.append("g").attr("transform", `translate(0,${chartH})`).call(d3.axisBottom(x));
+        svg.append("g").call(d3.axisLeft(y));
+
+        // 3. Tooltip
+        const tip = d3.select("#tooltip");
+
+        // 4. Barres
+        bars = svg.selectAll(".bar")
+            .data(bins)
+            .enter().append("rect")
+            .attr("class", "bar")
+            .attr("x", d => x(d.x0) + 1)
+            .attr("y", d => y(d.length))
+            .attr("width", d => Math.max(0, x(d.x1) - x(d.x0) - 1))
+            .attr("height", d => chartH - y(d.length))
+            .attr("fill", d => d.x0 < currentThreshold ? "#56b494" : "#e15759")
+            .on("mouseover", (event, d) => {
+                tip.style("opacity", 1).html(`Motion: ${d.x0.toFixed(1)}Å<br>Count: ${d.length}`);
+            })
+            .on("mousemove", (event) => {
+                tip.style("left", (event.pageX + 15) + "px").style("top", (event.pageY - 40) + "px");
+            })
+            .on("mouseleave", () => tip.style("opacity", 0));
+
+        // 5. Ligne de Seuil
+        line = svg.append("line")
+            .attr("x1", x(currentThreshold)).attr("x2", x(currentThreshold))
+            .attr("y1", 0).attr("y2", chartH)
+            .attr("stroke", "#333").attr("stroke-width", 2).attr("stroke-dasharray", "4");
+
+        updateVisuals(currentThreshold);
+    }
+
+    function updateVisuals(val) {
+        if (!x || !line) return;
+        currentThreshold = val;
+        
+        // Update UI
+        document.getElementById('lbl-threshold-display').innerText = val + " Å";
+        line.attr("x1", x(val)).attr("x2", x(val));
+        bars.attr("fill", d => d.x0 < val ? "#56b494" : "#e15759");
+
+        const keepCount = allData.filter(d => d.motion <= val).length;
+        document.getElementById('count-keep').innerText = keepCount;
+        document.getElementById('count-reject').innerText = allData.length - keepCount;
+    }
+</script>
+</body>
+</html>
